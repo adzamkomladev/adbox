@@ -8,11 +8,12 @@ import type { RedisClientOptions } from 'redis';
 import * as redisStore from 'cache-manager-redis-store';
 
 import appConfig from '../configs/app.config';
+import dbConfig from '../configs/db.config';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
-      load: [appConfig],
+      load: [appConfig, dbConfig],
       isGlobal: true,
     }),
     ScheduleModule.forRoot(),
