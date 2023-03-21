@@ -7,6 +7,7 @@ import { User } from './entities/user.entity';
 
 import { UpdateUserDto } from './dto/update-user.dto';
 import { CreateUserDto } from './dto/create-user.dto';
+import { CredentialsDto } from './dto/credentials.dto';
 
 @Injectable()
 export class UsersService {
@@ -26,7 +27,7 @@ export class UsersService {
     return this.usersRepository.findOneOrFail(id);
   }
 
-  async findByCredentials({ email, password }) {
+  async findByCredentials({ email, password }: CredentialsDto) {
     const user = await this.usersRepository.findOne({ email });
 
     if (!user) {
