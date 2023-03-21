@@ -2,7 +2,6 @@ import { registerAs } from '@nestjs/config';
 
 export default registerAs('db', () => ({
   type: process.env.DB_TYPE || 'postgresql',
-  ensureIndexes: true,
   autoLoadEntities: true,
   dbName: process.env.DB_NAME,
   user: process.env.DB_USER,
