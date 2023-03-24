@@ -15,6 +15,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { SetRoleDto } from './dto/set-role.dto';
 
 import { UsersService } from './users.service';
+import {SetExtraDetailsDto} from "./dto/set-extra-details.dto";
 
 @Controller('users')
 export class UsersController {
@@ -40,6 +41,20 @@ export class UsersController {
   setRole(@Param('id') id: string, @Body() setRoleDto: SetRoleDto) {
     try {
       return this.usersService.setRole(id, setRoleDto);
+    } catch (e) {
+      if (e instanceof HttpException) {
+        throw e;
+      }
+
+      throw new BadRequestException(e.message);
+    }
+  }
+
+  @Auth()
+  @Patch(':id/extra-details')
+  setExtraDetails(@Param('id') id: string, @Body() setExtraDetailsDto: SetExtraDetailsDto) {
+    try {
+      return this.usersService.setExtraDetails(id, setExtraDetailsDto);
     } catch (e) {
       if (e instanceof HttpException) {
         throw e;
