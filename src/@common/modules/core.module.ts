@@ -23,8 +23,7 @@ import authConfig from '../configs/auth.config';
       useFactory: async (config: ConfigService) =>
         ({
           store: redisStore,
-          host: config.get('redis.host'),
-          port: config.get<number>('redis.port'),
+          url: config.get('redis.url'),
         } as RedisClientOptions),
       inject: [ConfigService],
     }),

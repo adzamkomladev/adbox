@@ -1,7 +1,20 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { UsersService } from './users.service';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  HttpException,
+  BadRequestException,
+} from '@nestjs/common';
+
+import { Auth } from '../auth/decorators/auth.decorator';
+
 import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { SetRoleDto } from './dto/set-role.dto';
+
+import { UsersService } from './users.service';
 
 @Controller('users')
 export class UsersController {
@@ -22,13 +35,17 @@ export class UsersController {
     return this.usersService.findOne(id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(+id, updateUserDto);
-  }
+  @Auth()
+  @Patch(':id/role')
+  setRole(@Param('id') id: string, @Body() setRoleDto: SetRoleDto) {
+    try {
+      return this.usersService.setRole(id, setRoleDto);
+    } catch (e) {
+      if (e instanceof HttpException) {
+        throw e;
+      }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.usersService.remove(+id);
+      throw new BadRequestException(e.message);
+    }
   }
 }

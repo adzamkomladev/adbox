@@ -1,13 +1,13 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 
-import { EntityRepository } from '@mikro-orm/core';
+import { EntityRepository, wrap } from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';
 
 import { User } from './entities/user.entity';
 
-import { UpdateUserDto } from './dto/update-user.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { CredentialsDto } from './dto/credentials.dto';
+import { SetRoleDto } from './dto/set-role.dto';
 
 @Injectable()
 export class UsersService {
@@ -25,7 +25,7 @@ export class UsersService {
     return `This action returns all users`;
   }
 
-  findOne(id: string) {
+  findOne(id: string): Promise<User> {
     return this.usersRepository.findOneOrFail(id);
   }
 
@@ -47,11 +47,12 @@ export class UsersService {
     }
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
-  }
+  async setRole(id: string, { role }: SetRoleDto): Promise<User> {
+    const user = this.usersRepository.findOneOrFail(id);
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+    await wrap(user).assign({ role });
+    await this.usersRepository.persistAndFlush(user);
+
+    return user;
   }
 }
