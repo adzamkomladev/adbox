@@ -5,15 +5,14 @@ import {
   Get,
   HttpException,
   Post,
-  UseGuards,
 } from '@nestjs/common';
+
+import { User } from './decorators/user.decorator';
+import { Auth } from './decorators/auth.decorator';
 
 import { AuthenticateDto } from './dto/authenticate.dto';
 
 import { AuthService } from './auth.service';
-import { JwtGuard } from './guards/jwt.guard';
-import { User } from './decorators/user.decorator';
-import { Auth } from './decorators/auth.decorator';
 
 @Controller('auth')
 export class AuthController {
