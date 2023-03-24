@@ -1,6 +1,7 @@
 import { BeforeCreate, Entity, Enum, Property } from '@mikro-orm/core';
 
 import * as bcrypt from 'bcrypt';
+import { Exclude } from 'class-transformer';
 
 import { Status } from '../../@common/enums/status.enum';
 import { Role } from '../../@common/enums/role.enum';
@@ -20,6 +21,7 @@ export class User extends BaseEntity {
   email!: string;
 
   @Property({ nullable: true, hidden: true })
+  @Exclude()
   password?: string;
 
   @Property({ nullable: true })

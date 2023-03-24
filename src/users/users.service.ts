@@ -3,6 +3,8 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { EntityRepository, wrap } from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';
 
+import { Status } from '../@common/enums/status.enum';
+
 import { User } from './entities/user.entity';
 
 import { CreateUserDto } from './dto/create-user.dto';
@@ -63,7 +65,7 @@ export class UsersService {
   ): Promise<User> {
     const user = this.usersRepository.findOneOrFail(id);
 
-    await wrap(user).assign({ dateOfBirth, country });
+    await wrap(user).assign({ dateOfBirth, country, status: Status.ACTIVE });
     await this.usersRepository.persistAndFlush(user);
 
     return user;

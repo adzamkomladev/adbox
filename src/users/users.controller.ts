@@ -8,15 +8,17 @@ import {
   HttpException,
   BadRequestException,
 } from '@nestjs/common';
+import { ApiBadRequestResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 
 import { Auth } from '../auth/decorators/auth.decorator';
 
 import { CreateUserDto } from './dto/create-user.dto';
 import { SetRoleDto } from './dto/set-role.dto';
+import { SetExtraDetailsDto } from './dto/set-extra-details.dto';
 
 import { UsersService } from './users.service';
-import {SetExtraDetailsDto} from "./dto/set-extra-details.dto";
 
+@ApiTags('users')
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
@@ -38,6 +40,8 @@ export class UsersController {
 
   @Auth()
   @Patch(':id/role')
+  @ApiOkResponse()
+  @ApiBadRequestResponse()
   setRole(@Param('id') id: string, @Body() setRoleDto: SetRoleDto) {
     try {
       return this.usersService.setRole(id, setRoleDto);
@@ -52,7 +56,12 @@ export class UsersController {
 
   @Auth()
   @Patch(':id/extra-details')
-  setExtraDetails(@Param('id') id: string, @Body() setExtraDetailsDto: SetExtraDetailsDto) {
+  @ApiOkResponse()
+  @ApiBadRequestResponse()
+  setExtraDetails(
+    @Param('id') id: string,
+    @Body() setExtraDetailsDto: SetExtraDetailsDto,
+  ) {
     try {
       return this.usersService.setExtraDetails(id, setExtraDetailsDto);
     } catch (e) {
