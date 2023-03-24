@@ -15,8 +15,10 @@ export class UsersService {
     @InjectRepository(User)
     private readonly usersRepository: EntityRepository<User>,
   ) {}
-  create(createUserDto: CreateUserDto) {
-    return 'This action adds a new user';
+  async create(createUserDto: CreateUserDto) {
+    const user = this.usersRepository.create(createUserDto);
+    await this.usersRepository.persistAndFlush(user);
+    return user;
   }
 
   findAll() {
@@ -25,6 +27,10 @@ export class UsersService {
 
   findOne(id: string) {
     return this.usersRepository.findOneOrFail(id);
+  }
+
+  async findByEmail(email: string) {
+    return this.usersRepository.findOne({ email });
   }
 
   async findByCredentials({ email, password }: CredentialsDto) {
