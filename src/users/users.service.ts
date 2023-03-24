@@ -8,6 +8,7 @@ import { User } from './entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { CredentialsDto } from './dto/credentials.dto';
 import { SetRoleDto } from './dto/set-role.dto';
+import { SetExtraDetailsDto } from './dto/set-extra-details.dto';
 
 @Injectable()
 export class UsersService {
@@ -51,6 +52,18 @@ export class UsersService {
     const user = this.usersRepository.findOneOrFail(id);
 
     await wrap(user).assign({ role });
+    await this.usersRepository.persistAndFlush(user);
+
+    return user;
+  }
+
+  async setExtraDetails(
+    id: string,
+    { dateOfBirth, country }: SetExtraDetailsDto,
+  ): Promise<User> {
+    const user = this.usersRepository.findOneOrFail(id);
+
+    await wrap(user).assign({ dateOfBirth, country });
     await this.usersRepository.persistAndFlush(user);
 
     return user;
