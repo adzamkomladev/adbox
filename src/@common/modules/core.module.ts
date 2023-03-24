@@ -9,11 +9,13 @@ import * as redisStore from 'cache-manager-redis-store';
 
 import appConfig from '../configs/app.config';
 import dbConfig from '../configs/db.config';
+import redisConfig from '../configs/redis.config';
+import authConfig from '../configs/auth.config';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
-      load: [appConfig, dbConfig],
+      load: [appConfig, dbConfig, redisConfig, authConfig],
       isGlobal: true,
     }),
     ScheduleModule.forRoot(),

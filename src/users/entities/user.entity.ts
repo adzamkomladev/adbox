@@ -3,7 +3,7 @@ import { BeforeCreate, Entity, Enum, Property } from '@mikro-orm/core';
 import * as bcrypt from 'bcrypt';
 
 import { Status } from '../../@common/enums/status.enum';
-import { Role } from '../enums/role.enum';
+import { Role } from '../../@common/enums/role.enum';
 import { Sex } from '../enums/sex.enum';
 
 import { BaseEntity } from '../../@common/entities/base.entity';
