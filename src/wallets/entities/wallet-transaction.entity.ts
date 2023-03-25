@@ -8,7 +8,7 @@ import { Wallet } from './wallet.entity';
 
 @Entity()
 export class WalletTransaction extends BaseEntity {
-  @ManyToOne()
+  @ManyToOne({ entity: () => Wallet }) // or use options object
   wallet!: Wallet;
 
   @Property()

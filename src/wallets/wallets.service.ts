@@ -1,15 +1,36 @@
 import { Injectable } from '@nestjs/common';
-import { CreateWalletDto } from './dto/create-wallet.dto';
-import { UpdateWalletDto } from './dto/update-wallet.dto';
+
 import { EntityRepository } from '@mikro-orm/core';
+import { InjectRepository } from '@mikro-orm/nestjs';
+
+import {Status} from "../@common/enums/status.enum";
+
 import { Wallet } from './entities/wallet.entity';
+
+import { CreateWalletDto } from './dto/create-wallet.dto';
 import { FindWalletBalanceDto } from './dto/find-wallet-balance.dto';
+
+import { UsersService } from '../users/users.service';
 
 @Injectable()
 export class WalletsService {
-  constructor(private readonly walletRepository: EntityRepository<Wallet>) {}
-  create(createWalletDto: CreateWalletDto) {
-    return 'This action adds a new wallet';
+  constructor(
+    @InjectRepository(Wallet)
+    private readonly walletRepository: EntityRepository<Wallet>,
+    private readonly usersService: UsersService,
+  ) {}
+  async create({ userId }: CreateWalletDto) {
+    const user = await this.usersService.findOne(userId);
+
+    const wallet = this.walletRepository.create({
+        user,
+        balance: 0,
+        status: Status.ACTIVE,
+    });
+
+    await this.walletRepository.persistAndFlush(wallet);
+
+    return wallet;
   }
 
   findAll() {
@@ -18,10 +39,6 @@ export class WalletsService {
 
   findOne(id: number) {
     return `This action returns a #${id} wallet`;
-  }
-
-  update(id: number, updateWalletDto: UpdateWalletDto) {
-    return `This action updates a #${id} wallet`;
   }
 
   remove(id: number) {
