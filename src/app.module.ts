@@ -8,9 +8,10 @@ import { AuthModule } from './auth/auth.module';
 import { AppService } from './app.service';
 
 import { AppController } from './app.controller';
+import { WalletsModule } from './wallets/wallets.module';
 
 @Module({
-  imports: [CoreModule, DbModule, UsersModule, AuthModule],
+  imports: [CoreModule, DbModule, UsersModule, AuthModule, WalletsModule],
   controllers: [AppController],
   providers: [AppService],
 })
