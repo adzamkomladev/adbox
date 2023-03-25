@@ -1,4 +1,10 @@
-import { BeforeCreate, Entity, Enum, Property } from '@mikro-orm/core';
+import {
+  BeforeCreate,
+  Entity,
+  Enum,
+  OneToOne,
+  Property,
+} from '@mikro-orm/core';
 
 import * as bcrypt from 'bcrypt';
 import { Exclude } from 'class-transformer';
@@ -8,9 +14,13 @@ import { Role } from '../../@common/enums/role.enum';
 import { Sex } from '../enums/sex.enum';
 
 import { BaseEntity } from '../../@common/entities/base.entity';
+import { Wallet } from '../../wallets/entities/wallet.entity';
 
 @Entity()
 export class User extends BaseEntity {
+  @OneToOne(() => Wallet, (wallet) => wallet.user, { owner: true })
+  wallet!: Wallet;
+
   @Property({ length: 200, index: true })
   name!: string;
 
