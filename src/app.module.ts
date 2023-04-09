@@ -9,9 +9,10 @@ import { AppService } from './app.service';
 
 import { AppController } from './app.controller';
 import { WalletsModule } from './wallets/wallets.module';
+import { PaymentsModule } from './payments/payments.module';
 
 @Module({
-  imports: [CoreModule, DbModule, UsersModule, AuthModule, WalletsModule],
+  imports: [CoreModule, DbModule, UsersModule, AuthModule, WalletsModule, PaymentsModule],
   controllers: [AppController],
   providers: [AppService],
 })

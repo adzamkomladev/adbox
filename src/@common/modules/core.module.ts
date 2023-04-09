@@ -1,5 +1,6 @@
-import { CacheModule, Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { CacheModule } from '@nestjs/cache-manager';
 import { ScheduleModule } from '@nestjs/schedule';
 import { BullModule } from '@nestjs/bull';
 import { EventEmitterModule } from '@nestjs/event-emitter';
@@ -11,11 +12,12 @@ import appConfig from '../configs/app.config';
 import dbConfig from '../configs/db.config';
 import redisConfig from '../configs/redis.config';
 import authConfig from '../configs/auth.config';
+import zeepayConfig from '../configs/zeepay.config';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
-      load: [appConfig, dbConfig, redisConfig, authConfig],
+      load: [appConfig, dbConfig, redisConfig, authConfig, zeepayConfig],
       isGlobal: true,
     }),
     ScheduleModule.forRoot(),
