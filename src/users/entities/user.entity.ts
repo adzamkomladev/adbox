@@ -18,13 +18,16 @@ import { Wallet } from '../../wallets/entities/wallet.entity';
 
 @Entity()
 export class User extends BaseEntity {
-  @OneToOne(() => Wallet, (wallet) => wallet.user, { owner: true })
-  wallet!: Wallet;
+  @OneToOne(() => Wallet, (wallet) => wallet.user, {
+    owner: true,
+    nullable: true,
+  })
+  wallet?: Wallet;
 
   @Property({ length: 200, index: true })
   name!: string;
 
-  @Property()
+  @Property({ columnType: 'text' })
   avatar!: string;
 
   @Property({ length: 100, unique: true })
@@ -34,7 +37,7 @@ export class User extends BaseEntity {
   @Exclude()
   password?: string;
 
-  @Property({ nullable: true })
+  @Property({ columnType: 'date', nullable: true })
   dateOfBirth?: Date;
 
   @Enum({ items: () => Role, nullable: true })
