@@ -1,7 +1,9 @@
 import {
   BeforeCreate,
+  Collection,
   Entity,
   Enum,
+  OneToMany,
   OneToOne,
   Property,
 } from '@mikro-orm/core';
@@ -15,6 +17,8 @@ import { Sex } from '../enums/sex.enum';
 
 import { BaseEntity } from '../../@common/entities/base.entity';
 import { Wallet } from '../../wallets/entities/wallet.entity';
+import { Payment } from '../../payments/entities/payment.entity';
+import { PaymentMethod } from '../../payments/entities/payment-method.entity';
 
 @Entity()
 export class User extends BaseEntity {
@@ -23,6 +27,12 @@ export class User extends BaseEntity {
     nullable: true,
   })
   wallet?: Wallet;
+
+  @OneToMany(() => Payment, (payment) => payment.user)
+  payments = new Collection<Payment>(this);
+
+  @OneToMany(() => PaymentMethod, (paymentMethod) => paymentMethod.user)
+  paymentMethods = new Collection<PaymentMethod>(this);
 
   @Property({ length: 200, index: true })
   name!: string;

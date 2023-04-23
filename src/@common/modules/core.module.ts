@@ -12,12 +12,11 @@ import appConfig from '../configs/app.config';
 import dbConfig from '../configs/db.config';
 import redisConfig from '../configs/redis.config';
 import authConfig from '../configs/auth.config';
-import zeepayConfig from '../configs/zeepay.config';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
-      load: [appConfig, dbConfig, redisConfig, authConfig, zeepayConfig],
+      load: [appConfig, dbConfig, redisConfig, authConfig],
       isGlobal: true,
     }),
     ScheduleModule.forRoot(),
