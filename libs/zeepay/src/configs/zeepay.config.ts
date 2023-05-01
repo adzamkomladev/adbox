@@ -7,6 +7,7 @@ export default registerAs('zeepay', () => ({
   clientSecret: process.env.ZEEPAY_CLIENT_SECRET,
   username: process.env.ZEEPAY_USERNAME,
   password: process.env.ZEEPAY_PASSWORD,
+  callbackUrl: process.env.ZEEPAY_CALLBACK_URL,
 
   endpoints: {
     authenticate: '/oauth/token',
