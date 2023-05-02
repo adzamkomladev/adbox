@@ -9,11 +9,12 @@ import {
 
 import { Status } from '../../@common/enums/status.enum';
 import { Channel } from '../enums/channel.enum';
+import { Activity } from '../../wallets/enums/activity.enum';
 
 import { BaseEntity } from '../../@common/entities/base.entity';
 import { ChannelDetails } from './channel-details.enitty';
 import { WalletTransaction } from '../../wallets/entities/wallet-transaction.entity';
-import {User} from "../../users/entities/user.entity";
+import { User } from '../../users/entities/user.entity';
 
 @Entity()
 export class Payment extends BaseEntity {
@@ -53,4 +54,7 @@ export class Payment extends BaseEntity {
 
   @Enum({ items: () => Status })
   status!: Status;
+
+  @Enum({ items: () => Activity })
+  activity!: Activity;
 }

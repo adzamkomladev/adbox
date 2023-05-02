@@ -12,6 +12,7 @@ import { WalletTransaction } from './entities/wallet-transaction.entity';
 import { WalletsService } from './wallets.service';
 
 import { WalletTopUpsConsumer } from './consumers/wallet-top-ups.consumer';
+import { PaymentCompletedEventListener } from './listeners/payment.completed.listener';
 
 import { WalletsController } from './wallets.controller';
 
@@ -25,6 +26,10 @@ import { WalletsController } from './wallets.controller';
     UsersModule,
   ],
   controllers: [WalletsController],
-  providers: [WalletsService, WalletTopUpsConsumer],
+  providers: [
+    WalletsService,
+    WalletTopUpsConsumer,
+    PaymentCompletedEventListener,
+  ],
 })
 export class WalletsModule {}

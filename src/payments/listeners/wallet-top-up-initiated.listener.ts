@@ -1,23 +1,24 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { OnEvent } from '@nestjs/event-emitter';
+import {Injectable, Logger} from '@nestjs/common';
+import {OnEvent} from '@nestjs/event-emitter';
 
-import { EntityRepository, wrap } from '@mikro-orm/core';
-import { InjectRepository } from '@mikro-orm/nestjs';
+import {EntityRepository, wrap} from '@mikro-orm/core';
+import {InjectRepository} from '@mikro-orm/nestjs';
 
-import { ZeepayService } from '@adbox/zeepay';
+import {ZeepayService} from '@adbox/zeepay';
 
-import { WALLET_TOP_UP_INITIATED } from '../../@common/constants/events.constant';
+import {WALLET_TOP_UP_INITIATED} from '../../@common/constants/events.constant';
 
-import { Status } from '../../@common/enums/status.enum';
+import {Status} from '../../@common/enums/status.enum';
 
-import { Payment } from '../entities/payment.entity';
-import { PaymentMethod } from '../entities/payment-method.entity';
+import {Payment} from '../entities/payment.entity';
+import {PaymentMethod} from '../entities/payment-method.entity';
 
-import { DebitRequest } from '@adbox/zeepay/interfaces/mobile-wallet.interface';
+import {DebitRequest} from '@adbox/zeepay/interfaces/mobile-wallet.interface';
 
-import { WalletTopUpInitiatedEvent } from '../../wallets/events/wallet-top-up-initiated.event';
+import {WalletTopUpInitiatedEvent} from '../../wallets/events/wallet-top-up-initiated.event';
 
-import { UsersService } from '../../users/users.service';
+import {UsersService} from '../../users/users.service';
+import {Activity} from "../../wallets/enums/activity.enum";
 
 @Injectable()
 export class WalletTopUpInitiatedListener {
@@ -67,6 +68,7 @@ export class WalletTopUpInitiatedListener {
       amount,
       reference: 'jdjdkjfkjdf',
       status: Status.INITIATED,
+      activity: Activity.WALLET_TOP_UP,
       channel: paymentMethod.channel,
       channelDetails: {
         network: paymentMethod.network,
