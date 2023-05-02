@@ -13,4 +13,5 @@ export enum Status {
   COMPLETED = 'completed',
   INCOMPLETE = 'incomplete',
   BLOCKED = 'blocked',
+  INITIATED = 'initiated',
 }

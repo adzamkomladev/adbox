@@ -1,0 +1,1 @@
+export const WALLET_TOP_UPS_QUEUE = 'wallet-top-ups';
