@@ -12,6 +12,8 @@
   },
   "moduleNameMapper": {
     "@adbox/zeepay/(.*)": "<rootDir>/../libs/zeepay/src/$1",
-    "@adbox/zeepay": "<rootDir>/../libs/zeepay/src"
+    "@adbox/zeepay": "<rootDir>/../libs/zeepay/src",
+    "@adbox/utils/(.*)": "<rootDir>/../libs/utils/src/$1",
+    "@adbox/utils": "<rootDir>/../libs/utils/src"
   }
 }

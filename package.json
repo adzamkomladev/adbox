@@ -46,6 +46,7 @@
     "cache-manager-redis-store": "^3.0.1",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.0",
+    "google-libphonenumber": "^3.2.32",
     "jwks-rsa": "^3.0.1",
     "nestjs-firebase": "^9.0.0",
     "passport": "^0.6.0",
@@ -107,7 +108,8 @@
       "<rootDir>/libs/"
     ],
     "moduleNameMapper": {
-      "^@adbox/zeepay(|/.*)$": "<rootDir>/libs/zeepay/src/$1"
+      "^@adbox/zeepay(|/.*)$": "<rootDir>/libs/zeepay/src/$1",
+      "^@adbox/utils(|/.*)$": "<rootDir>/libs/utils/src/$1"
     }
   }
 }

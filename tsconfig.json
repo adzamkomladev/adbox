@@ -23,6 +23,12 @@
       ],
       "@adbox/zeepay/*": [
         "libs/zeepay/src/*"
+      ],
+      "@adbox/utils": [
+        "libs/utils/src"
+      ],
+      "@adbox/utils/*": [
+        "libs/utils/src/*"
       ]
     }
   }
