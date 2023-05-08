@@ -46,6 +46,8 @@ jobs:
             eval `ssh-agent`
             ssh-add ~/.ssh/github_id_rsa
             git pull origin main
+            /home/dev/.nvm/versions/node/v18.12.1/bin/npm install
+            /home/dev/.nvm/versions/node/v18.12.1/bin/npx mikro-orm migration:up
             /home/dev/.nvm/versions/node/v18.12.1/bin/npm run build
             sudo supervisorctl start adbox
             sudo supervisorctl status adbox
