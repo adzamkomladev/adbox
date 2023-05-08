@@ -1,0 +1,53 @@
+name: Production CI
+
+on:
+  push:
+    branches: ['main']
+  workflow_dispatch:
+
+env:
+  NODE_VERSION: '18.x' # set this to the node version to use
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: npm install, build, and test
+        run: |
+          npm install
+          npx nx run main-service:build:production
+  deploy:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.PASSWORD }}
+          port: ${{ secrets.PORT }}
+          #         key: ${{ secrets.SSHKEY }}
+          script: |
+            sudo supervisorctl stop adbox
+            cd /home/dev/webapps/adbox
+            eval `ssh-agent`
+            ssh-add ~/.ssh/github_id_rsa
+            git pull origin main
+            /home/dev/.nvm/versions/node/v18.12.1/bin/npm run build
+            sudo supervisorctl start adbox
+            sudo supervisorctl status adbox
+            sudo tail -n 30 /var/log/adbox.out.log
+            echo 'Deployment successful to server!'
