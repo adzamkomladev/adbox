@@ -15,7 +15,7 @@ import { CreateWalletDto } from './dto/create-wallet.dto';
 import { FindWalletBalanceDto } from './dto/find-wallet-balance.dto';
 
 import { UsersService } from '../users/users.service';
-import { TopUpWalletDto } from './dto/top-up-wallet.dto';
+import { FundWalletDto } from './dto/fund-wallet.dto';
 import { WALLET_TOP_UPS_QUEUE } from './constants/queues.constant';
 import { WalletTopUpJobDto } from './dto/wallet-top-up-job.dto';
 
@@ -53,8 +53,8 @@ export class WalletsService {
     );
   }
 
-  async topUpWallet(id: string, topUpWalletDto: TopUpWalletDto) {
-    const jobData: WalletTopUpJobDto = { walletId: id, ...topUpWalletDto };
+  async fundWallet(id: string, userId: string, topUpWalletDto: FundWalletDto) {
+    const jobData: WalletTopUpJobDto = { walletId: id, userId, ...topUpWalletDto };
 
     await this.topUpsQueue.add(jobData);
 
