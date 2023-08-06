@@ -26,7 +26,7 @@ jobs:
       - name: npm install, build, and test
         run: |
           npm install
-          npx nx run main-service:build:production
+          npm run production
   deploy:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
@@ -41,15 +41,17 @@ jobs:
           port: ${{ secrets.PORT }}
           #         key: ${{ secrets.SSHKEY }}
           script: |
-            sudo supervisorctl stop adbox
-            cd /home/dev/webapps/adbox
+            pm2 stop adbox
+            cd /home/webapps/adbox
             eval `ssh-agent`
-            ssh-add ~/.ssh/github_id_rsa
+            ssh-add ~/.ssh/github_id_ed25519
             git pull origin main
-            /home/dev/.nvm/versions/node/v18.12.1/bin/npm install
-            /home/dev/.nvm/versions/node/v18.12.1/bin/npx mikro-orm migration:up
-            /home/dev/.nvm/versions/node/v18.12.1/bin/npm run build
-            sudo supervisorctl start adbox
-            sudo supervisorctl status adbox
-            sudo tail -n 30 /var/log/adbox.out.log
+            export NVM_DIR="$HOME/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+            [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+            npm install
+            npx mikro-orm migration:up
+            npm run build
+            pm2 start adbox --update-env
+            sudo tail -n 30 /home/webapps/.pm2/logs/adbox-out.log
             echo 'Deployment successful to server!'
