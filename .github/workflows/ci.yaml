@@ -42,7 +42,6 @@ jobs:
           port: ${{ secrets.PORT }}
           #         key: ${{ secrets.SSHKEY }}
           script: |
-            pm2 stop adbox
             cd /home/webapps/adbox
             eval `ssh-agent`
             ssh-add ~/.ssh/github_id_ed25519
@@ -50,6 +49,7 @@ jobs:
             export NVM_DIR="$HOME/.nvm"
             [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
             [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+            pm2 stop adbox
             npm install
             npx mikro-orm migration:up
             npm run build
