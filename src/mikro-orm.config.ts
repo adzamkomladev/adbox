@@ -10,5 +10,6 @@ export default {
   debug: true,
   migrations: {
     path: 'src/@common/migrations',
+    disableForeignKeys: false
   },
 };

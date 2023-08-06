@@ -54,5 +54,5 @@ jobs:
             npx mikro-orm migration:up
             npm run build
             pm2 start adbox --update-env
-            sudo tail -n 30 /home/webapps/.pm2/logs/adbox-out.log
+            tail -n 30 /home/webapps/.pm2/logs/adbox-out.log
             echo 'Deployment successful to server!'
