@@ -13,7 +13,7 @@ export class CampaignsService {
 
   create(userId: string, createCampaignDto: CreateCampaignDto) {
 
-    const walletBalance = this.walletsService.walletBalance({userId})
+    // const walletBalance = this.walletsService.walletBalance({userId})
 
     return 'This action adds a new campaign';
   }
