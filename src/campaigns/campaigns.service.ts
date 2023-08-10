@@ -1,15 +1,15 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { CreateCampaignDto } from './dto/create-campaign.dto';
 import { UpdateCampaignDto } from './dto/update-campaign.dto';
-import { WalletsService } from '../wallets/wallets.service';
+// import { WalletsService } from '../wallets/wallets.service';
 
 @Injectable()
 export class CampaignsService {
   private readonly logger: Logger;
 
-  constructor(private readonly walletsService: WalletsService) {
-    this.logger = new Logger(CampaignsService.name);
-  }
+  // constructor(private readonly walletsService: WalletsService) {
+  //   this.logger = new Logger(CampaignsService.name);
+  // }
 
   create(userId: string, createCampaignDto: CreateCampaignDto) {
 
