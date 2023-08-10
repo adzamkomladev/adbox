@@ -2,11 +2,13 @@ import { Module } from '@nestjs/common';
 import { BullModule } from '@nestjs/bull';
 
 import { MikroOrmModule } from '@mikro-orm/nestjs';
+import { BullBoardModule } from '@bull-board/nestjs';
+import { BullAdapter } from '@bull-board/api/bullAdapter';
 
 import { AuthModule } from '../auth/auth.module';
 import { UsersModule } from '../users/users.module';
 
-import {WALLET_TOP_UPS_QUEUE} from "./constants/queues.constant";
+import { WALLET_TOP_UPS_QUEUE } from './constants/queues.constant';
 
 import { Wallet } from './entities/wallet.entity';
 import { WalletTransaction } from './entities/wallet-transaction.entity';
@@ -23,6 +25,10 @@ import { WalletsController } from './wallets.controller';
     MikroOrmModule.forFeature([Wallet, WalletTransaction]),
     BullModule.registerQueue({
       name: WALLET_TOP_UPS_QUEUE,
+    }),
+    BullBoardModule.forFeature({
+      name: WALLET_TOP_UPS_QUEUE,
+      adapter: BullAdapter,
     }),
     AuthModule,
     UsersModule,

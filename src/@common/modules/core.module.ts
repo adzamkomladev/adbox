@@ -7,6 +7,8 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
 
 import type { RedisClientOptions } from 'redis';
 import * as redisStore from 'cache-manager-redis-store';
+import { BullBoardModule } from '@bull-board/nestjs';
+import { ExpressAdapter } from '@bull-board/express';
 
 import appConfig from '../configs/app.config';
 import dbConfig from '../configs/db.config';
@@ -36,6 +38,10 @@ import authConfig from '../configs/auth.config';
         },
       }),
       inject: [ConfigService],
+    }),
+    BullBoardModule.forRoot({
+      route: '/queues',
+      adapter: ExpressAdapter,
     }),
     EventEmitterModule.forRoot(),
   ],
