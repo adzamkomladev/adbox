@@ -6,6 +6,8 @@ import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { AuthModule } from '../auth/auth.module';
 import { UsersModule } from '../users/users.module';
 
+import {WALLET_TOP_UPS_QUEUE} from "./constants/queues.constant";
+
 import { Wallet } from './entities/wallet.entity';
 import { WalletTransaction } from './entities/wallet-transaction.entity';
 
@@ -20,7 +22,7 @@ import { WalletsController } from './wallets.controller';
   imports: [
     MikroOrmModule.forFeature([Wallet, WalletTransaction]),
     BullModule.registerQueue({
-      name: 'wallet-top-ups',
+      name: WALLET_TOP_UPS_QUEUE,
     }),
     AuthModule,
     UsersModule,

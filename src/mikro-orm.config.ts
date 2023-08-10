@@ -1,5 +1,5 @@
 export default {
-  type: process.env.DB_TYPE || 'postgresql',
+  type: 'postgresql',
   entities: ['dist/**/*.entity.js'],
   entitiesTs: ['src/**/*.entity.ts'],
   dbName: process.env.DB_NAME,

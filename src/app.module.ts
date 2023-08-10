@@ -11,6 +11,7 @@ import { WebhooksModule } from './webhooks/webhooks.module';
 import { AppService } from './app.service';
 
 import { AppController } from './app.controller';
+import { CampaignsModule } from './campaigns/campaigns.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { AppController } from './app.controller';
     WalletsModule,
     PaymentsModule,
     WebhooksModule,
+    CampaignsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
