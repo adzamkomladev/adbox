@@ -19,6 +19,7 @@ import { BaseEntity } from '../../@common/entities/base.entity';
 import { Wallet } from '../../wallets/entities/wallet.entity';
 import { Payment } from '../../payments/entities/payment.entity';
 import { PaymentMethod } from '../../payments/entities/payment-method.entity';
+import { Campaign } from '../../campaigns/entities/campaign.entity';
 
 @Entity()
 export class User extends BaseEntity {
@@ -27,6 +28,12 @@ export class User extends BaseEntity {
     nullable: true,
   })
   wallet?: Wallet;
+
+  @OneToOne(() => Campaign, (campaign) => campaign.user, {
+    owner: true,
+    nullable: true,
+  })
+  campaign?: Campaign;
 
   @OneToMany(() => Payment, (payment) => payment.user)
   payments = new Collection<Payment>(this);

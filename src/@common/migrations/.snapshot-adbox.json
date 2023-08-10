@@ -35,6 +35,163 @@
           "length": 6,
           "mappedType": "datetime"
         },
+        "name": {
+          "name": "name",
+          "type": "varchar(255)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "string"
+        },
+        "demographic": {
+          "name": "demographic",
+          "type": "varchar(255)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "string"
+        },
+        "target_age": {
+          "name": "target_age",
+          "type": "int",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "integer"
+        },
+        "target_reach": {
+          "name": "target_reach",
+          "type": "int",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "integer"
+        },
+        "budget": {
+          "name": "budget",
+          "type": "int",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "integer"
+        },
+        "link": {
+          "name": "link",
+          "type": "varchar(255)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "string"
+        },
+        "start": {
+          "name": "start",
+          "type": "timestamptz(0)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 6,
+          "mappedType": "datetime"
+        },
+        "end": {
+          "name": "end",
+          "type": "timestamptz(0)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 6,
+          "mappedType": "datetime"
+        },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "enumItems": [
+            "active",
+            "inactive",
+            "pending",
+            "deleted",
+            "verified",
+            "unverified",
+            "approved",
+            "unapproved",
+            "rejected",
+            "accepted",
+            "failed",
+            "completed",
+            "incomplete",
+            "blocked",
+            "initiated"
+          ],
+          "mappedType": "enum"
+        }
+      },
+      "name": "campaign",
+      "schema": "public",
+      "indexes": [
+        {
+          "columnNames": [
+            "name"
+          ],
+          "composite": false,
+          "keyName": "campaign_name_index",
+          "primary": false,
+          "unique": false
+        },
+        {
+          "keyName": "campaign_pkey",
+          "columnNames": [
+            "id"
+          ],
+          "composite": false,
+          "primary": true,
+          "unique": true
+        }
+      ],
+      "checks": [],
+      "foreignKeys": {}
+    },
+    {
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "varchar(255)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "string"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamptz(0)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 6,
+          "mappedType": "datetime"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamptz(0)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 6,
+          "mappedType": "datetime"
+        },
         "balance": {
           "name": "balance",
           "type": "int",
@@ -131,6 +288,15 @@
         },
         "wallet_id": {
           "name": "wallet_id",
+          "type": "varchar(255)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "string"
+        },
+        "campaign_id": {
+          "name": "campaign_id",
           "type": "varchar(255)",
           "unsigned": false,
           "autoincrement": false,
@@ -253,6 +419,15 @@
         },
         {
           "columnNames": [
+            "campaign_id"
+          ],
+          "composite": false,
+          "keyName": "user_campaign_id_unique",
+          "primary": false,
+          "unique": true
+        },
+        {
+          "columnNames": [
             "name"
           ],
           "composite": false,
@@ -291,6 +466,19 @@
             "id"
           ],
           "referencedTableName": "public.wallet",
+          "deleteRule": "set null",
+          "updateRule": "cascade"
+        },
+        "user_campaign_id_foreign": {
+          "constraintName": "user_campaign_id_foreign",
+          "columnNames": [
+            "campaign_id"
+          ],
+          "localTableName": "public.user",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.campaign",
           "deleteRule": "set null",
           "updateRule": "cascade"
         }
