@@ -41,6 +41,10 @@ export class User extends BaseEntity {
   @OneToMany(() => PaymentMethod, (paymentMethod) => paymentMethod.user)
   paymentMethods = new Collection<PaymentMethod>(this);
 
+  @Property({ nullable: true, hidden: true })
+  @Exclude()
+  firebaseId?: string;
+
   @Property({ length: 200, index: true })
   name!: string;
 

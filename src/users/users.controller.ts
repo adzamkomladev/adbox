@@ -15,6 +15,7 @@ import { Auth } from '../auth/decorators/auth.decorator';
 import { CreateUserDto } from './dto/create-user.dto';
 import { SetRoleDto } from './dto/set-role.dto';
 import { SetExtraDetailsDto } from './dto/set-extra-details.dto';
+import { SetupFirebaseUserDto } from './dto/setup-firebase-user.dto';
 
 import { UsersService } from './users.service';
 
@@ -24,8 +25,8 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post()
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.create(createUserDto);
+  create(@Body() body: CreateUserDto) {
+    return this.usersService.create(body);
   }
 
   @Get()
@@ -42,9 +43,9 @@ export class UsersController {
   @Patch(':id/role')
   @ApiOkResponse()
   @ApiBadRequestResponse()
-  setRole(@Param('id') id: string, @Body() setRoleDto: SetRoleDto) {
+  setRole(@Param('id') id: string, @Body() body: SetRoleDto) {
     try {
-      return this.usersService.setRole(id, setRoleDto);
+      return this.usersService.setRole(id, body);
     } catch (e) {
       if (e instanceof HttpException) {
         throw e;
@@ -58,12 +59,24 @@ export class UsersController {
   @Patch(':id/extra-details')
   @ApiOkResponse()
   @ApiBadRequestResponse()
-  setExtraDetails(
-    @Param('id') id: string,
-    @Body() setExtraDetailsDto: SetExtraDetailsDto,
-  ) {
+  setExtraDetails(@Param('id') id: string, @Body() body: SetExtraDetailsDto) {
     try {
-      return this.usersService.setExtraDetails(id, setExtraDetailsDto);
+      return this.usersService.setExtraDetails(id, body);
+    } catch (e) {
+      if (e instanceof HttpException) {
+        throw e;
+      }
+
+      throw new BadRequestException(e.message);
+    }
+  }
+
+  @Post('setup/firebase/user')
+  @ApiOkResponse()
+  @ApiBadRequestResponse()
+  setupFirebaseUser(@Body() body: SetupFirebaseUserDto) {
+    try {
+      return this.usersService.setupFirebaseUser(body);
     } catch (e) {
       if (e instanceof HttpException) {
         throw e;
