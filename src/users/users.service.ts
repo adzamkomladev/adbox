@@ -2,6 +2,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 
 import { EntityRepository, wrap } from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';
+import { EntityManager } from '@mikro-orm/postgresql';
 
 import { Status } from '../@common/enums/status.enum';
 
@@ -11,16 +12,18 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { CredentialsDto } from './dto/credentials.dto';
 import { SetRoleDto } from './dto/set-role.dto';
 import { SetExtraDetailsDto } from './dto/set-extra-details.dto';
+import { SetupFirebaseUserDto } from './dto/setup-firebase-user.dto';
 
 @Injectable()
 export class UsersService {
   constructor(
+    private readonly em: EntityManager,
     @InjectRepository(User)
     private readonly usersRepository: EntityRepository<User>,
   ) {}
   async create(createUserDto: CreateUserDto) {
     const user = this.usersRepository.create(createUserDto);
-    await this.usersRepository.persistAndFlush(user);
+    await this.em.persistAndFlush(user);
     return user;
   }
 
@@ -53,8 +56,8 @@ export class UsersService {
   async setRole(id: string, { role }: SetRoleDto): Promise<User> {
     const user = this.usersRepository.findOneOrFail(id);
 
-    await wrap(user).assign({ role });
-    await this.usersRepository.persistAndFlush(user);
+    wrap(user).assign({ role });
+    await this.em.persistAndFlush(user);
 
     return user;
   }
@@ -65,8 +68,27 @@ export class UsersService {
   ): Promise<User> {
     const user = this.usersRepository.findOneOrFail(id);
 
-    await wrap(user).assign({ dateOfBirth, country, status: Status.ACTIVE });
-    await this.usersRepository.persistAndFlush(user);
+    wrap(user).assign({ dateOfBirth, country, status: Status.ACTIVE });
+    await this.em.persistAndFlush(user);
+
+    return user;
+  }
+
+  async setupFirebaseUser({
+    firebaseId,
+    avatar,
+    email,
+    name,
+  }: SetupFirebaseUserDto): Promise<User> {
+    let user = await this.usersRepository.findOne({ firebaseId });
+
+    if (user) {
+      wrap(user).assign({ avatar, email, name });
+    } else {
+      user = this.usersRepository.create({ firebaseId, avatar, email, name });
+    }
+
+    await this.em.persistAndFlush(user);
 
     return user;
   }
