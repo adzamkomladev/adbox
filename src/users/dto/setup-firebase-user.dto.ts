@@ -3,4 +3,5 @@ export class SetupFirebaseUserDto {
   readonly email: string;
   readonly name: string;
   readonly avatar: string;
+  readonly walletBalance: number;
 }

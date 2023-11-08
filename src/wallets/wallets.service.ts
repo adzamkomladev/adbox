@@ -1,27 +1,29 @@
 import { Injectable } from '@nestjs/common';
-
-import { EntityRepository } from '@mikro-orm/core';
-import { InjectRepository } from '@mikro-orm/nestjs';
 import { InjectQueue } from '@nestjs/bull';
 
 import { Queue } from 'bull';
+import { EntityRepository } from '@mikro-orm/core';
+import { InjectRepository } from '@mikro-orm/nestjs';
+import { EntityManager } from '@mikro-orm/postgresql';
 
-import { Status } from '../@common/enums/status.enum';
+import { WALLET_TOP_UPS_QUEUE } from './constants/queues.constant';
+
+import { Status } from '@common/enums/status.enum';
 
 import { Wallet } from './entities/wallet.entity';
 import { WalletTransaction } from './entities/wallet-transaction.entity';
 
 import { CreateWalletDto } from './dto/create-wallet.dto';
 import { FindWalletBalanceDto } from './dto/find-wallet-balance.dto';
+import { FundWalletDto } from './dto/fund-wallet.dto';
+import { WalletTopUpJobDto } from './dto/wallet-top-up-job.dto';
 
 import { UsersService } from '../users/users.service';
-import { FundWalletDto } from './dto/fund-wallet.dto';
-import { WALLET_TOP_UPS_QUEUE } from './constants/queues.constant';
-import { WalletTopUpJobDto } from './dto/wallet-top-up-job.dto';
 
 @Injectable()
 export class WalletsService {
   constructor(
+    private readonly em: EntityManager,
     @InjectQueue(WALLET_TOP_UPS_QUEUE) private topUpsQueue: Queue,
     @InjectRepository(Wallet)
     private readonly walletRepository: EntityRepository<Wallet>,
@@ -29,24 +31,24 @@ export class WalletsService {
     private readonly walletTransactionRepository: EntityRepository<WalletTransaction>,
     private readonly usersService: UsersService,
   ) {}
-  async create({ userId }: CreateWalletDto) {
+
+  async create({ userId, balance = 0 }: CreateWalletDto) {
     const user = await this.usersService.findOne(userId);
 
     const wallet = this.walletRepository.create({
       user,
-      balance: 0,
+      balance,
       status: Status.ACTIVE,
     });
 
-    await this.walletRepository.persistAndFlush(wallet);
+    await this.em.persistAndFlush(wallet);
 
     return wallet;
   }
-  walletBalance(
-    findWalletBalance: FindWalletBalanceDto,
-  ): Promise<Partial<Wallet>> {
-    return this.walletRepository.findOneOrFail(
-      { ...findWalletBalance },
+
+  async walletBalance(payload: FindWalletBalanceDto): Promise<Partial<Wallet>> {
+    return await this.walletRepository.findOneOrFail(
+      { ...payload },
       {
         fields: ['id', 'balance', 'currency'],
       },
@@ -54,7 +56,11 @@ export class WalletsService {
   }
 
   async fundWallet(id: string, userId: string, topUpWalletDto: FundWalletDto) {
-    const jobData: WalletTopUpJobDto = { walletId: id, userId, ...topUpWalletDto };
+    const jobData: WalletTopUpJobDto = {
+      walletId: id,
+      userId,
+      ...topUpWalletDto,
+    };
 
     await this.topUpsQueue.add(jobData);
 
