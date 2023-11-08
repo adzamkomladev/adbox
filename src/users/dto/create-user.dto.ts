@@ -5,4 +5,5 @@ export class CreateUserDto {
   readonly name: string;
   readonly avatar: string;
   readonly status?: Status;
+  readonly firebaseId?: string;
 }

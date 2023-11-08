@@ -19,6 +19,7 @@ import { WalletTopUpsConsumer } from './consumers/wallet-top-ups.consumer';
 import { PaymentCompletedEventListener } from './listeners/payment.completed.listener';
 
 import { WalletsController } from './wallets.controller';
+import { UserCreatedListener } from './listeners/user.created.listener';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { WalletsController } from './wallets.controller';
     WalletsService,
     WalletTopUpsConsumer,
     PaymentCompletedEventListener,
+    UserCreatedListener,
   ],
 })
 export class WalletsModule {}

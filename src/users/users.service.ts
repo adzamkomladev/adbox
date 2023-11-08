@@ -14,8 +14,12 @@ import { CredentialsDto } from './dto/credentials.dto';
 import { SetRoleDto } from './dto/set-role.dto';
 import { SetExtraDetailsDto } from './dto/set-extra-details.dto';
 import { SetupFirebaseUserDto } from './dto/setup-firebase-user.dto';
-import { FIREBASE_USER_SETUP } from '../@common/constants/events.constant';
+import {
+  FIREBASE_USER_SETUP,
+  USER_CREATED,
+} from '../@common/constants/events.constant';
 import { FirebaseUserSetupEvent } from './events/firebase-user-setup.event';
+import { UserCreatedEvent } from './events/user.created.event';
 
 @Injectable()
 export class UsersService {
@@ -25,9 +29,16 @@ export class UsersService {
     private readonly usersRepository: EntityRepository<User>,
     private readonly eventEmitter: EventEmitter2,
   ) {}
+
   async create(payload: CreateUserDto) {
     const user = this.usersRepository.create(payload);
     await this.em.persistAndFlush(user);
+
+    const event = new UserCreatedEvent();
+    event.user = user;
+
+    this.eventEmitter.emit(USER_CREATED, event);
+
     return user;
   }
 
@@ -83,7 +94,7 @@ export class UsersService {
     avatar,
     email,
     name,
-    walletBalance
+    walletBalance,
   }: SetupFirebaseUserDto): Promise<User> {
     let user = await this.usersRepository.findOne({ firebaseId });
 
@@ -98,7 +109,7 @@ export class UsersService {
     const event = new FirebaseUserSetupEvent();
     event.userId = user.id;
     event.hasWallet = !!user.wallet;
-    event.walletBalance = walletBalance
+    event.walletBalance = walletBalance;
 
     this.eventEmitter.emit(FIREBASE_USER_SETUP, event);
 

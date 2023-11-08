@@ -12,3 +12,4 @@ export const PAYMENT_COMPLETED = 'payment.completed';
 // USER EVENTS
 
 export const FIREBASE_USER_SETUP = 'firebase.user.setup';
+export const USER_CREATED = 'user.created';
