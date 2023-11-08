@@ -29,7 +29,9 @@
       ],
       "@adbox/utils/*": [
         "libs/utils/src/*"
-      ]
+      ],
+      "@app/*": ["src/*"],
+      "@common/*": ["src/@common/*"],
     }
   }
 }
