@@ -49,6 +49,7 @@ export class AuthService {
       name: user.name,
       avatar: user.avatar,
       status: user.status,
+      walletId: user.wallet?.id,
       accessToken,
     };
   }

@@ -39,6 +39,8 @@ export class UsersService {
 
     this.eventEmitter.emit(USER_CREATED, event);
 
+    await this.em.populate(user, ['wallet']);
+
     return user;
   }
 
@@ -51,7 +53,7 @@ export class UsersService {
   }
 
   async findByEmail(email: string) {
-    return this.usersRepository.findOne({ email });
+    return this.usersRepository.findOne({ email }, { populate: ['wallet'] });
   }
 
   async findByCredentials({ email, password }: CredentialsDto) {
