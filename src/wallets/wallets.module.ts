@@ -8,7 +8,7 @@ import { BullAdapter } from '@bull-board/api/bullAdapter';
 import { AuthModule } from '../auth/auth.module';
 import { UsersModule } from '../users/users.module';
 
-import { WALLET_TOP_UPS_QUEUE } from './constants/queues.constant';
+import { WALLET_TOP_UPS_QUEUE, WALLET_WITHDRAWALS_QUEUE } from './constants/queues.constant';
 
 import { Wallet } from './entities/wallet.entity';
 import { WalletTransaction } from './entities/wallet-transaction.entity';
@@ -17,9 +17,9 @@ import { WalletsService } from './wallets.service';
 
 import { WalletTopUpsConsumer } from './consumers/wallet-top-ups.consumer';
 import { PaymentCompletedEventListener } from './listeners/payment.completed.listener';
+import { UserCreatedListener } from './listeners/user.created.listener';
 
 import { WalletsController } from './wallets.controller';
-import { UserCreatedListener } from './listeners/user.created.listener';
 
 @Module({
   imports: [
@@ -27,8 +27,15 @@ import { UserCreatedListener } from './listeners/user.created.listener';
     BullModule.registerQueue({
       name: WALLET_TOP_UPS_QUEUE,
     }),
+    BullModule.registerQueue({
+      name: WALLET_WITHDRAWALS_QUEUE,
+    }),
     BullBoardModule.forFeature({
       name: WALLET_TOP_UPS_QUEUE,
+      adapter: BullAdapter,
+    }),
+    BullBoardModule.forFeature({
+      name: WALLET_WITHDRAWALS_QUEUE,
       adapter: BullAdapter,
     }),
     AuthModule,
@@ -42,4 +49,4 @@ import { UserCreatedListener } from './listeners/user.created.listener';
     UserCreatedListener,
   ],
 })
-export class WalletsModule {}
+export class WalletsModule { }

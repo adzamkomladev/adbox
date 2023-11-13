@@ -19,7 +19,7 @@ import { WalletsService } from './wallets.service';
 @ApiTags('wallets')
 @Controller('wallets')
 export class WalletsController {
-  constructor(private readonly walletsService: WalletsService) {}
+  constructor(private readonly walletsService: WalletsService) { }
 
   @Auth()
   @Get(':id/balance')
@@ -42,6 +42,26 @@ export class WalletsController {
   @ApiOkResponse()
   @ApiBadRequestResponse()
   fundWallet(
+    @User('id') userId: string,
+    @Param('id') id: string,
+    @Body() body: FundWalletDto,
+  ) {
+    try {
+      return this.walletsService.fundWallet(id, userId, body);
+    } catch (e) {
+      if (e instanceof HttpException) {
+        throw e;
+      }
+
+      throw new BadRequestException(e.message);
+    }
+  }
+
+  @Auth()
+  @Post(':id/withdraw')
+  @ApiOkResponse()
+  @ApiBadRequestResponse()
+  withdrawWallet(
     @User('id') userId: string,
     @Param('id') id: string,
     @Body() body: FundWalletDto,
