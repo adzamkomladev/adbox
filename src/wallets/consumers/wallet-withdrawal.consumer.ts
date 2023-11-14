@@ -1,25 +1,27 @@
 import { Logger } from '@nestjs/common';
 import { Process, Processor } from '@nestjs/bull';
-import { EventEmitter2 } from '@nestjs/event-emitter';
 
+import { wrap } from '@mikro-orm/core';
+import { EntityManager, EntityRepository } from '@mikro-orm/postgresql';
+import { InjectRepository } from '@mikro-orm/nestjs';
 import { Job } from 'bull';
+import { v4 as uuid } from 'uuid';
+
+import { ZeepayService } from '@adbox/zeepay';
 
 import { WALLET_WITHDRAWALS_QUEUE } from '../constants/queues.constant';
-import { WALLET_TOP_UP_INITIATED } from '../../@common/constants/events.constant';
+
+import { Status } from '@common/enums/status.enum';
+import { TransactionType } from '../enums/transaction-type.enum';
+
+import { PaymentMethod } from '@app/payments/entities/payment-method.entity';
+import { Wallet } from '../entities/wallet.entity';
+import { WalletTransaction } from '../entities/wallet-transaction.entity';
 
 import { WalletTopUpJobDto } from '../dto/wallet-top-up-job.dto';
 
-import { WalletTopUpInitiatedEvent } from '../events/wallet-top-up-initiated.event';
+import { PaymentMethodsService } from '@app/payments/services/payment-methods.service';
 import { WalletsService } from '../wallets.service';
-import { InjectRepository } from '@mikro-orm/nestjs';
-import { Wallet } from '../entities/wallet.entity';
-import { EntityManager, EntityRepository } from '@mikro-orm/postgresql';
-import { wrap } from '@mikro-orm/core';
-import { WalletTransaction } from '../entities/wallet-transaction.entity';
-import { TransactionType } from '../enums/transacton-type.enum';
-import { Status } from '../../@common/enums/status.enum';
-import { v4 as uuid } from 'uuid';
-import { ZeepayService } from '../../../libs/zeepay/src';
 
 @Processor(WALLET_WITHDRAWALS_QUEUE)
 export class WalletWithdrawalConsumer {
@@ -32,13 +34,13 @@ export class WalletWithdrawalConsumer {
         private readonly walletRepository: EntityRepository<Wallet>,
         @InjectRepository(WalletTransaction)
         private readonly walletTransactionRepository: EntityRepository<WalletTransaction>,
-        private readonly walletService: WalletsService) { }
+        private readonly walletService: WalletsService,
+        private readonly paymentMethodsService: PaymentMethodsService) { }
 
     @Process()
     async handleWalletTopUp(job: Job<WalletTopUpJobDto>) {
         this.logger.debug('Start withdrawals...');
         this.logger.debug(job.data);
-
 
         const { userId, walletId, amount, paymentMethodId } = job.data;
         const wallet = await this.walletRepository.findOneOrFail({ id: walletId, user: { id: userId } });
@@ -52,6 +54,15 @@ export class WalletWithdrawalConsumer {
             this.logger.warn('Withdrawal check failed', job.data);
             return false;
         }
+
+        let paymentMethod: PaymentMethod;
+        try {
+            paymentMethod = await this.paymentMethodsService.findOne(paymentMethodId);
+        } catch (e) {
+            this.logger.error('Payment method for withdrawal does not exist', e);
+            return false;
+        }
+
 
         const reference = uuid();
 
@@ -69,9 +80,8 @@ export class WalletWithdrawalConsumer {
             return false;
         }
 
-        // const hasDisbursed = await this.disburse({ amount, name, phone, description: `Wallet withdrawal of ${amount} GHS`, reference });
-        const hasDisbursed = true;
-        
+        const hasDisbursed = await this.disburse({ amount, name: paymentMethod.accountName, phone: paymentMethod.accountNumber, description: `Wallet withdrawal of ${amount} GHS`, reference });
+
         if (!hasDisbursed) {
             try {
                 await this.reverseWalletDebit(wallet, reference);
@@ -158,5 +168,4 @@ export class WalletWithdrawalConsumer {
         await this.em.persistAndFlush(transaction);
 
     }
-
 }

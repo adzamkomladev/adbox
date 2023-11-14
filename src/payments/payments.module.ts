@@ -33,5 +33,6 @@ import { PaymentsController } from './payments.controller';
     ZeepayWebhookReceivedListener,
     PaymentMethodsService,
   ],
+  exports: [PaymentMethodsService]
 })
-export class PaymentsModule {}
+export class PaymentsModule { }
