@@ -4,8 +4,8 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 
 import { Job } from 'bull';
 
+import { WALLET_TOP_UP_INITIATED } from '@common/constants/events.constant';
 import { WALLET_TOP_UPS_QUEUE } from '../constants/queues.constant';
-import { WALLET_TOP_UP_INITIATED } from '../../@common/constants/events.constant';
 
 import { WalletTopUpJobDto } from '../dto/wallet-top-up-job.dto';
 

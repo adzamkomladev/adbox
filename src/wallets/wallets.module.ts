@@ -7,6 +7,7 @@ import { BullAdapter } from '@bull-board/api/bullAdapter';
 
 import { AuthModule } from '../auth/auth.module';
 import { UsersModule } from '../users/users.module';
+import { PaymentsModule } from '../payments/payments.module';
 
 import { WALLET_TOP_UPS_QUEUE, WALLET_WITHDRAWALS_QUEUE } from './constants/queues.constant';
 
@@ -40,6 +41,7 @@ import { WalletsController } from './wallets.controller';
     }),
     AuthModule,
     UsersModule,
+    PaymentsModule
   ],
   controllers: [WalletsController],
   providers: [

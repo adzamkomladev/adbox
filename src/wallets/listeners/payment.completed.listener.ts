@@ -4,7 +4,7 @@ import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 
 import { InjectRepository } from '@mikro-orm/nestjs';
 
-import { TransactionType } from '../enums/transacton-type.enum';
+import { TransactionType } from '../enums/transaction-type.enum';
 import { Status } from '../../@common/enums/status.enum';
 import { Activity } from '../enums/activity.enum';
 
