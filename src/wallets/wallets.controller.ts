@@ -15,6 +15,7 @@ import { Auth } from '../auth/decorators/auth.decorator';
 import { FundWalletDto } from './dto/fund-wallet.dto';
 
 import { WalletsService } from './wallets.service';
+import { ResponseMessage } from '../@common/decorators/response.message.decorator';
 
 @ApiTags('wallets')
 @Controller('wallets')
@@ -25,6 +26,7 @@ export class WalletsController {
   @Get(':id/balance')
   @ApiOkResponse()
   @ApiBadRequestResponse()
+  @ResponseMessage('wallet balance retrieved')
   findWalletBalance(@User('id') userId: string, @Param('id') id: string) {
     try {
       return this.walletsService.walletBalance({ id, userId });
@@ -41,6 +43,7 @@ export class WalletsController {
   @Post(':id/fund')
   @ApiOkResponse()
   @ApiBadRequestResponse()
+  @ResponseMessage('funding of wallet initiated')
   fundWallet(
     @User('id') userId: string,
     @Param('id') id: string,
@@ -61,6 +64,7 @@ export class WalletsController {
   @Post(':id/withdraw')
   @ApiOkResponse()
   @ApiBadRequestResponse()
+  @ResponseMessage('wallet withdrawal initiated')
   withdrawWallet(
     @User('id') userId: string,
     @Param('id') id: string,

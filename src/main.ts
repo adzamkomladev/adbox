@@ -5,6 +5,9 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 
 import { AppModule } from './app.module';
 
+import { ExceptionsFilter } from '@common/filters/exceptions.filter';
+import { logger } from '@mikro-orm/nestjs';
+
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
@@ -18,6 +21,7 @@ async function bootstrap() {
   const config = app.get(ConfigService);
 
   app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalFilters(new ExceptionsFilter());
 
   const swaggerConfig = new DocumentBuilder()
     .setTitle('AdBox Backend API')
@@ -32,5 +36,9 @@ async function bootstrap() {
 
   const port = config.get<number>('app.port');
   await app.listen(port);
+
+  logger.log(
+    `${config.get('app.name')} is running on ${config.get('app.url')}`,
+  );
 }
 bootstrap();

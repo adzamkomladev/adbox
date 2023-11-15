@@ -6,6 +6,7 @@ import { ApiBadRequestResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { Auth } from '../auth/decorators/auth.decorator';
 import { User } from '../auth/decorators/user.decorator';
 import { CreatePaymentMethodDto } from './dto/create-payment-method.dto';
+import { ResponseMessage } from '../@common/decorators/response.message.decorator';
 
 @ApiTags('payments')
 @Controller('payments')
@@ -19,6 +20,7 @@ export class PaymentsController {
   @Post('methods')
   @ApiOkResponse()
   @ApiBadRequestResponse()
+  @ResponseMessage('payment method created')
   createPaymentMethod(
     @User('id') id: string,
     @Body() body: CreatePaymentMethodDto,
@@ -30,6 +32,7 @@ export class PaymentsController {
   @Get('methods/user')
   @ApiOkResponse()
   @ApiBadRequestResponse()
+  @ResponseMessage('payment methods for user retrieved')
   findAllPaymentMethodsForUser(@User('id') id: string) {
     return this.paymentMethodsService.findAllByUser(id);
   }

@@ -1,4 +1,5 @@
-import { Module } from '@nestjs/common';
+import { APP_INTERCEPTOR } from '@nestjs/core';
+import { Global, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { CacheModule } from '@nestjs/cache-manager';
 import { ScheduleModule } from '@nestjs/schedule';
@@ -15,6 +16,9 @@ import dbConfig from '../configs/db.config';
 import redisConfig from '../configs/redis.config';
 import authConfig from '../configs/auth.config';
 
+import { TransformInterceptor } from '../interceptors/transform.interceptor';
+
+@Global()
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -24,10 +28,10 @@ import authConfig from '../configs/auth.config';
     ScheduleModule.forRoot(),
     CacheModule.registerAsync<RedisClientOptions>({
       useFactory: async (config: ConfigService) =>
-        ({
-          store: redisStore,
-          url: config.get('redis.url'),
-        } as RedisClientOptions),
+      ({
+        store: redisStore,
+        url: config.get('redis.url'),
+      } as RedisClientOptions),
       inject: [ConfigService],
     }),
     BullModule.forRootAsync({
@@ -45,5 +49,11 @@ import authConfig from '../configs/auth.config';
     }),
     EventEmitterModule.forRoot(),
   ],
+  providers: [
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: TransformInterceptor,
+    },
+  ],
 })
-export class CoreModule {}
+export class CoreModule { }
