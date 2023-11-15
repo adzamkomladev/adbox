@@ -18,6 +18,7 @@ import { SetExtraDetailsDto } from './dto/set-extra-details.dto';
 import { SetupFirebaseUserDto } from './dto/setup-firebase-user.dto';
 
 import { UsersService } from './users.service';
+import { ResponseMessage } from '../@common/decorators/response.message.decorator';
 
 @ApiTags('users')
 @Controller('users')
@@ -43,6 +44,7 @@ export class UsersController {
   @Patch(':id/role')
   @ApiOkResponse()
   @ApiBadRequestResponse()
+  @ResponseMessage('role set')
   setRole(@Param('id') id: string, @Body() body: SetRoleDto) {
     try {
       return this.usersService.setRole(id, body);
@@ -59,6 +61,7 @@ export class UsersController {
   @Patch(':id/extra-details')
   @ApiOkResponse()
   @ApiBadRequestResponse()
+  @ResponseMessage('extra details set')
   setExtraDetails(@Param('id') id: string, @Body() body: SetExtraDetailsDto) {
     try {
       return this.usersService.setExtraDetails(id, body);
@@ -74,6 +77,7 @@ export class UsersController {
   @Post('setup/firebase/user')
   @ApiOkResponse()
   @ApiBadRequestResponse()
+  @ResponseMessage('firebase user setup')
   setupFirebaseUser(@Body() body: SetupFirebaseUserDto) {
     try {
       return this.usersService.setupFirebaseUser(body);
