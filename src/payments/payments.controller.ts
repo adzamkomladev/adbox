@@ -14,7 +14,7 @@ export class PaymentsController {
   constructor(
     private readonly paymentsService: PaymentsService,
     private readonly paymentMethodsService: PaymentMethodsService,
-  ) {}
+  ) { }
 
   @Auth()
   @Post('methods')
@@ -25,7 +25,7 @@ export class PaymentsController {
     @User('id') id: string,
     @Body() body: CreatePaymentMethodDto,
   ) {
-    return id;
+    return this.paymentMethodsService.create(id, body);
   }
 
   @Auth()
