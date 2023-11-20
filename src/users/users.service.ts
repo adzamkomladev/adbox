@@ -48,8 +48,8 @@ export class UsersService {
     return `This action returns all users`;
   }
 
-  findOne(id: string): Promise<User> {
-    return this.usersRepository.findOneOrFail(id);
+  async findOne(id: string): Promise<User> {
+    return await this.usersRepository.findOneOrFail(id);
   }
 
   async findByEmail(email: string) {

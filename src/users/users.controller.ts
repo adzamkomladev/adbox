@@ -23,7 +23,7 @@ import { ResponseMessage } from '../@common/decorators/response.message.decorato
 @ApiTags('users')
 @Controller('users')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(private readonly usersService: UsersService) { }
 
   @Post()
   create(@Body() body: CreateUserDto) {
@@ -36,8 +36,16 @@ export class UsersController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.usersService.findOne(id);
+  async findOne(@Param('id') id: string) {
+    try {
+      return await this.usersService.findOne(id);
+    } catch (e) {
+      if (e instanceof HttpException) {
+        throw e;
+      }
+
+      throw new BadRequestException(e.message);
+    }
   }
 
   @Auth()
@@ -62,9 +70,9 @@ export class UsersController {
   @ApiOkResponse()
   @ApiBadRequestResponse()
   @ResponseMessage('extra details set')
-  setExtraDetails(@Param('id') id: string, @Body() body: SetExtraDetailsDto) {
+  async setExtraDetails(@Param('id') id: string, @Body() body: SetExtraDetailsDto) {
     try {
-      return this.usersService.setExtraDetails(id, body);
+      return await this.usersService.setExtraDetails(id, body);
     } catch (e) {
       if (e instanceof HttpException) {
         throw e;
@@ -78,9 +86,9 @@ export class UsersController {
   @ApiOkResponse()
   @ApiBadRequestResponse()
   @ResponseMessage('firebase user setup')
-  setupFirebaseUser(@Body() body: SetupFirebaseUserDto) {
+  async setupFirebaseUser(@Body() body: SetupFirebaseUserDto) {
     try {
-      return this.usersService.setupFirebaseUser(body);
+      return await this.usersService.setupFirebaseUser(body);
     } catch (e) {
       if (e instanceof HttpException) {
         throw e;

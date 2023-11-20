@@ -27,9 +27,9 @@ export class WalletsController {
   @ApiOkResponse()
   @ApiBadRequestResponse()
   @ResponseMessage('wallet balance retrieved')
-  findWalletBalance(@User('id') userId: string, @Param('id') id: string) {
+  async findWalletBalance(@User('id') userId: string, @Param('id') id: string) {
     try {
-      return this.walletsService.walletBalance({ id, userId });
+      return await this.walletsService.walletBalance({ id, userId });
     } catch (e) {
       if (e instanceof HttpException) {
         throw e;
@@ -44,13 +44,13 @@ export class WalletsController {
   @ApiOkResponse()
   @ApiBadRequestResponse()
   @ResponseMessage('funding of wallet initiated')
-  fundWallet(
+  async fundWallet(
     @User('id') userId: string,
     @Param('id') id: string,
     @Body() body: FundWalletDto,
   ) {
     try {
-      return this.walletsService.fundWallet(id, userId, body);
+      return await this.walletsService.fundWallet(id, userId, body);
     } catch (e) {
       if (e instanceof HttpException) {
         throw e;
@@ -65,13 +65,13 @@ export class WalletsController {
   @ApiOkResponse()
   @ApiBadRequestResponse()
   @ResponseMessage('wallet withdrawal initiated')
-  withdrawWallet(
+  async withdrawWallet(
     @User('id') userId: string,
     @Param('id') id: string,
     @Body() body: FundWalletDto,
   ) {
     try {
-      return this.walletsService.fundWallet(id, userId, body);
+      return await this.walletsService.fundWallet(id, userId, body);
     } catch (e) {
       if (e instanceof HttpException) {
         throw e;

@@ -1,17 +1,27 @@
-import { ArgumentsHost, Catch, ExceptionFilter } from '@nestjs/common';
+import { ArgumentsHost, Catch, ExceptionFilter, HttpException, HttpStatus } from '@nestjs/common';
+import { AbstractHttpAdapter, HttpAdapterHost } from '@nestjs/core';
 
 import { Observable, of } from 'rxjs';
 
 import { BaseResponseDto } from '../dto/base.response.dto';
 
 @Catch()
-export class ExceptionsFilter<T> implements ExceptionFilter {
-  catch(exception: any, host: ArgumentsHost): Observable<BaseResponseDto<any>> {
-    const { response = {}, status } = exception;
+export class ExceptionsFilter implements ExceptionFilter {
+  constructor(private readonly httpAdapter: AbstractHttpAdapter<any, any, any>) { }
+
+  catch(exception: any, host: ArgumentsHost): void {
+    const ctx = host.switchToHttp();
+
+    const httpStatus =
+      exception instanceof HttpException
+        ? exception.getStatus()
+        : HttpStatus.INTERNAL_SERVER_ERROR;
+
+    const { response = {} } = exception;
     const { message } = response;
 
     const exceptionResponse = {
-      status: status ?? 500,
+      status: httpStatus ?? 500,
       success: false,
       message:
         typeof message === 'string'
@@ -19,6 +29,7 @@ export class ExceptionsFilter<T> implements ExceptionFilter {
           : message?.[0]?.toLowerCase() ?? 'error occurred',
     };
 
-    return of(exceptionResponse);
+    this.httpAdapter.reply(ctx.getResponse(), exceptionResponse, httpStatus);
+
   }
 }
