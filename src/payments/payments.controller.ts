@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Patch, Post } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, HttpException, Patch, Post } from '@nestjs/common';
 
 import { PaymentsService } from './services/payments.service';
 import { PaymentMethodsService } from './services/payment-methods.service';
@@ -21,11 +21,19 @@ export class PaymentsController {
   @ApiOkResponse()
   @ApiBadRequestResponse()
   @ResponseMessage('payment method created')
-  createPaymentMethod(
+  async createPaymentMethod(
     @User('id') id: string,
     @Body() body: CreatePaymentMethodDto,
   ) {
-    return this.paymentMethodsService.create(id, body);
+    try {
+      return await this.paymentMethodsService.create(id, body);
+    } catch (e) {
+      if (e instanceof HttpException) {
+        throw e;
+      }
+
+      throw new BadRequestException(e.message);
+    }
   }
 
   @Auth()
@@ -33,7 +41,15 @@ export class PaymentsController {
   @ApiOkResponse()
   @ApiBadRequestResponse()
   @ResponseMessage('payment methods for user retrieved')
-  findAllPaymentMethodsForUser(@User('id') id: string) {
-    return this.paymentMethodsService.findAllByUser(id);
+  async findAllPaymentMethodsForUser(@User('id') id: string) {
+    try {
+      return await this.paymentMethodsService.findAllByUser(id);
+    } catch (e) {
+      if (e instanceof HttpException) {
+        throw e;
+      }
+
+      throw new BadRequestException(e.message);
+    }
   }
 }

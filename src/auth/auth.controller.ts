@@ -27,9 +27,9 @@ export class AuthController {
   @ApiBadRequestResponse()
   @ApiUnauthorizedResponse()
   @ResponseMessage('authentication successful')
-  authenticate(@Body() authenticateDto: AuthenticateDto) {
+  async authenticate(@Body() authenticateDto: AuthenticateDto) {
     try {
-      return this.auth.authenticate(authenticateDto);
+      return await this.auth.authenticate(authenticateDto);
     } catch (e) {
       if (e instanceof HttpException) {
         throw e;

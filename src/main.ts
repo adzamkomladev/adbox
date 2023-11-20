@@ -1,4 +1,4 @@
-import { NestFactory } from '@nestjs/core';
+import { HttpAdapterHost, NestFactory } from '@nestjs/core';
 import { ValidationPipe, VersioningType } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
@@ -21,7 +21,9 @@ async function bootstrap() {
   const config = app.get(ConfigService);
 
   app.useGlobalPipes(new ValidationPipe());
-  app.useGlobalFilters(new ExceptionsFilter());
+
+  const { httpAdapter } = app.get(HttpAdapterHost);
+  app.useGlobalFilters(new ExceptionsFilter(httpAdapter));
 
   const swaggerConfig = new DocumentBuilder()
     .setTitle('AdBox Backend API')
