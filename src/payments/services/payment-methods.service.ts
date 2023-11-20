@@ -18,7 +18,7 @@ export class PaymentMethodsService {
   constructor(
     private readonly em: EntityManager,
     @InjectRepository(PaymentMethod)
-    private readonly paymentRepository: EntityRepository<PaymentMethod>,
+    private readonly paymentMethodRepository: EntityRepository<PaymentMethod>,
     private readonly phoneService: PhoneService,
   ) { }
 
@@ -36,7 +36,7 @@ export class PaymentMethodsService {
       accountNumber = this.phoneService.format(accountNumber, networkCode);
     }
 
-    const payment = this.paymentRepository.create({
+    const payment = this.paymentMethodRepository.create({
       user: userId,
       accountName,
       accountNumber,
@@ -52,10 +52,10 @@ export class PaymentMethodsService {
   }
 
   async findAllByUser(userId: string): Promise<PaymentMethod[]> {
-    return await this.paymentRepository.find({ user: userId });
+    return await this.paymentMethodRepository.find({ user: userId });
   }
 
   async findOne(id: string): Promise<PaymentMethod> {
-    return await this.paymentRepository.findOne({ id })
+    return await this.paymentMethodRepository.findOne({ id })
   }
 }
