@@ -1,7 +1,7 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 
-import { EntityRepository, wrap } from '@mikro-orm/core';
+import { CreateRequestContext, EntityRepository, wrap } from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { EntityManager } from '@mikro-orm/postgresql';
 
@@ -28,8 +28,9 @@ export class UsersService {
     @InjectRepository(User)
     private readonly usersRepository: EntityRepository<User>,
     private readonly eventEmitter: EventEmitter2,
-  ) {}
+  ) { }
 
+  @CreateRequestContext()
   async create(payload: CreateUserDto) {
     const user = this.usersRepository.create(payload);
     await this.em.persistAndFlush(user);
