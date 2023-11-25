@@ -1,7 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 
 import { FirebaseAdmin, InjectFirebaseAdmin } from 'nestjs-firebase';
+import { DecodedIdToken } from 'firebase-admin/lib/auth/token-verifier';
 
 import { Status } from '../@common/enums/status.enum';
 
@@ -11,17 +12,18 @@ import { AuthenticateDto } from './dto/authenticate.dto';
 import { AuthenticatedDto } from './dto/authenticated.dto';
 
 import { UsersService } from '../users/users.service';
-import { DecodedIdToken } from 'firebase-admin/lib/auth/token-verifier';
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
+
   constructor(
     private readonly jwtService: JwtService,
     @InjectFirebaseAdmin() private readonly firebase: FirebaseAdmin,
     private readonly usersService: UsersService,
   ) { }
 
-  async authenticate({ idToken }: AuthenticateDto): Promise<AuthenticatedDto> {
+  async authenticate({ idToken, name }: AuthenticateDto): Promise<AuthenticatedDto> {
     let decodedToken: DecodedIdToken;
 
     try {
@@ -42,11 +44,13 @@ export class AuthService {
 
     let user = await this.usersService.findByEmail(decodedToken.email);
 
+    const firebaseName = decodedToken.name || decodedToken.display_name || name || decodedToken.email;
+
     if (!user) {
       user = await this.usersService.create({
         email: decodedToken.email,
-        name: decodedToken.name || decodedToken.display_name || decodedToken.email,
-        avatar: decodedToken.picture || `https://ui-avatars.com/api/?name=${decodedToken.name}`,
+        name: firebaseName,
+        avatar: decodedToken.picture || `https://ui-avatars.com/api/?name=${firebaseName}`,
         firebaseId: decodedToken.uid,
         status: Status.ACTIVE,
       });
