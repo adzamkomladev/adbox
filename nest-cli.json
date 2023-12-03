@@ -27,6 +27,15 @@
       "compilerOptions": {
         "tsConfigPath": "libs/utils/tsconfig.lib.json"
       }
+    },
+    "junipay": {
+      "type": "library",
+      "root": "libs/junipay",
+      "entryFile": "index",
+      "sourceRoot": "libs/junipay/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/junipay/tsconfig.lib.json"
+      }
     }
   }
 }
