@@ -1,7 +1,7 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 
-import { CreateRequestContext, EntityRepository, wrap } from '@mikro-orm/core';
+import { CreateRequestContext, EntityRepository, MikroORM, wrap } from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { EntityManager } from '@mikro-orm/postgresql';
 
@@ -24,6 +24,7 @@ import { UserCreatedEvent } from './events/user.created.event';
 @Injectable()
 export class UsersService {
   constructor(
+    private readonly orm: MikroORM,
     private readonly em: EntityManager,
     @InjectRepository(User)
     private readonly usersRepository: EntityRepository<User>,
