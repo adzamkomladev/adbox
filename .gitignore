@@ -37,3 +37,5 @@ lerna-debug.log*
 
 .env
 firebase-adminsdk.json
+/junipay-keys
+/keys
