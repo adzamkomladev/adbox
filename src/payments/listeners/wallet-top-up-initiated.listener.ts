@@ -43,7 +43,8 @@ export class WalletTopUpInitiatedListener {
   @OnEvent(WALLET_TOP_UP_INITIATED, { async: true })
   @CreateRequestContext()
   async handleWalletTopUpInitiatedEvent(event: WalletTopUpInitiatedEvent) {
-    console.log('dijfdkfkdkfdkfkdfkdjkfdkjkdjfkj')
+    this.logger.log('WALLET TOP UP INITIATED LISTENER: ', { ...event });
+
     const payment = await this.createPayment(event);
 
     const { request, response } = await this.initiatePaymentRequest(payment);
