@@ -14,6 +14,8 @@
     "@adbox/zeepay/(.*)": "<rootDir>/../libs/zeepay/src/$1",
     "@adbox/zeepay": "<rootDir>/../libs/zeepay/src",
     "@adbox/utils/(.*)": "<rootDir>/../libs/utils/src/$1",
-    "@adbox/utils": "<rootDir>/../libs/utils/src"
+    "@adbox/utils": "<rootDir>/../libs/utils/src",
+    "@adbox/junipay/(.*)": "<rootDir>/../libs/junipay/src/$1",
+    "@adbox/junipay": "<rootDir>/../libs/junipay/src"
   }
 }

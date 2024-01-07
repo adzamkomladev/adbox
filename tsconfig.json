@@ -30,8 +30,18 @@
       "@adbox/utils/*": [
         "libs/utils/src/*"
       ],
-      "@app/*": ["src/*"],
-      "@common/*": ["src/@common/*"],
+      "@app/*": [
+        "src/*"
+      ],
+      "@common/*": [
+        "src/@common/*"
+      ],
+      "@adbox/junipay": [
+        "libs/junipay/src"
+      ],
+      "@adbox/junipay/*": [
+        "libs/junipay/src/*"
+      ]
     }
   }
 }
