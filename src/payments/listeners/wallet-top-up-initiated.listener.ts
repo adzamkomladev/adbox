@@ -1,42 +1,50 @@
-import {Injectable, Logger} from '@nestjs/common';
-import {OnEvent} from '@nestjs/event-emitter';
+import { Injectable, Logger } from '@nestjs/common';
+import { OnEvent } from '@nestjs/event-emitter';
 
-import {EntityRepository, wrap} from '@mikro-orm/core';
-import {InjectRepository} from '@mikro-orm/nestjs';
+import { CreateRequestContext, EntityRepository, MikroORM, wrap } from '@mikro-orm/core';
+import { InjectRepository } from '@mikro-orm/nestjs';
+import { EntityManager } from '@mikro-orm/postgresql';
 
-import {ZeepayService} from '@adbox/zeepay';
+import { ZeepayService } from '@adbox/zeepay';
+import { DebitRequest } from '@adbox/zeepay/interfaces/mobile-wallet.interface';
+import { TokenService } from '@adbox/utils';
 
-import {WALLET_TOP_UP_INITIATED} from '../../@common/constants/events.constant';
+import { WALLET_TOP_UP_INITIATED } from '@common/constants/events.constant';
 
-import {Status} from '../../@common/enums/status.enum';
+import { Status } from '@common/enums/status.enum';
+import { Activity } from "@app/wallets/enums/activity.enum";
 
-import {Payment} from '../entities/payment.entity';
-import {PaymentMethod} from '../entities/payment-method.entity';
+import { Payment } from '../entities/payment.entity';
+import { PaymentMethod } from '../entities/payment-method.entity';
 
-import {DebitRequest} from '@adbox/zeepay/interfaces/mobile-wallet.interface';
 
-import {WalletTopUpInitiatedEvent} from '../../wallets/events/wallet-top-up-initiated.event';
+import { WalletTopUpInitiatedEvent } from '@app/wallets/events/wallet-top-up-initiated.event';
 
-import {UsersService} from '../../users/users.service';
-import {Activity} from "../../wallets/enums/activity.enum";
+import { UsersService } from '@app/users/users.service';
 
 @Injectable()
 export class WalletTopUpInitiatedListener {
   private readonly logger: Logger;
 
   constructor(
+    private readonly orm: MikroORM,
+    private readonly em: EntityManager,
     private readonly zeepayService: ZeepayService,
     @InjectRepository(Payment)
     private readonly paymentRepository: EntityRepository<Payment>,
     @InjectRepository(PaymentMethod)
     private readonly paymentMethodRepository: EntityRepository<PaymentMethod>,
     private readonly usersService: UsersService,
+    private readonly tokenService: TokenService
   ) {
     this.logger = new Logger(WalletTopUpInitiatedListener.name);
   }
 
   @OnEvent(WALLET_TOP_UP_INITIATED, { async: true })
+  @CreateRequestContext()
   async handleWalletTopUpInitiatedEvent(event: WalletTopUpInitiatedEvent) {
+    this.logger.log('WALLET TOP UP INITIATED LISTENER: ', { ...event });
+
     const payment = await this.createPayment(event);
 
     const { request, response } = await this.initiatePaymentRequest(payment);
@@ -66,7 +74,7 @@ export class WalletTopUpInitiatedListener {
       user,
       walletId,
       amount,
-      reference: 'jdjdkjfkjdf',
+      reference: this.tokenService.generatePaymentRef('ADBOX'),
       status: Status.INITIATED,
       activity: Activity.WALLET_TOP_UP,
       channel: paymentMethod.channel,
@@ -78,7 +86,7 @@ export class WalletTopUpInitiatedListener {
       },
     });
 
-    await this.paymentRepository.persistAndFlush(payment);
+    await this.em.persistAndFlush(payment);
 
     return payment;
   }
@@ -100,12 +108,12 @@ export class WalletTopUpInitiatedListener {
   private async updatePayment({ request, response, status, paymentId }) {
     const payment = await this.paymentRepository.findOneOrFail(paymentId);
 
-    await wrap(payment).assign({
+    wrap(payment).assign({
       status,
       channelResponse: JSON.stringify(response),
       channelRequest: JSON.stringify(request),
     });
-    await this.paymentRepository.persistAndFlush(payment);
+    await this.em.persistAndFlush(payment);
 
     return payment;
   }

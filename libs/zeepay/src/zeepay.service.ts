@@ -45,12 +45,12 @@ export class ZeepayService {
         )
         .pipe(
           catchError((error: AxiosError) => {
+            this.logger.error(error, 'this is zepay error')
             this.logger.error(error.response.data);
             throw 'An error happened!';
           }),
         ),
     );
-
     return {
       tokenType: data.token_type,
       expiresIn: data.expires_in,
@@ -124,8 +124,8 @@ export class ZeepayService {
         )
         .pipe(
           catchError((error: AxiosError) => {
-            this.logger.error(error.response.data);
-            throw 'An error happened debitinh mobile wallet!';
+            this.logger.error(error);
+            throw 'An error happened debiting mobile wallet!';
           }),
         ),
     );
@@ -140,7 +140,6 @@ export class ZeepayService {
 
   private async retrieveAccessToken() {
     const accessToken = await this.cache.get<string>('zeepay.accessToken');
-
     if (accessToken) {
       return accessToken;
     }

@@ -21,6 +21,7 @@ import { PaymentCompletedEventListener } from './listeners/payment.completed.lis
 import { UserCreatedListener } from './listeners/user.created.listener';
 
 import { WalletsController } from './wallets.controller';
+import { FirebaseUserSetupListener } from './listeners/firebase.user.setup.listener';
 
 @Module({
   imports: [
@@ -49,6 +50,7 @@ import { WalletsController } from './wallets.controller';
     WalletTopUpsConsumer,
     PaymentCompletedEventListener,
     UserCreatedListener,
+    FirebaseUserSetupListener
   ],
 })
 export class WalletsModule { }

@@ -6,6 +6,6 @@ export class AuthenticatedDto {
   readonly name: string;
   readonly avatar: string;
   readonly status: Status;
-  readonly walletId: string;
+  readonly walletId?: string;
   readonly accessToken: string;
 }

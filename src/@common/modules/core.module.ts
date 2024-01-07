@@ -29,7 +29,7 @@ import { TransformInterceptor } from '../interceptors/transform.interceptor';
     CacheModule.registerAsync<RedisClientOptions>({
       useFactory: async (config: ConfigService) =>
       ({
-        store: redisStore,
+        store: redisStore.redisStore as any,
         url: config.get('redis.url'),
       } as RedisClientOptions),
       inject: [ConfigService],

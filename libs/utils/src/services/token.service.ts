@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 
 import { readFileSync } from 'fs';
 import * as jwt from 'jsonwebtoken';
+import { customAlphabet } from 'nanoid';
 
 import { Type } from '../enums/token/type.enum';
 
@@ -9,6 +10,11 @@ import { Type } from '../enums/token/type.enum';
 @Injectable()
 export class TokenService {
     private readonly logger = new Logger(TokenService.name);
+
+    generatePaymentRef(prefix: string) {
+        const nanoid = customAlphabet('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789', 16)
+        return prefix + nanoid();
+    }
 
     generateJwtToken(data: any, type: Type = Type.DEFAULT) {
         switch (type) {
