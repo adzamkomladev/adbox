@@ -12,6 +12,7 @@ import { Channel } from '../enums/channel.enum';
 import { PaymentMethod } from '../entities/payment-method.entity';
 
 import { CreatePaymentMethodDto } from '../dto/create-payment-method.dto';
+import { User } from '../../users/entities/user.entity';
 
 @Injectable()
 export class PaymentMethodsService {
@@ -23,7 +24,6 @@ export class PaymentMethodsService {
   ) { }
 
   async create(
-    userId: string,
     {
       accountName,
       accountNumber,
@@ -31,20 +31,20 @@ export class PaymentMethodsService {
       channel,
       networkCode,
     }: CreatePaymentMethodDto,
+    user: User
   ) {
     if (channel === Channel.MOBILE_WALLET) {
       accountNumber = this.phoneService.format(accountNumber, networkCode);
     }
 
-    const payment = this.paymentMethodRepository.create({
-      user: userId,
-      accountName,
-      accountNumber,
-      network,
-      channel,
-      status: Status.ACTIVE,
-      networkCode,
-    });
+    const payment = new PaymentMethod();
+    payment.accountName = accountName,
+      payment.accountNumber = accountNumber,
+      payment.network = network,
+      payment.channel = channel,
+      payment.status = Status.ACTIVE,
+      payment.networkCode = networkCode,
+      payment.user = user;
 
     await this.em.persistAndFlush(payment);
 

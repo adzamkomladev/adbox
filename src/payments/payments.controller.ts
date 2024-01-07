@@ -7,6 +7,7 @@ import { Auth } from '../auth/decorators/auth.decorator';
 import { User } from '../auth/decorators/user.decorator';
 import { CreatePaymentMethodDto } from './dto/create-payment-method.dto';
 import { ResponseMessage } from '../@common/decorators/response.message.decorator';
+import { User as UserEntity } from '../users/entities/user.entity';
 
 @ApiTags('payments')
 @Controller('payments')
@@ -22,11 +23,11 @@ export class PaymentsController {
   @ApiBadRequestResponse()
   @ResponseMessage('payment method created')
   async createPaymentMethod(
-    @User('id') id: string,
+    @User() user: UserEntity,
     @Body() body: CreatePaymentMethodDto,
   ) {
     try {
-      return await this.paymentMethodsService.create(id, body);
+      return await this.paymentMethodsService.create(body, user);
     } catch (e) {
       if (e instanceof HttpException) {
         throw e;
