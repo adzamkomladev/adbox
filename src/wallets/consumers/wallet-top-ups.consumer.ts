@@ -21,8 +21,7 @@ export class WalletTopUpsConsumer {
 
   @Process()
   handleWalletTopUp(job: Job<WalletTopUpJobDto>) {
-    this.logger.debug('Start top up...');
-    this.logger.debug(job.data);
+    this.logger.log('Start top up...');
 
     const { userId, walletId, amount, paymentMethodId } = job.data;
 
@@ -34,6 +33,6 @@ export class WalletTopUpsConsumer {
 
     this.event.emit(WALLET_TOP_UP_INITIATED, event);
 
-    this.logger.debug('Top up completed');
+    this.logger.log('Top up completed');
   }
 }
