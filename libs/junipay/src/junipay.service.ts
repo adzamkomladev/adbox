@@ -33,7 +33,7 @@ export class JunipayService {
 
         const res = await firstValueFrom(
             this.http.post(
-                this.config.get('junipay.payment'),
+                this.config.get('junipay.endpoints.payment'),
                 { ...payload },
                 {
                     headers: {
@@ -42,13 +42,13 @@ export class JunipayService {
                 }
             ).pipe(
                 catchError((error: AxiosError) => {
-                    this.logger.error(error, 'this is junipay error')
-                    this.logger.error(error.response.data);
+                    console.log(error, 'this is junipay error')
+                    console.log(error.response.data);
                     throw 'An error happened!';
                 }),
             ),
         );
-        this.logger.log(res, 'kdjkfkfkdkfdkjfkdjkfjkdjf');
+        console.log(res, 'THIS IS THE RESULTS FOR PAYMENT');
 
         return res;
     }

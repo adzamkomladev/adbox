@@ -124,7 +124,7 @@ export class WalletTopUpInitiatedListener {
         reference: payment.reference,
         channel: this.mapJunipayChannel(payment.channel),
         phoneNumber: payment.channelDetails.accountNumber,
-        amount: payment.amount / 100,
+        amount: payment.amount,
         provider: this.mapJunipayProvider(payment.channelDetails.network as Network),
         senderEmail: payment.user?.email || 'adzamkomla.dev@gmail.com'
       };
