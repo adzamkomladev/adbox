@@ -1,13 +1,20 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import { Controller, Post, Body, HttpCode } from '@nestjs/common';
 
 import { WebhooksService } from './webhooks.service';
 
 @Controller('webhooks')
 export class WebhooksController {
-  constructor(private readonly webhooksService: WebhooksService) {}
+  constructor(private readonly webhooksService: WebhooksService) { }
 
   @Post('/zeepay')
-  handleZeepay(@Body() createWebhookDto: any) {
-    return this.webhooksService.handleZeepay(createWebhookDto);
+  @HttpCode(200)
+  handleZeepay(@Body() body: any) {
+    return this.webhooksService.handleZeepay(body);
+  }
+
+  @Post('/junipay')
+  @HttpCode(200)
+  handleJunipay(@Body() body: any) {
+    return this.webhooksService.handleJunipay(body);
   }
 }

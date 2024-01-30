@@ -21,15 +21,25 @@ import { PaymentMethod } from '../entities/payment-method.entity';
 import { WalletTopUpInitiatedEvent } from '@app/wallets/events/wallet-top-up-initiated.event';
 
 import { UsersService } from '@app/users/users.service';
+import { ConfigService } from '@nestjs/config';
+import { PaymentProvider } from '@common/enums/payment.provider.enum';
+import { JunipayService } from '@adbox/junipay';
+import { Request } from '@adbox/junipay';
+import { Channel as JunipayChannel } from '@adbox/junipay';
+import { Provider } from '@adbox/junipay';
+import { Network } from '../enums/network.enum';
+import { Channel } from '../enums/channel.enum';
 
 @Injectable()
 export class WalletTopUpInitiatedListener {
   private readonly logger: Logger;
 
   constructor(
+    private readonly config: ConfigService,
     private readonly orm: MikroORM,
     private readonly em: EntityManager,
     private readonly zeepayService: ZeepayService,
+    private readonly junipay: JunipayService,
     @InjectRepository(Payment)
     private readonly paymentRepository: EntityRepository<Payment>,
     @InjectRepository(PaymentMethod)
@@ -92,17 +102,37 @@ export class WalletTopUpInitiatedListener {
   }
 
   private async initiatePaymentRequest(payment: Payment) {
-    const request: DebitRequest = {
-      amount: payment.amount,
-      phone: payment.channelDetails.accountNumber,
-      name: payment.channelDetails.accountName,
-      reference: payment.reference,
-      description: 'WALLET TOP UP',
-    };
+    const provider = this.config.get<PaymentProvider>('payments.providers.default');
 
-    const response = await this.zeepayService.debitMobileWallet(request);
+    if (provider === PaymentProvider.ZEEPAY) {
+      const request: DebitRequest = {
+        amount: payment.amount,
+        phone: payment.channelDetails.accountNumber,
+        name: payment.channelDetails.accountName,
+        reference: payment.reference,
+        description: 'WALLET TOP UP',
+      };
 
-    return { response, request };
+      const response = await this.zeepayService.debitMobileWallet(request);
+
+      return { response, request };
+    }
+
+    if (provider === PaymentProvider.JUNIPAY) {
+      const request: Request = {
+        description: 'WALLET TOP UP',
+        reference: payment.reference,
+        channel: this.mapJunipayChannel(payment.channel),
+        phoneNumber: payment.channelDetails.accountNumber,
+        amount: payment.amount / 100,
+        provider: this.mapJunipayProvider(payment.channelDetails.network as Network),
+        senderEmail: payment.user?.email || 'adzamkomla.dev@gmail.com'
+      };
+
+      const response = await this.junipay.payment(request);
+
+      return { response, request };
+    }
   }
 
   private async updatePayment({ request, response, status, paymentId }) {
@@ -116,5 +146,30 @@ export class WalletTopUpInitiatedListener {
     await this.em.persistAndFlush(payment);
 
     return payment;
+  }
+
+  private mapJunipayProvider(network: Network) {
+    switch (network) {
+      case Network.AIRTEL_TIGO:
+        return Provider.AIRTEL_TIGO;
+      case Network.MTN:
+        return Provider.MTN;
+      case Network.VODAFONE:
+        return Provider.VODAFONE;
+      default:
+        return Provider.MTN
+    }
+  }
+
+  private mapJunipayChannel(channel: Channel) {
+    switch (channel) {
+      case Channel.MOBILE_WALLET:
+        return JunipayChannel.MOBILE_MONEY;
+      case Channel.DEBIT_CARD:
+      case Channel.CREDIT_CARD:
+        return JunipayChannel.CARD;
+      default:
+        return JunipayChannel.MOBILE_MONEY;
+    }
   }
 }

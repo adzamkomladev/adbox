@@ -7,7 +7,7 @@ import { ZeepayWebhookReceivedEvent } from './events/zeepay-webhook-received.eve
 
 @Injectable()
 export class WebhooksService {
-  constructor(private readonly event: EventEmitter2) {}
+  constructor(private readonly event: EventEmitter2) { }
 
   handleZeepay(request: any) {
     const event = new ZeepayWebhookReceivedEvent();
@@ -15,5 +15,10 @@ export class WebhooksService {
     this.event.emit(ZEEPAY_WEBHOOK_RECEIVED, event);
 
     return 'This action adds a new webhook';
+  }
+
+  handleJunipay(payload: any) {
+    console.log('this is junipay webhook: ', payload);
+    return 'OK';
   }
 }
