@@ -15,6 +15,7 @@ import appConfig from '../configs/app.config';
 import dbConfig from '../configs/db.config';
 import redisConfig from '../configs/redis.config';
 import authConfig from '../configs/auth.config';
+import paymentsConfig from '../configs/payments.config';
 
 import { TransformInterceptor } from '../interceptors/transform.interceptor';
 
@@ -22,7 +23,7 @@ import { TransformInterceptor } from '../interceptors/transform.interceptor';
 @Module({
   imports: [
     ConfigModule.forRoot({
-      load: [appConfig, dbConfig, redisConfig, authConfig],
+      load: [appConfig, dbConfig, redisConfig, authConfig, paymentsConfig],
       isGlobal: true,
     }),
     ScheduleModule.forRoot(),
