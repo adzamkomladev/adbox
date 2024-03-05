@@ -11,7 +11,7 @@ import { RolesService } from '../services/roles.service';
 export class RolesController {
     constructor(private readonly rolesService: RolesService) { }
 
-    @Auth()
+    // @Auth()
     @Get()
     @ApiOkResponse()
     @ApiBadRequestResponse()

@@ -21,6 +21,7 @@ import {
 } from '../../@common/constants/events.constant';
 import { FirebaseUserSetupEvent } from '../events/firebase-user-setup.event';
 import { UserCreatedEvent } from '../events/user.created.event';
+import { QueryDto } from '../dto/query.dto';
 
 @Injectable()
 export class UsersService {
@@ -52,6 +53,48 @@ export class UsersService {
     await this.em.populate(user, ['wallet']);
 
     return user;
+  }
+
+  @CreateRequestContext()
+  async createAdmin({ name, roleId, roleTitle, email, status }: CreateUserDto) {
+    const role = await this.rolesRepository.findOneOrFail(roleId);
+
+    const user = this.usersRepository.create({
+      name,
+      email,
+      roleTitle,
+      status: status || Status.ACTIVE,
+      avatar: 'https://ui-avatars.com/api/?name=' + name,
+      password: 'Abcde12345!',
+      role
+    });
+    await this.em.persistAndFlush(user);
+
+    await this.em.populate(user, ['role']);
+
+    return user;
+  }
+
+  async findAllAdmin({ page = 1, size = 10 }: QueryDto) {
+    const [users, total] = await this.usersRepository.findAndCount(
+      {
+        role: {
+          code: { $in: ['ADMIN', 'SUPER_ADMIN'] },
+        }
+      },
+      {
+        populate: ['role'],
+        limit: size,
+        offset: (page - 1) * size
+      })
+
+    return {
+      users,
+      total,
+      page: +page,
+      size: +size,
+      totalPages: Math.ceil(total / size)
+    }
   }
 
   findAll() {
