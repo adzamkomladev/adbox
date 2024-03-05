@@ -18,7 +18,7 @@ import { FindWalletBalanceDto } from './dto/find-wallet-balance.dto';
 import { FundWalletDto } from './dto/fund-wallet.dto';
 import { WalletTopUpJobDto } from './dto/wallet-top-up-job.dto';
 
-import { UsersService } from '../users/users.service';
+import { UsersService } from '../users/services/users.service';
 
 @Injectable()
 export class WalletsService {

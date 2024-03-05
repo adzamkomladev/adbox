@@ -10,15 +10,15 @@ import {
 } from '@nestjs/common';
 import { ApiBadRequestResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 
-import { Auth } from '../auth/decorators/auth.decorator';
+import { Auth } from '../../auth/decorators/auth.decorator';
 
-import { CreateUserDto } from './dto/create-user.dto';
-import { SetRoleDto } from './dto/set-role.dto';
-import { SetExtraDetailsDto } from './dto/set-extra-details.dto';
-import { SetupFirebaseUserDto } from './dto/setup-firebase-user.dto';
+import { CreateUserDto } from '../dto/create-user.dto';
+import { SetRoleDto } from '../dto/set-role.dto';
+import { SetExtraDetailsDto } from '../dto/set-extra-details.dto';
+import { SetupFirebaseUserDto } from '../dto/setup-firebase-user.dto';
 
-import { UsersService } from './users.service';
-import { ResponseMessage } from '../@common/decorators/response.message.decorator';
+import { UsersService } from '../services/users.service';
+import { ResponseMessage } from '../../@common/decorators/response.message.decorator';
 
 @ApiTags('users')
 @Controller('users')
