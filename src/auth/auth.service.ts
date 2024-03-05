@@ -13,7 +13,7 @@ import { AuthenticateDto } from './dto/authenticate.dto';
 import { AuthenticatedDto } from './dto/authenticated.dto';
 import { LoginDto } from './dto/login.dto';
 
-import { UsersService } from '../users/users.service';
+import { UsersService } from '../users/services/users.service';
 
 @Injectable()
 export class AuthService {

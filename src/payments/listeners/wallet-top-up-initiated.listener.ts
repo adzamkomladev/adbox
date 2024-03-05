@@ -20,7 +20,7 @@ import { PaymentMethod } from '../entities/payment-method.entity';
 
 import { WalletTopUpInitiatedEvent } from '@app/wallets/events/wallet-top-up-initiated.event';
 
-import { UsersService } from '@app/users/users.service';
+import { UsersService } from '@app/users/services/users.service';
 import { ConfigService } from '@nestjs/config';
 import { PaymentProvider } from '@common/enums/payment.provider.enum';
 import { JunipayService } from '@adbox/junipay';

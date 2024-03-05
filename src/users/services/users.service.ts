@@ -5,21 +5,23 @@ import { CreateRequestContext, EntityRepository, MikroORM, wrap } from '@mikro-o
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { EntityManager } from '@mikro-orm/postgresql';
 
-import { Status } from '../@common/enums/status.enum';
+import { Status } from '../../@common/enums/status.enum';
 
-import { User } from './entities/user.entity';
+import { User } from '../entities/user.entity';
+import { Role } from '../entities/role.entity';
 
-import { CreateUserDto } from './dto/create-user.dto';
-import { CredentialsDto } from './dto/credentials.dto';
-import { SetRoleDto } from './dto/set-role.dto';
-import { SetExtraDetailsDto } from './dto/set-extra-details.dto';
-import { SetupFirebaseUserDto } from './dto/setup-firebase-user.dto';
+import { CreateUserDto } from '../dto/create-user.dto';
+import { CredentialsDto } from '../dto/credentials.dto';
+import { SetRoleDto } from '../dto/set-role.dto';
+import { SetExtraDetailsDto } from '../dto/set-extra-details.dto';
+import { SetupFirebaseUserDto } from '../dto/setup-firebase-user.dto';
 import {
   FIREBASE_USER_SETUP,
   USER_CREATED,
-} from '../@common/constants/events.constant';
-import { FirebaseUserSetupEvent } from './events/firebase-user-setup.event';
-import { UserCreatedEvent } from './events/user.created.event';
+} from '../../@common/constants/events.constant';
+import { FirebaseUserSetupEvent } from '../events/firebase-user-setup.event';
+import { UserCreatedEvent } from '../events/user.created.event';
+import { QueryDto } from '../dto/query.dto';
 
 @Injectable()
 export class UsersService {
@@ -28,12 +30,19 @@ export class UsersService {
     private readonly em: EntityManager,
     @InjectRepository(User)
     private readonly usersRepository: EntityRepository<User>,
+    @InjectRepository(Role)
+    private readonly rolesRepository: EntityRepository<Role>,
     private readonly eventEmitter: EventEmitter2,
   ) { }
 
   @CreateRequestContext()
   async create(payload: CreateUserDto) {
-    const user = this.usersRepository.create(payload);
+    const role = await this.rolesRepository.findOne({ code: 'SUBSCRIBER' });
+
+    const user = this.usersRepository.create({
+      ...payload,
+      role
+    });
     await this.em.persistAndFlush(user);
 
     const event = new UserCreatedEvent();
@@ -46,16 +55,58 @@ export class UsersService {
     return user;
   }
 
+  @CreateRequestContext()
+  async createAdmin({ name, roleId, roleTitle, email, status }: CreateUserDto) {
+    const role = await this.rolesRepository.findOneOrFail(roleId);
+
+    const user = this.usersRepository.create({
+      name,
+      email,
+      roleTitle,
+      status: status || Status.ACTIVE,
+      avatar: 'https://ui-avatars.com/api/?name=' + name,
+      password: 'Abcde12345!',
+      role
+    });
+    await this.em.persistAndFlush(user);
+
+    await this.em.populate(user, ['role']);
+
+    return user;
+  }
+
+  async findAllAdmin({ page = 1, size = 10 }: QueryDto) {
+    const [users, total] = await this.usersRepository.findAndCount(
+      {
+        role: {
+          code: { $in: ['ADMIN', 'SUPER_ADMIN'] },
+        }
+      },
+      {
+        populate: ['role'],
+        limit: size,
+        offset: (page - 1) * size
+      })
+
+    return {
+      users,
+      total,
+      page: +page,
+      size: +size,
+      totalPages: Math.ceil(total / size)
+    }
+  }
+
   findAll() {
     return `This action returns all users`;
   }
 
   async findOne(id: string): Promise<User> {
-    return await this.usersRepository.findOneOrFail(id);
+    return await this.usersRepository.findOneOrFail(id, { populate: ['role'] });
   }
 
   async findByEmail(email: string) {
-    return this.usersRepository.findOne({ email }, { populate: ['wallet'] });
+    return this.usersRepository.findOne({ email }, { populate: ['wallet', 'role'] });
   }
 
   async findByCredentials({ email, password }: CredentialsDto) {
@@ -73,10 +124,13 @@ export class UsersService {
   }
 
   async setRole(id: string, { role }: SetRoleDto): Promise<User> {
-    const user = this.usersRepository.findOneOrFail(id);
+    const [user, foundRole] = await Promise.all([
+      this.usersRepository.findOneOrFail(id),
+      this.rolesRepository.findOneOrFail({ code: role })
+    ]);
 
-    // wrap(user).assign({ role });
-    // await this.em.persistAndFlush(user);
+    wrap(user).assign({ role: foundRole });
+    await this.em.persistAndFlush(user);
 
     return user;
   }

@@ -7,18 +7,20 @@ import {
   Param,
   HttpException,
   BadRequestException,
+  Query,
 } from '@nestjs/common';
 import { ApiBadRequestResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 
-import { Auth } from '../auth/decorators/auth.decorator';
+import { Auth } from '../../auth/decorators/auth.decorator';
 
-import { CreateUserDto } from './dto/create-user.dto';
-import { SetRoleDto } from './dto/set-role.dto';
-import { SetExtraDetailsDto } from './dto/set-extra-details.dto';
-import { SetupFirebaseUserDto } from './dto/setup-firebase-user.dto';
+import { CreateUserDto } from '../dto/create-user.dto';
+import { SetRoleDto } from '../dto/set-role.dto';
+import { SetExtraDetailsDto } from '../dto/set-extra-details.dto';
+import { SetupFirebaseUserDto } from '../dto/setup-firebase-user.dto';
 
-import { UsersService } from './users.service';
-import { ResponseMessage } from '../@common/decorators/response.message.decorator';
+import { UsersService } from '../services/users.service';
+import { ResponseMessage } from '../../@common/decorators/response.message.decorator';
+import { QueryDto } from '../dto/query.dto';
 
 @ApiTags('users')
 @Controller('users')
@@ -30,9 +32,34 @@ export class UsersController {
     return this.usersService.create(body);
   }
 
+  @Post('admin')
+  @ApiOkResponse()
+  @ApiBadRequestResponse()
+  @ResponseMessage('admin user created')
+  createAdmin(@Body() body: CreateUserDto) {
+    return this.usersService.createAdmin(body);
+  }
+
+
   @Get()
   findAll() {
     return this.usersService.findAll();
+  }
+
+  @Get('admin')
+  @ApiOkResponse()
+  @ApiBadRequestResponse()
+  @ResponseMessage('admin users retrieved')
+  async findAllAdmin(@Query() query: QueryDto) {
+    try {
+      return await this.usersService.findAllAdmin(query);
+    } catch (e) {
+      if (e instanceof HttpException) {
+        throw e;
+      }
+
+      throw new BadRequestException(e.message);
+    }
   }
 
   @Get(':id')
