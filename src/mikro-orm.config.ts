@@ -1,5 +1,9 @@
-export default {
-  type: 'postgresql',
+import 'dotenv/config';
+import { defineConfig } from "@mikro-orm/postgresql";
+import { Migrator } from '@mikro-orm/migrations';
+import { SeedManager } from '@mikro-orm/seeder';
+
+export default defineConfig({
   entities: ['dist/**/*.entity.js'],
   entitiesTs: ['src/**/*.entity.ts'],
   dbName: process.env.DB_NAME,
@@ -12,4 +16,8 @@ export default {
     path: 'src/@common/migrations',
     disableForeignKeys: false
   },
-};
+  seeder: {
+    path: 'src/@common/seeders',
+  },
+  extensions: [Migrator, SeedManager]
+});

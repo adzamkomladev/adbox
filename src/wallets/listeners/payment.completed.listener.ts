@@ -1,8 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { EntityRepository, UseRequestContext, wrap } from '@mikro-orm/core';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 
 import { InjectRepository } from '@mikro-orm/nestjs';
+import { EntityRepository, CreateRequestContext, wrap, MikroORM } from '@mikro-orm/core';
+import { EntityManager } from '@mikro-orm/postgresql';
 
 import { TransactionType } from '../enums/transaction-type.enum';
 import { Status } from '../../@common/enums/status.enum';
@@ -20,6 +21,8 @@ export class PaymentCompletedEventListener {
   private readonly logger: Logger;
 
   constructor(
+    private readonly orm: MikroORM,
+    private readonly em: EntityManager,
     private readonly event: EventEmitter2,
     @InjectRepository(Wallet)
     private readonly walletRepository: EntityRepository<Wallet>,
@@ -30,7 +33,7 @@ export class PaymentCompletedEventListener {
   }
 
   @OnEvent(PAYMENT_COMPLETED, { async: true })
-  @UseRequestContext()
+  @CreateRequestContext()
   async handlePaymentCompletedEvent(event: PaymentCompletedEvent) {
     if (event.activity === Activity.WALLET_TOP_UP) {
       await this.topUpWallet(event);
@@ -62,6 +65,6 @@ export class PaymentCompletedEventListener {
       balance: wallet.balance + event.amount,
     });
 
-    await this.walletRepository.persistAndFlush(wallet);
+    await this.em.persistAndFlush(wallet);
   }
 }

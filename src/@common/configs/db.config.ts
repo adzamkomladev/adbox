@@ -1,7 +1,9 @@
 import { registerAs } from '@nestjs/config';
 
+import { PostgreSqlDriver } from '@mikro-orm/postgresql';
+
 export default registerAs('db', () => ({
-  type: process.env.DB_TYPE || 'postgresql',
+  driver: PostgreSqlDriver,
   autoLoadEntities: true,
   dbName: process.env.DB_NAME,
   user: process.env.DB_USER,

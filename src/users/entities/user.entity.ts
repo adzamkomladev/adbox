@@ -3,6 +3,7 @@ import {
   Collection,
   Entity,
   Enum,
+  ManyToOne,
   OneToMany,
   OneToOne,
   Property,
@@ -12,7 +13,6 @@ import * as bcrypt from 'bcrypt';
 import { Exclude } from 'class-transformer';
 
 import { Status } from '../../@common/enums/status.enum';
-import { Role } from '../../@common/enums/role.enum';
 import { Sex } from '../enums/sex.enum';
 
 import { BaseEntity } from '../../@common/entities/base.entity';
@@ -20,9 +20,13 @@ import { Wallet } from '../../wallets/entities/wallet.entity';
 import { Payment } from '../../payments/entities/payment.entity';
 import { PaymentMethod } from '../../payments/entities/payment-method.entity';
 import { Campaign } from '../../campaigns/entities/campaign.entity';
+import { Role } from './role.entity';
 
 @Entity()
 export class User extends BaseEntity {
+  @ManyToOne(() => Role)
+  role!: Role;
+
   @OneToOne(() => Wallet, (wallet) => wallet.user, {
     owner: true,
     nullable: true,
@@ -61,11 +65,11 @@ export class User extends BaseEntity {
   @Property({ columnType: 'date', nullable: true })
   dateOfBirth?: Date;
 
-  @Enum({ items: () => Role, nullable: true })
-  role?: Role;
-
   @Enum({ items: () => Sex, nullable: true })
   sex?: Sex;
+
+  @Property({ length: 100, nullable: true })
+  roleTitle!: string;
 
   @Enum({ items: () => Status })
   status!: Status;

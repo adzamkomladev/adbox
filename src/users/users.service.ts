@@ -75,8 +75,8 @@ export class UsersService {
   async setRole(id: string, { role }: SetRoleDto): Promise<User> {
     const user = this.usersRepository.findOneOrFail(id);
 
-    wrap(user).assign({ role });
-    await this.em.persistAndFlush(user);
+    // wrap(user).assign({ role });
+    // await this.em.persistAndFlush(user);
 
     return user;
   }
@@ -85,9 +85,9 @@ export class UsersService {
     id: string,
     { dateOfBirth, country }: SetExtraDetailsDto,
   ): Promise<User> {
-    const user = this.usersRepository.findOneOrFail(id);
+    const user = await this.usersRepository.findOneOrFail(id);
 
-    wrap(user).assign({ dateOfBirth, country, status: Status.ACTIVE });
+    wrap(user).assign({ dateOfBirth, status: Status.ACTIVE });
     await this.em.persistAndFlush(user);
 
     return user;
