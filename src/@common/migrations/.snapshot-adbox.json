@@ -192,6 +192,101 @@
           "length": 0,
           "mappedType": "datetime"
         },
+        "name": {
+          "name": "name",
+          "type": "varchar(200)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 200,
+          "mappedType": "string"
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "text"
+        },
+        "code": {
+          "name": "code",
+          "type": "varchar(100)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 100,
+          "mappedType": "string"
+        }
+      },
+      "name": "role",
+      "schema": "public",
+      "indexes": [
+        {
+          "columnNames": [
+            "name"
+          ],
+          "composite": false,
+          "keyName": "role_name_index",
+          "primary": false,
+          "unique": false
+        },
+        {
+          "columnNames": [
+            "code"
+          ],
+          "composite": false,
+          "keyName": "role_code_unique",
+          "primary": false,
+          "unique": true
+        },
+        {
+          "keyName": "role_pkey",
+          "columnNames": [
+            "id"
+          ],
+          "composite": false,
+          "primary": true,
+          "unique": true
+        }
+      ],
+      "checks": [],
+      "foreignKeys": {}
+    },
+    {
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "varchar(255)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "string"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamptz(0)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 0,
+          "mappedType": "datetime"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamptz(0)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 0,
+          "mappedType": "datetime"
+        },
         "balance": {
           "name": "balance",
           "type": "int",
@@ -286,6 +381,15 @@
           "length": 0,
           "mappedType": "datetime"
         },
+        "role_id": {
+          "name": "role_id",
+          "type": "varchar(255)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "string"
+        },
         "wallet_id": {
           "name": "wallet_id",
           "type": "varchar(255)",
@@ -360,20 +464,6 @@
           "nullable": true,
           "mappedType": "date"
         },
-        "role": {
-          "name": "role",
-          "type": "text",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": true,
-          "enumItems": [
-            "admin",
-            "publisher",
-            "consumer"
-          ],
-          "mappedType": "enum"
-        },
         "sex": {
           "name": "sex",
           "type": "text",
@@ -386,6 +476,16 @@
             "female"
           ],
           "mappedType": "enum"
+        },
+        "role_title": {
+          "name": "role_title",
+          "type": "varchar(100)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 100,
+          "mappedType": "string"
         },
         "status": {
           "name": "status",
@@ -465,6 +565,18 @@
       ],
       "checks": [],
       "foreignKeys": {
+        "user_role_id_foreign": {
+          "constraintName": "user_role_id_foreign",
+          "columnNames": [
+            "role_id"
+          ],
+          "localTableName": "public.user",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.role",
+          "updateRule": "cascade"
+        },
         "user_wallet_id_foreign": {
           "constraintName": "user_wallet_id_foreign",
           "columnNames": [
@@ -568,7 +680,7 @@
           "enumItems": [
             "MTN",
             "VODAFONE",
-            "TIGO"
+            "AIRTEL_TIGO"
           ],
           "mappedType": "enum"
         },
