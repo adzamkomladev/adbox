@@ -16,11 +16,29 @@ import { AuthenticateDto } from './dto/authenticate.dto';
 import { ResponseMessage } from '@common/decorators/response.message.decorator';
 
 import { AuthService } from './auth.service';
+import { LoginDto } from './dto/login.dto';
 
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {
   constructor(private readonly auth: AuthService) { }
+
+  @Post('login')
+  @ApiOkResponse()
+  @ApiBadRequestResponse()
+  @ApiUnauthorizedResponse()
+  @ResponseMessage('login successful')
+  async login(@Body() body: LoginDto) {
+    try {
+      return await this.auth.login(body);
+    } catch (e) {
+      if (e instanceof HttpException) {
+        throw e;
+      }
+
+      throw new BadRequestException(e.message);
+    }
+  }
 
   @Post('authenticate')
   @ApiOkResponse()
