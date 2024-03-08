@@ -52,7 +52,6 @@ export class AdminController {
         }
     }
 
-    @Auth()
     @Post()
     @ApiOkResponse()
     @ApiBadRequestResponse()
