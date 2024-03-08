@@ -18,7 +18,7 @@ export class AdminController {
         private readonly rolesService: RolesService
     ) { }
 
-    @Auth()
+    // @Auth()
     @Get('roles')
     @ApiOkResponse()
     @ApiBadRequestResponse()
@@ -35,7 +35,7 @@ export class AdminController {
         }
     }
 
-    @Auth()
+    // @Auth()
     @Get()
     @ApiOkResponse()
     @ApiBadRequestResponse()
