@@ -11,7 +11,13 @@ import { logger } from '@mikro-orm/nestjs';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  app.enableCors();
+  app.enableCors({
+    origin: '*',
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    allowedHeaders: '*',
+    preflightContinue: false,
+    optionsSuccessStatus: 204
+  });
 
   app.enableVersioning({
     type: VersioningType.URI,
