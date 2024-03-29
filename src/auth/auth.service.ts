@@ -26,7 +26,7 @@ export class AuthService {
     private readonly usersService: UsersService,
   ) { }
 
-  async authenticate({ idToken, name }: AuthenticateDto): Promise<AuthenticatedDto> {
+  async authenticate({ idToken, firstName, lastName }: AuthenticateDto): Promise<AuthenticatedDto> {
     let decodedToken: DecodedIdToken;
 
     try {
@@ -47,15 +47,12 @@ export class AuthService {
 
     let user = await this.usersService.findByEmail(decodedToken.email);
 
-    const firebaseName = decodedToken.name || decodedToken.display_name || name || decodedToken.email;
-
     if (!user) {
       user = await this.usersService.create({
         email: decodedToken.email,
-        name: firebaseName,
-        firstName: decodedToken.given_name,
-        lastName: decodedToken.family_name,
-        avatar: decodedToken.picture || `https://ui-avatars.com/api/?name=${firebaseName}`,
+        firstName: firstName || decodedToken.given_name,
+        lastName: lastName || decodedToken.family_name,
+        avatar: decodedToken.picture || `https://ui-avatars.com/api/?name=${firstName} ${lastName}`,
         firebaseId: decodedToken.uid,
         status: Status.ACTIVE,
       });
@@ -67,7 +64,8 @@ export class AuthService {
     return {
       id: user.id,
       email: user.email,
-      name: user.name,
+      firstName: user.firstName,
+      lastName: user.lastName,
       avatar: user.avatar,
       status: user.status,
       walletId: user.wallet?.id,
@@ -96,7 +94,8 @@ export class AuthService {
     return {
       id: user.id,
       email: user.email,
-      name: user.name,
+      firstName: user.firstName,
+      lastName: user.lastName,
       avatar: user.avatar,
       status: user.status,
       walletId: user.wallet?.id,

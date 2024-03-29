@@ -1,6 +1,6 @@
 import { Migration } from '@mikro-orm/migrations';
 
-export class Migration20240314232512_Initial extends Migration {
+export class Migration20240329111835_Initial extends Migration {
 
   async up(): Promise<void> {
     this.addSql('create table "campaign" ("id" varchar(255) not null, "created_at" timestamptz not null, "updated_at" timestamptz not null, "name" varchar(255) not null, "demographic" varchar(255) not null, "target_age" int not null, "target_reach" int not null, "budget" int not null, "link" varchar(255) not null, "start" timestamptz not null, "end" timestamptz not null, "status" text check ("status" in (\'active\', \'inactive\', \'pending\', \'deleted\', \'verified\', \'unverified\', \'approved\', \'unapproved\', \'rejected\', \'accepted\', \'failed\', \'completed\', \'incomplete\', \'blocked\', \'initiated\')) not null, constraint "campaign_pkey" primary key ("id"));');
@@ -10,9 +10,8 @@ export class Migration20240314232512_Initial extends Migration {
     this.addSql('create index "role_name_index" on "role" ("name");');
     this.addSql('alter table "role" add constraint "role_code_unique" unique ("code");');
 
-    this.addSql('create table "user" ("id" varchar(255) not null, "created_at" timestamptz not null, "updated_at" timestamptz not null, "role_id" varchar(255) not null, "campaign_id" varchar(255) null, "firebase_id" varchar(255) null, "name" varchar(200) not null, "first_name" varchar(100) not null, "last_name" varchar(100) not null, "avatar" text not null, "email" varchar(100) not null, "password" varchar(255) null, "date_of_birth" date null, "sex" text check ("sex" in (\'male\', \'female\')) null, "role_title" varchar(100) null, "status" text check ("status" in (\'active\', \'inactive\', \'pending\', \'deleted\', \'verified\', \'unverified\', \'approved\', \'unapproved\', \'rejected\', \'accepted\', \'failed\', \'completed\', \'incomplete\', \'blocked\', \'initiated\')) not null, constraint "user_pkey" primary key ("id"));');
+    this.addSql('create table "user" ("id" varchar(255) not null, "created_at" timestamptz not null, "updated_at" timestamptz not null, "role_id" varchar(255) not null, "campaign_id" varchar(255) null, "firebase_id" varchar(255) null, "first_name" varchar(100) not null, "last_name" varchar(100) not null, "avatar" text not null, "email" varchar(100) not null, "password" varchar(255) null, "date_of_birth" date null, "sex" text check ("sex" in (\'male\', \'female\')) null, "role_title" varchar(100) null, "status" text check ("status" in (\'active\', \'inactive\', \'pending\', \'deleted\', \'verified\', \'unverified\', \'approved\', \'unapproved\', \'rejected\', \'accepted\', \'failed\', \'completed\', \'incomplete\', \'blocked\', \'initiated\')) not null, constraint "user_pkey" primary key ("id"));');
     this.addSql('alter table "user" add constraint "user_campaign_id_unique" unique ("campaign_id");');
-    this.addSql('create index "user_name_index" on "user" ("name");');
     this.addSql('create index "user_first_name_index" on "user" ("first_name");');
     this.addSql('create index "user_last_name_index" on "user" ("last_name");');
     this.addSql('alter table "user" add constraint "user_email_unique" unique ("email");');

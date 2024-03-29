@@ -5,6 +5,11 @@ import { CreateRequestContext, EntityRepository, MikroORM, wrap } from '@mikro-o
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { EntityManager } from '@mikro-orm/postgresql';
 
+import {
+  FIREBASE_USER_SETUP,
+  USER_CREATED,
+} from '../../@common/constants/events.constant';
+
 import { Status } from '../../@common/enums/status.enum';
 
 import { User } from '../entities/user.entity';
@@ -15,14 +20,11 @@ import { CredentialsDto } from '../dto/credentials.dto';
 import { SetRoleDto } from '../dto/set-role.dto';
 import { SetExtraDetailsDto } from '../dto/set-extra-details.dto';
 import { SetupFirebaseUserDto } from '../dto/setup-firebase-user.dto';
-import {
-  FIREBASE_USER_SETUP,
-  USER_CREATED,
-} from '../../@common/constants/events.constant';
+import { CreateProfile } from '../../kyc/dto/create.profile.dto';
+import { QueryDto } from '../dto/query.dto';
+
 import { FirebaseUserSetupEvent } from '../events/firebase-user-setup.event';
 import { UserCreatedEvent } from '../events/user.created.event';
-import { QueryDto } from '../dto/query.dto';
-import { CreateProfile } from '../../kyc/dto/create.profile.dto';
 
 @Injectable()
 export class UsersService {
@@ -57,17 +59,16 @@ export class UsersService {
   }
 
   @CreateRequestContext()
-  async createAdmin({ name, roleId, roleTitle, email, status, firstName, lastName }: CreateUserDto) {
+  async createAdmin({ roleId, roleTitle, email, status, firstName, lastName }: CreateUserDto) {
     const role = await this.rolesRepository.findOneOrFail(roleId);
 
     const user = this.usersRepository.create({
-      name,
       firstName,
       lastName,
       email,
       roleTitle,
       status: status || Status.ACTIVE,
-      avatar: 'https://ui-avatars.com/api/?name=' + name,
+      avatar: `https://ui-avatars.com/api/?name=${firstName} ${lastName}`,
       password: 'Abcde12345!',
       role
     });
@@ -81,13 +82,13 @@ export class UsersService {
   async setProfile(
     id: string,
     { avatar, dateOfBirth, firstName, lastName, sex }: CreateProfile
-    ) {
-      const user = await this.usersRepository.findOneOrFail(id);
+  ) {
+    const user = await this.usersRepository.findOneOrFail(id);
 
-      wrap(user).assign({ firstName, lastName, sex, avatar, dateOfBirth, status: Status.ACTIVE });
-      await this.em.persistAndFlush(user);
-  
-      return user;
+    wrap(user).assign({ firstName, lastName, sex, avatar, dateOfBirth, status: Status.ACTIVE });
+    await this.em.persistAndFlush(user);
+
+    return user;
   }
 
   async findAllAdmin({ page = 1, size = 10 }: QueryDto) {
@@ -166,15 +167,16 @@ export class UsersService {
     firebaseId,
     avatar,
     email,
-    name,
+    firstName,
+    lastName,
     walletBalance,
   }: SetupFirebaseUserDto): Promise<User> {
     let user = await this.usersRepository.findOne({ firebaseId });
 
     if (user) {
-      wrap(user).assign({ avatar, email, name });
+      wrap(user).assign({ avatar, email, firstName, lastName });
     } else {
-      user = this.usersRepository.create({ firebaseId, avatar, email, name });
+      user = this.usersRepository.create({ firebaseId, avatar, email, firstName, lastName, });
     }
 
     await this.em.persistAndFlush(user);
