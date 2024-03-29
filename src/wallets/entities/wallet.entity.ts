@@ -15,7 +15,10 @@ import { User } from '../../users/entities/user.entity';
 
 @Entity()
 export class Wallet extends BaseEntity {
-  @OneToOne(() => User, (user) => user.wallet, { orphanRemoval: true })
+  @OneToOne(() => User, (user) => user.wallet, {
+    owner: true,
+    nullable: true,
+  })
   user!: User;
 
   @OneToMany(() => WalletTransaction, (transaction) => transaction.wallet)

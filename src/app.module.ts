@@ -12,6 +12,7 @@ import { AppService } from './app.service';
 
 import { AppController } from './app.controller';
 import { CampaignsModule } from './campaigns/campaigns.module';
+import { KycModule } from './kyc/kyc.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { CampaignsModule } from './campaigns/campaigns.module';
     PaymentsModule,
     WebhooksModule,
     CampaignsModule,
+    KycModule,
   ],
   controllers: [AppController],
   providers: [AppService],

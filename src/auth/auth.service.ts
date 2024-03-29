@@ -53,6 +53,8 @@ export class AuthService {
       user = await this.usersService.create({
         email: decodedToken.email,
         name: firebaseName,
+        firstName: decodedToken.given_name,
+        lastName: decodedToken.family_name,
         avatar: decodedToken.picture || `https://ui-avatars.com/api/?name=${firebaseName}`,
         firebaseId: decodedToken.uid,
         status: Status.ACTIVE,

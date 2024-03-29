@@ -22,6 +22,7 @@ import {
 import { FirebaseUserSetupEvent } from '../events/firebase-user-setup.event';
 import { UserCreatedEvent } from '../events/user.created.event';
 import { QueryDto } from '../dto/query.dto';
+import { CreateProfile } from '../../kyc/dto/create.profile.dto';
 
 @Injectable()
 export class UsersService {
@@ -56,11 +57,13 @@ export class UsersService {
   }
 
   @CreateRequestContext()
-  async createAdmin({ name, roleId, roleTitle, email, status }: CreateUserDto) {
+  async createAdmin({ name, roleId, roleTitle, email, status, firstName, lastName }: CreateUserDto) {
     const role = await this.rolesRepository.findOneOrFail(roleId);
 
     const user = this.usersRepository.create({
       name,
+      firstName,
+      lastName,
       email,
       roleTitle,
       status: status || Status.ACTIVE,
@@ -73,6 +76,18 @@ export class UsersService {
     await this.em.populate(user, ['role']);
 
     return user;
+  }
+
+  async setProfile(
+    id: string,
+    { avatar, dateOfBirth, firstName, lastName, sex }: CreateProfile
+    ) {
+      const user = await this.usersRepository.findOneOrFail(id);
+
+      wrap(user).assign({ firstName, lastName, sex, avatar, dateOfBirth, status: Status.ACTIVE });
+      await this.em.persistAndFlush(user);
+  
+      return user;
   }
 
   async findAllAdmin({ page = 1, size = 10 }: QueryDto) {

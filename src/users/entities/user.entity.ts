@@ -21,16 +21,21 @@ import { Payment } from '../../payments/entities/payment.entity';
 import { PaymentMethod } from '../../payments/entities/payment-method.entity';
 import { Campaign } from '../../campaigns/entities/campaign.entity';
 import { Role } from './role.entity';
+import { Kyc } from '../../kyc/entities/kyc.entity';
+import { Attempt } from '../../kyc/entities/attempt.entity';
 
 @Entity()
 export class User extends BaseEntity {
   @ManyToOne(() => Role)
   role!: Role;
 
-  @OneToOne(() => Wallet, (wallet) => wallet.user, {
-    owner: true,
-    nullable: true,
-  })
+  @OneToOne(() => Kyc, (kyc) => kyc.user, { orphanRemoval: true })
+  kyc!: Kyc;
+
+  @OneToMany(() => Attempt, (attempt) => attempt.updatedBy)
+  updatedAttempts = new Collection<Attempt>(this);
+
+  @OneToOne(() => Wallet, (wallet) => wallet.user, { orphanRemoval: true })
   wallet?: Wallet;
 
   @OneToOne(() => Campaign, (campaign) => campaign.user, {
@@ -51,6 +56,12 @@ export class User extends BaseEntity {
 
   @Property({ length: 200, index: true })
   name!: string;
+
+  @Property({ length: 100, index: true })
+  firstName!: string;
+
+  @Property({ length: 100, index: true })
+  lastName!: string;
 
   @Property({ columnType: 'text' })
   avatar!: string;
