@@ -321,16 +321,6 @@
           "nullable": true,
           "mappedType": "string"
         },
-        "name": {
-          "name": "name",
-          "type": "varchar(200)",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "length": 200,
-          "mappedType": "string"
-        },
         "first_name": {
           "name": "first_name",
           "type": "varchar(100)",
@@ -450,16 +440,6 @@
           "constraint": true,
           "primary": false,
           "unique": true
-        },
-        {
-          "columnNames": [
-            "name"
-          ],
-          "composite": false,
-          "keyName": "user_name_index",
-          "constraint": false,
-          "primary": false,
-          "unique": false
         },
         {
           "columnNames": [

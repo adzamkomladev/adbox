@@ -1,5 +1,5 @@
 import { BadRequestException, Body, Controller, HttpException, Param, Patch } from '@nestjs/common';
-import { ApiBadRequestResponse, ApiOkResponse } from '@nestjs/swagger';
+import { ApiBadRequestResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 
 import { ResponseMessage } from '../../@common/decorators/response.message.decorator';
 import { Auth } from '../../auth/decorators/auth.decorator';
@@ -12,6 +12,7 @@ import { CreateIdentity } from '../dto/create.identity.dto';
 import { CreateBusiness } from '../dto/create.business.dto';
 
 @Controller('kyc')
+  @ApiTags('kyc')
 export class KycController {
   constructor(private readonly kycService: KycService) { }
 

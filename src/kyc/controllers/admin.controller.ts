@@ -1,5 +1,5 @@
 import { BadRequestException, Body, Controller, Get, HttpException, Param, Patch, Query } from '@nestjs/common';
-import { ApiBadRequestResponse, ApiOkResponse } from '@nestjs/swagger';
+import { ApiBadRequestResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 
 import { ResponseMessage } from '../../@common/decorators/response.message.decorator';
 import { User } from '../../auth/decorators/user.decorator';
@@ -11,6 +11,7 @@ import { QueryDto } from '../dto/query.dto';
 import { KycService } from '../kyc.service';
 
 @Controller('admin/kyc')
+@ApiTags('admin kyc')
 export class AdminController {
   constructor(private readonly kycService: KycService) { }
 

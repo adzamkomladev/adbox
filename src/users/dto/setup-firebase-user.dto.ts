@@ -1,7 +1,8 @@
 export class SetupFirebaseUserDto {
   readonly firebaseId: string;
   readonly email: string;
-  readonly name: string;
+  readonly firstName: string;
+  readonly lastName: string;
   readonly avatar: string;
   readonly walletBalance: number;
 }

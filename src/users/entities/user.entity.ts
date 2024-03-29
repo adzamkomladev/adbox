@@ -54,9 +54,6 @@ export class User extends BaseEntity {
   @Exclude()
   firebaseId?: string;
 
-  @Property({ length: 200, index: true })
-  name!: string;
-
   @Property({ length: 100, index: true })
   firstName!: string;
 
