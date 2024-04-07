@@ -12,11 +12,11 @@ import { User } from './decorators/user.decorator';
 import { Auth } from './decorators/auth.decorator';
 
 import { AuthenticateDto } from './dto/authenticate.dto';
+import { LoginDto } from './dto/login.dto';
 
 import { ResponseMessage } from '@common/decorators/response.message.decorator';
 
 import { AuthService } from './auth.service';
-import { LoginDto } from './dto/login.dto';
 
 @ApiTags('auth')
 @Controller('auth')

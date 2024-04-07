@@ -81,11 +81,11 @@ export class UsersService {
 
   async setProfile(
     id: string,
-    { avatar, dateOfBirth, firstName, lastName, sex }: CreateProfile
+    { avatar, dateOfBirth, firstName, lastName, sex, phone }: CreateProfile
   ) {
     const user = await this.usersRepository.findOneOrFail(id);
 
-    wrap(user).assign({ firstName, lastName, sex, avatar, dateOfBirth, status: Status.ACTIVE });
+    wrap(user).assign({ firstName, lastName, sex, avatar: avatar || user?.avatar, dateOfBirth, status: Status.ACTIVE });
     await this.em.persistAndFlush(user);
 
     return user;
@@ -139,7 +139,7 @@ export class UsersService {
     }
   }
 
-  async setRole(id: string, { role }: SetRoleDto): Promise<User> {
+  async setRole(id: string, { role }: SetRoleDto) {
     const [user, foundRole] = await Promise.all([
       this.usersRepository.findOneOrFail(id),
       this.rolesRepository.findOneOrFail({ code: role })
@@ -148,7 +148,22 @@ export class UsersService {
     wrap(user).assign({ role: foundRole });
     await this.em.persistAndFlush(user);
 
-    return user;
+    return {
+      id: user.id,
+      email: user.email,
+      firebaseId: user.firebaseId,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      avatar: user.avatar,
+      role: {
+        id: foundRole.id,
+        code: foundRole.code,
+        name: foundRole.name,
+        title: user.roleTitle,
+      },
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt
+    };
   }
 
   async setExtraDetails(
