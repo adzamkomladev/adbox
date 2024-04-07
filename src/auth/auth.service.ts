@@ -27,10 +27,19 @@ export class AuthService {
   ) { }
 
   async authenticate({ idToken, firstName, lastName }: AuthenticateDto): Promise<AuthenticatedDto> {
-    let decodedToken: DecodedIdToken;
+    let decodedToken: Partial<DecodedIdToken>;
 
     try {
       decodedToken = await this.firebase.auth.verifyIdToken(idToken);
+
+      // decodedToken = {
+      //   email: 'pinkmal@yopmail.com',
+      //   name: 'Pink Mal',
+      //   given_name: 'Pink',
+      //   family_name: 'Mal',
+      //   picture: 'https://ui-avatars.com/api/?name=Pink+Mal',
+      //   uid: '123456789',
+      // };
     } catch (e) {
       throw new BadRequestException('failed to decode firebase id token');
     }
@@ -48,11 +57,14 @@ export class AuthService {
     let user = await this.usersService.findByEmail(decodedToken.email);
 
     if (!user) {
+      const newFirstName = firstName || decodedToken.given_name;
+      const newLastName = lastName || decodedToken.family_name;
+      const newAvatar = `https://ui-avatars.com/api/?name=${newFirstName}+${newLastName}`;
       user = await this.usersService.create({
         email: decodedToken.email,
-        firstName: firstName || decodedToken.given_name,
-        lastName: lastName || decodedToken.family_name,
-        avatar: decodedToken.picture || `https://ui-avatars.com/api/?name=${firstName} ${lastName}`,
+        firstName: newFirstName,
+        lastName: newLastName,
+        avatar: newAvatar,
         firebaseId: decodedToken.uid,
         status: Status.ACTIVE,
       });

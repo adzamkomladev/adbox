@@ -6,5 +6,5 @@ export class CreateProfile {
     readonly dateOfBirth: Date;
     readonly sex: Sex;
     readonly phone: string;
-    readonly avatar: string;
+    readonly avatar?: string;
 }
