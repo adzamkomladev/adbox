@@ -40,11 +40,11 @@ export class KycService {
         return user;
     }
 
-    async createIdentity(id: string, { type, url }: CreateIdentity) {
+    async createIdentity(id: string, { type, front, back, combined }: CreateIdentity) {
         const kyc = await this.findKycByUser(id);
 
         const attempt = new Attempt();
-        attempt.identity = { type, url };
+        attempt.identity = { type, front, back, combined };
         attempt.status = Status.PENDING;
 
         kyc.attempts.add(attempt);
@@ -52,7 +52,9 @@ export class KycService {
         wrap(kyc).assign({
             identity: {
                 type,
-                url
+                front,
+                back,
+                combined
             }
         });
         await this.em.persistAndFlush(kyc);

@@ -2,5 +2,7 @@ import { Type } from "../enums/type.enum";
 
 export class CreateIdentity {
     readonly type: Type;
-    readonly url: string;
+    readonly front: string;
+    readonly back: string;
+    readonly combined: string;
 }
