@@ -6,5 +6,11 @@ export class Identity {
     type!: string;
 
     @Property({ type: 'text' })
-    url!: string;
+    front!: string;
+
+    @Property({ type: 'text' })
+    back!: string;
+
+    @Property({ type: 'text' })
+    combined!: string;
 }
