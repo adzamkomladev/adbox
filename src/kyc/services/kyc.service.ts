@@ -4,18 +4,21 @@ import { InjectRepository } from '@mikro-orm/nestjs';
 import { MikroORM, EntityManager, wrap } from '@mikro-orm/core';
 import { EntityRepository } from '@mikro-orm/postgresql';
 
-import { Kyc } from './entities/kyc.entity';
+import { AttemptType } from '../enums/attempt.type.enum';
+import { Status } from '../../@common/enums/status.enum';
 
-import { CreateProfile } from './dto/create.profile.dto';
-import { CreateIdentity } from './dto/create.identity.dto';
+import { Kyc } from '../entities/kyc.entity';
+import { Identity } from '../entities/identity.entity';
+import { Business } from '../entities/business.entity';
+import { Attempt } from '../entities/attempt.entity';
 
-import { UsersService } from '../users/services/users.service';
-import { CreateBusiness } from './dto/create.business.dto';
-import { Attempt } from './entities/attempt.entity';
-import { Status } from '../@common/enums/status.enum';
-import { UpdateStatus } from './dto/update.status.dto';
-import { AttemptType } from './enums/attempt.type.enum';
-import { QueryDto } from './dto/query.dto';
+import { CreateProfile } from '../dto/create.profile.dto';
+import { CreateIdentity } from '../dto/create.identity.dto';
+import { CreateBusiness } from '../dto/create.business.dto';
+import { QueryDto } from '../dto/query.dto';
+import { UpdateStatus } from '../dto/update.status.dto';
+
+import { UsersService } from '../../users/services/users.service';
 
 @Injectable()
 export class KycService {
@@ -43,20 +46,19 @@ export class KycService {
     async createIdentity(id: string, { type, front, back, combined }: CreateIdentity) {
         const kyc = await this.findKycByUser(id);
 
+        const identity = new Identity();
+        identity.type = type;
+        identity.front = front;
+        identity.back = back;
+        identity.combined = combined;
+
         const attempt = new Attempt();
-        attempt.identity = { type, front, back, combined };
+        attempt.identity = identity;
         attempt.status = Status.PENDING;
 
         kyc.attempts.add(attempt);
 
-        wrap(kyc).assign({
-            identity: {
-                type,
-                front,
-                back,
-                combined
-            }
-        });
+        wrap(kyc).assign({ identity });
         await this.em.persistAndFlush(kyc);
 
         return kyc;
@@ -65,14 +67,18 @@ export class KycService {
     async createBusiness(id: string, payload: CreateBusiness) {
         const kyc = await this.findKycByUser(id, false);
 
+        const business = new Business();
+        business.type = payload.type;
+        business.category = payload.category;
+        business.url = payload.url;
+        business.taxNumber = payload.taxNumber;
+
         const attempt = new Attempt();
-        attempt.business = { ...payload };
+        attempt.business = business;
         attempt.status = Status.PENDING;
 
         kyc.attempts.add(attempt);
-        wrap(kyc).assign({
-            business: { ...payload }
-        });
+        wrap(kyc).assign({ business });
         await this.em.persistAndFlush(kyc);
 
         return kyc;

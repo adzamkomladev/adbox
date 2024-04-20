@@ -8,7 +8,7 @@ import { Auth } from '../../auth/decorators/auth.decorator';
 import { UpdateStatus } from '../dto/update.status.dto';
 import { QueryDto } from '../dto/query.dto';
 
-import { KycService } from '../kyc.service';
+import { KycService } from '../services/kyc.service';
 
 @Controller('admin/kyc')
 @ApiTags('admin kyc')

@@ -36,6 +36,15 @@
       "compilerOptions": {
         "tsConfigPath": "libs/junipay/tsconfig.lib.json"
       }
+    },
+    "arkesel": {
+      "type": "library",
+      "root": "libs/arkesel",
+      "entryFile": "index",
+      "sourceRoot": "libs/arkesel/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/arkesel/tsconfig.lib.json"
+      }
     }
   }
 }

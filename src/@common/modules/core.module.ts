@@ -6,8 +6,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { BullModule } from '@nestjs/bull';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 
-import type { RedisClientOptions } from 'redis';
-import * as redisStore from 'cache-manager-redis-store';
+
 import { BullBoardModule } from '@bull-board/nestjs';
 import { ExpressAdapter } from '@bull-board/express';
 
@@ -16,6 +15,7 @@ import dbConfig from '../configs/db.config';
 import redisConfig from '../configs/redis.config';
 import authConfig from '../configs/auth.config';
 import paymentsConfig from '../configs/payments.config';
+import notificationsConfig from '../configs/notifications.config';
 
 import { TransformInterceptor } from '../interceptors/transform.interceptor';
 
@@ -23,18 +23,11 @@ import { TransformInterceptor } from '../interceptors/transform.interceptor';
 @Module({
   imports: [
     ConfigModule.forRoot({
-      load: [appConfig, dbConfig, redisConfig, authConfig, paymentsConfig],
+      load: [appConfig, dbConfig, redisConfig, authConfig, paymentsConfig, notificationsConfig],
       isGlobal: true,
     }),
     ScheduleModule.forRoot(),
-    CacheModule.registerAsync<RedisClientOptions>({
-      useFactory: async (config: ConfigService) =>
-      ({
-        store: redisStore.redisStore as any,
-        url: config.get('redis.url'),
-      } as RedisClientOptions),
-      inject: [ConfigService],
-    }),
+
     BullModule.forRootAsync({
       useFactory: async (config: ConfigService) => ({
         redis: {

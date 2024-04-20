@@ -7,12 +7,13 @@ import { AuthModule } from './auth/auth.module';
 import { WalletsModule } from './wallets/wallets.module';
 import { PaymentsModule } from './payments/payments.module';
 import { WebhooksModule } from './webhooks/webhooks.module';
+import { CampaignsModule } from './campaigns/campaigns.module';
+import { KycModule } from './kyc/kyc.module';
+import { NotificationsModule } from './notifications/notifications.module';
 
 import { AppService } from './app.service';
 
 import { AppController } from './app.controller';
-import { CampaignsModule } from './campaigns/campaigns.module';
-import { KycModule } from './kyc/kyc.module';
 
 @Module({
   imports: [
@@ -25,8 +26,9 @@ import { KycModule } from './kyc/kyc.module';
     WebhooksModule,
     CampaignsModule,
     KycModule,
+    NotificationsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule { }

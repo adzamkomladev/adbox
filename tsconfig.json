@@ -41,6 +41,12 @@
       ],
       "@adbox/junipay/*": [
         "libs/junipay/src/*"
+      ],
+      "@adbox/arkesel": [
+        "libs/arkesel/src"
+      ],
+      "@adbox/arkesel/*": [
+        "libs/arkesel/src/*"
       ]
     }
   }

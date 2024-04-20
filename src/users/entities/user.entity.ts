@@ -66,6 +66,12 @@ export class User extends BaseEntity {
   @Property({ length: 100, unique: true })
   email!: string;
 
+  @Property({ length: 20, nullable: true })
+  phone?: string;
+
+  @Property({ nullable: true })
+  phoneVerifiedAt?: Date;
+
   @Property({ nullable: true, hidden: true })
   @Exclude()
   password?: string;
