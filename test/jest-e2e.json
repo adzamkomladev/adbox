@@ -16,6 +16,8 @@
     "@adbox/utils/(.*)": "<rootDir>/../libs/utils/src/$1",
     "@adbox/utils": "<rootDir>/../libs/utils/src",
     "@adbox/junipay/(.*)": "<rootDir>/../libs/junipay/src/$1",
-    "@adbox/junipay": "<rootDir>/../libs/junipay/src"
+    "@adbox/junipay": "<rootDir>/../libs/junipay/src",
+    "@adbox/arkesel/(.*)": "<rootDir>/../libs/arkesel/src/$1",
+    "@adbox/arkesel": "<rootDir>/../libs/arkesel/src"
   }
 }

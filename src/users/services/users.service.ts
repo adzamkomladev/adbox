@@ -178,6 +178,18 @@ export class UsersService {
     return user;
   }
 
+  async setPhoneNumber(
+    id: string,
+    phone: string
+  ): Promise<User> {
+    const user = await this.usersRepository.findOneOrFail(id);
+
+    wrap(user).assign({ phone, phoneVerifiedAt: null });
+    await this.em.persistAndFlush(user);
+
+    return user;
+  }
+
   async setupFirebaseUser({
     firebaseId,
     avatar,

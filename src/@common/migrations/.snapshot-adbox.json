@@ -360,6 +360,26 @@
           "length": 100,
           "mappedType": "string"
         },
+        "phone": {
+          "name": "phone",
+          "type": "varchar(20)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 20,
+          "mappedType": "string"
+        },
+        "phone_verified_at": {
+          "name": "phone_verified_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 6,
+          "mappedType": "datetime"
+        },
         "password": {
           "name": "password",
           "type": "varchar(255)",
