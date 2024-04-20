@@ -78,6 +78,8 @@ export class AuthService {
       email: user.email,
       firstName: user.firstName,
       lastName: user.lastName,
+      isPhoneVerified: !!user.phoneVerifiedAt,
+      phone: user.phone,
       avatar: user.avatar,
       status: user.status,
       walletId: user.wallet?.id,

@@ -9,4 +9,6 @@ export class AuthenticatedDto {
   readonly status: Status;
   readonly walletId?: string;
   readonly accessToken: string;
+  readonly phone?: string;
+  readonly isPhoneVerified: boolean;
 }
