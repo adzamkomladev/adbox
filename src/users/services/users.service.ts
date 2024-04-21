@@ -166,6 +166,15 @@ export class UsersService {
     };
   }
 
+  async markUserPhoneAsVerified(id: string) {
+    const user = await this.usersRepository.findOneOrFail(id);
+
+    wrap(user).assign({ phoneVerifiedAt: new Date() });
+    await this.em.persistAndFlush(user);
+
+    return user;
+  }
+
   async setExtraDetails(
     id: string,
     { dateOfBirth, country }: SetExtraDetailsDto,

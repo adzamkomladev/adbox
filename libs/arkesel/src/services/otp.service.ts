@@ -21,7 +21,7 @@ export class OtpService {
                 this.http.post<GenerateOtpResponse>(
                     this.config.get('arkesel.otp.urls.generate'),
                     {
-                        number: payload.sender,
+                        number: payload.phone,
                         message: payload.message || this.config.get('arkesel.otp.message'),
                         sender_id: payload.sender || this.config.get('arkesel.otp.sender'),
                         type: payload.type || this.config.get('arkesel.otp.type'),
@@ -47,7 +47,7 @@ export class OtpService {
                 } : null
             };
         } catch (e) {
-            this.logger.error(`This is our fault. We caused this during generate OTP request - {e.message}`);
+            this.logger.error(`This is our fault. We caused this during generate OTP request - ${e.message}`);
 
             return {
                 success: false,
@@ -68,12 +68,11 @@ export class OtpService {
                 )
             );
 
-            const success = status === HttpStatus.OK;
-            if (success) {
+            const success = status === HttpStatus.OK && data?.code === '1100';
+            if (!success) {
                 data?.code ?
-                    this.logger.log(`Failed verify OTP request with this code and message: ${data.code} - ${data.message}`)
-                    : this.logger.log('This is their fault. Failed to respond properly to this verify OTP request');
-
+                    this.logger.error(`Failed verify OTP request with this code and message: ${data.code} - ${data.message}`)
+                    : this.logger.error('This is their fault. Failed to respond properly to this verify OTP request');
             }
 
             return {

@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 
 import { User } from '../../users/entities/user.entity';
 
@@ -10,6 +10,7 @@ import { UsersService } from '../../users/services/users.service';
 
 @Injectable()
 export class PhoneVerificationService {
+    private readonly logger = new Logger(PhoneVerificationService.name);
 
     constructor(
         private readonly usersService: UsersService,
@@ -17,8 +18,9 @@ export class PhoneVerificationService {
     ) { }
 
     async sendVerificationCode(user: User, type?: string) {
+        const fullUserDetails = await this.usersService.findOne(user.id);
         const { success, code } = await this.otpService.generateOtpForUser({
-            phone: user.phone,
+            phone: fullUserDetails.phone,
             userId: user.id,
         });
 
@@ -30,14 +32,23 @@ export class PhoneVerificationService {
     }
 
     async verifyVerificationCode(user: User, { code }: VerifyCode) {
+        const fullUserDetails = await this.usersService.findOne(user.id);
+
         const success = await this.otpService.verifyOtpForUser({
-            phone: user.phone,
+            phone: fullUserDetails.phone,
             userId: user.id,
             code
         });
 
         if (!success) {
             throw new BadRequestException(`invalid verification code ${code}`);
+        }
+
+        try {
+            await this.usersService.markUserPhoneAsVerified(user.id);
+        } catch (e) {
+            this.logger.error(`failed to mark user phone as verified ${e}`);
+            throw new BadRequestException('failed to verify code');
         }
     }
 
