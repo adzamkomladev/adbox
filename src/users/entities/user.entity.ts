@@ -35,14 +35,11 @@ export class User extends BaseEntity {
   @OneToMany(() => Attempt, (attempt) => attempt.updatedBy)
   updatedAttempts = new Collection<Attempt>(this);
 
+  @OneToMany(() => Campaign, (campaign) => campaign.user)
+  createdCampaigns = new Collection<Campaign>(this);
+
   @OneToOne(() => Wallet, (wallet) => wallet.user, { orphanRemoval: true })
   wallet?: Wallet;
-
-  @OneToOne(() => Campaign, (campaign) => campaign.user, {
-    owner: true,
-    nullable: true,
-  })
-  campaign?: Campaign;
 
   @OneToMany(() => Payment, (payment) => payment.user)
   payments = new Collection<Payment>(this);

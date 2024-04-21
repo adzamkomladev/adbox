@@ -1,4 +1,4 @@
-import { Entity, Enum, OneToOne, Property } from '@mikro-orm/core';
+import { Entity, Enum, ManyToOne, OneToOne, Property } from '@mikro-orm/core';
 
 import { Status } from '../../@common/enums/status.enum';
 
@@ -7,11 +7,14 @@ import { User } from '../../users/entities/user.entity';
 
 @Entity()
 export class Campaign extends BaseEntity {
-  @OneToOne(() => User, (user) => user.campaign, { orphanRemoval: true })
+  @ManyToOne({ entity: () => User })
   user!: User;
 
   @Property({ index: true })
   name!: string;
+
+  @Property({ type: 'text', nullable: true })
+  description?: string;
 
   @Property()
   demographic!: string;
