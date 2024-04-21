@@ -14,6 +14,8 @@ import { AuthenticatedDto } from './dto/authenticated.dto';
 import { LoginDto } from './dto/login.dto';
 
 import { UsersService } from '../users/services/users.service';
+import { User } from '../users/entities/user.entity';
+import { identity } from 'rxjs';
 
 @Injectable()
 export class AuthService {
@@ -115,5 +117,36 @@ export class AuthService {
       walletId: user.wallet?.id,
       accessToken,
     };
+  }
+
+  async getFullUserData(payload: User) {
+    const user = await this.usersService.findOne(payload.id);
+
+    const attempts = await user.kyc?.attempts?.matching({
+      orderBy: { createdAt: 'desc' },
+    });
+
+    return {
+      id: user.id,
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      avatar: user.avatar,
+      status: user.status,
+      wallet: user.wallet,
+      phone: user.phone,
+      isPhoneVerified: !!user.phoneVerifiedAt,
+      kyc: {
+        id: user.kyc?.id,
+        level: user.kyc?.level,
+        identity: user.kyc?.identity,
+        business: user.kyc?.business,
+        attempts: {
+          latest: attempts?.[0],
+          total: attempts?.length,
+        }
+      },
+      role: user.role,
+    }
   }
 }

@@ -118,11 +118,11 @@ export class UsersService {
   }
 
   async findOne(id: string): Promise<User> {
-    return await this.usersRepository.findOneOrFail(id, { populate: ['role'] });
+    return await this.usersRepository.findOneOrFail(id, { populate: ['role', 'wallet', 'kyc'] });
   }
 
   async findByEmail(email: string) {
-    return this.usersRepository.findOne({ email }, { populate: ['wallet', 'role'] });
+    return this.usersRepository.findOne({ email }, { populate: ['wallet', 'role', 'kyc'] });
   }
 
   async findByCredentials({ email, password }: CredentialsDto) {

@@ -60,7 +60,15 @@ export class AuthController {
   @Auth()
   @Get('me')
   @ResponseMessage('retrieved current auth user')
-  me(@User() user) {
-    return user;
+  async me(@User() user) {
+    try {
+      return await this.auth.getFullUserData(user);
+    } catch (e) {
+      if (e instanceof HttpException) {
+        throw e;
+      }
+
+      throw new BadRequestException(e.message);
+    }
   }
 }
