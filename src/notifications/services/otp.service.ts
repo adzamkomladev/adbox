@@ -55,6 +55,8 @@ export class OtpService {
                 return false;
             }
 
+            await this.cache.del(`notifications:otp:${userId}`);
+
             return success;
         } catch (e) {
             this.logger.error(`Failed to verify OTP for user ${userId} and phone ${phone} and code ${code}`);
