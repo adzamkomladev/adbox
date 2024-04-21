@@ -53,6 +53,12 @@ export class PhoneVerificationService {
     }
 
     async savePhoneNumber(userId: string, { phone }: SavePhone) {
-        return await this.usersService.setPhoneNumber(userId, phone);
+        const user = await this.usersService.setPhoneNumber(userId, phone);
+
+        if (!user) {
+            throw new BadRequestException('failed to save phone number');
+        }
+
+        return await this.sendVerificationCode(user, 'sms');
     }
 }
