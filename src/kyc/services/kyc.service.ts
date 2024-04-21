@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { MikroORM, EntityManager, wrap } from '@mikro-orm/core';
@@ -22,6 +22,8 @@ import { UsersService } from '../../users/services/users.service';
 
 @Injectable()
 export class KycService {
+    private readonly logger = new Logger(KycService.name);
+
     constructor(
         private readonly orm: MikroORM,
         private readonly em: EntityManager,
@@ -31,16 +33,21 @@ export class KycService {
     ) { }
 
     async createProfile(id: string, payload: CreateProfile) {
-        const user = await this.usersService.setProfile(id, payload);
+        try {
+            const user = await this.usersService.setProfile(id, payload);
 
-        const kyc = this.kycRepository.create({
-            level: 1,
-            user,
-            country: 'GH',
-        });
-        await this.em.persistAndFlush(kyc);
+            const kyc = this.kycRepository.create({
+                level: 1,
+                user,
+                country: 'GH',
+            });
+            await this.em.persistAndFlush(kyc);
 
-        return user;
+            return user;
+        } catch (e) {
+            this.logger.error(`Failed to create profile for user ${id}`, e);
+            throw new BadRequestException('Failed to create profile');
+        }
     }
 
     async createIdentity(id: string, { type, front, back, combined }: CreateIdentity) {
@@ -52,13 +59,14 @@ export class KycService {
         identity.back = back;
         identity.combined = combined;
 
-        const attempt = new Attempt();
-        attempt.identity = identity;
-        attempt.status = Status.PENDING;
+        kyc.attempts.add(
+            this.em.create(
+                Attempt, {
+                identity,
+                status: Status.PENDING,
+            })
+        );
 
-        kyc.attempts.add(attempt);
-
-        wrap(kyc).assign({ identity });
         await this.em.persistAndFlush(kyc);
 
         return kyc;
@@ -73,12 +81,13 @@ export class KycService {
         business.url = payload.url;
         business.taxNumber = payload.taxNumber;
 
-        const attempt = new Attempt();
-        attempt.business = business;
-        attempt.status = Status.PENDING;
-
-        kyc.attempts.add(attempt);
-        wrap(kyc).assign({ business });
+        kyc.attempts.add(
+            this.em.create(
+                Attempt, {
+                business,
+                status: Status.PENDING,
+            })
+        );
         await this.em.persistAndFlush(kyc);
 
         return kyc;
@@ -89,7 +98,6 @@ export class KycService {
             this.findKycWithAttemptsById(id, type),
             this.usersService.findOne(updatedBy)
         ]);
-
 
         if (status !== Status.APPROVED) {
             type === AttemptType.IDENTITY ?
@@ -134,7 +142,7 @@ export class KycService {
     }
 
     private async findKycWithAttemptsById(id: string, type: AttemptType) {
-        const condition = type === AttemptType.IDENTITY ? { identity: { $ne: null } } : { business: { $ne: null } };
+        const condition = type === AttemptType.IDENTITY ? { $not: { identity: null } } : { $not: { business: null } };
 
         const kyc = await this.kycRepository.findOneOrFail(
             id,
@@ -159,7 +167,7 @@ export class KycService {
     }
 
     private async findKycByUser(id: string, isIdentity: boolean = true) {
-        const condition = isIdentity ? { identity: { $ne: null } } : { business: { $ne: null } };
+        const condition = isIdentity ? { $not: { identity: null } } : { $not: { business: null } };
 
         const kyc = await this.kycRepository.findOneOrFail({
             user: {

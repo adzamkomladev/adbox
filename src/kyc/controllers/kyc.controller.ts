@@ -5,14 +5,17 @@ import { ResponseMessage } from '../../@common/decorators/response.message.decor
 import { Auth } from '../../auth/decorators/auth.decorator';
 import { User } from '../../auth/decorators/user.decorator';
 
-import { CreateProfile } from '../dto/create.profile.dto';
+import { User as UserEntity } from '../../users/entities/user.entity';
 
-import { KycService } from '../services/kyc.service';
+import { CreateProfile } from '../dto/create.profile.dto';
 import { CreateIdentity } from '../dto/create.identity.dto';
 import { CreateBusiness } from '../dto/create.business.dto';
-import { User as UserEntity } from '../../users/entities/user.entity';
-import { PhoneVerificationService } from '../services/phone-verification.service';
 import { SavePhone } from '../dto/verification/save.phone.dto';
+import { VerifyCode } from '../dto/verification/verify.dto';
+import { SendVerificationCode } from '../dto/verification/send.verification.code.dto';
+
+import { KycService } from '../services/kyc.service';
+import { PhoneVerificationService } from '../services/phone-verification.service';
 
 @Controller('kyc')
   @ApiTags('kyc')
@@ -69,10 +72,10 @@ export class KycController {
   @ResponseMessage('phone verification code sent')
   async sendPhoneVerificationCode(
     @User() user: UserEntity,
-    @Query('type') type: string,
+    @Query() query: SendVerificationCode,
   ) {
     try {
-      return await this.phoneVerificationService.sendVerificationCode(user, type);
+      return await this.phoneVerificationService.sendVerificationCode(user, query?.type);
     } catch (e) {
       if (e instanceof HttpException) {
         throw e;
@@ -89,7 +92,7 @@ export class KycController {
   @ResponseMessage('code verification successful')
   async verifyVerificationCode(
     @User() user: UserEntity,
-    @Body() body: { code: string },
+    @Body() body: VerifyCode,
   ) {
     try {
       await this.phoneVerificationService.verifyVerificationCode(user, body);
