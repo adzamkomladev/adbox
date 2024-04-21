@@ -13,6 +13,7 @@ import { CreateBusiness } from '../dto/create.business.dto';
 import { User as UserEntity } from '../../users/entities/user.entity';
 import { PhoneVerificationService } from '../services/phone-verification.service';
 import { SavePhone } from '../dto/verification/save.phone.dto';
+import { VerifyCode } from '../dto/verification/verify.dto';
 
 @Controller('kyc')
   @ApiTags('kyc')
@@ -89,7 +90,7 @@ export class KycController {
   @ResponseMessage('code verification successful')
   async verifyVerificationCode(
     @User() user: UserEntity,
-    @Body() body: { code: string },
+    @Body() body: VerifyCode,
   ) {
     try {
       await this.phoneVerificationService.verifyVerificationCode(user, body);
