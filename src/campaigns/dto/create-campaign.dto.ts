@@ -2,6 +2,7 @@ import {
   IsDate,
   IsNotEmpty,
   IsNumber,
+  IsOptional,
   IsString,
   IsUrl,
   Min,
@@ -11,10 +12,6 @@ export class CreateCampaignDto {
   @IsNotEmpty()
   @IsString()
   readonly name!: string;
-
-  @IsNotEmpty()
-  @IsString()
-  readonly demographic!: string;
 
   @IsNotEmpty()
   @IsNumber()
@@ -43,4 +40,8 @@ export class CreateCampaignDto {
   @IsNotEmpty()
   @IsDate()
   end!: Date;
+
+  @IsOptional()
+  @IsString()
+  description?: string;
 }

@@ -6,6 +6,8 @@ import {
   Patch,
   Param,
   Delete,
+  HttpException,
+  BadRequestException,
 } from '@nestjs/common';
 import { CampaignsService } from './campaigns.service';
 import { CreateCampaignDto } from './dto/create-campaign.dto';
@@ -16,17 +18,25 @@ import { User } from '../auth/decorators/user.decorator';
 
 @Controller('campaigns')
 export class CampaignsController {
-  constructor(private readonly campaignsService: CampaignsService) {}
+  constructor(private readonly campaignsService: CampaignsService) { }
 
   @Auth()
   @Post()
   @ApiOkResponse()
   @ApiBadRequestResponse()
-  create(
+  async create(
     @User('id') userId: string,
     @Body() createCampaignDto: CreateCampaignDto,
   ) {
-    return this.campaignsService.create(userId, createCampaignDto);
+    try {
+      return await this.campaignsService.create(userId, createCampaignDto);
+    } catch (e) {
+      if (e instanceof HttpException) {
+        throw e;
+      }
+
+      throw new BadRequestException(e.message);
+    }
   }
 
   @Get()
