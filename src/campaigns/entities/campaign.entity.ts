@@ -1,14 +1,18 @@
-import { Entity, Enum, ManyToOne, OneToOne, Property } from '@mikro-orm/core';
+import { Collection, Entity, Enum, ManyToOne, OneToMany, Property } from '@mikro-orm/core';
 
 import { Status } from '../../@common/enums/status.enum';
 
 import { BaseEntity } from '../../@common/entities/base.entity';
 import { User } from '../../users/entities/user.entity';
+import { Interaction } from './interaction.entity';
 
 @Entity()
 export class Campaign extends BaseEntity {
   @ManyToOne({ entity: () => User })
   user!: User;
+
+  @OneToMany(() => Interaction, (interaction) => interaction.campaign)
+  interactions = new Collection<Interaction>(this);
 
   @Property({ index: true })
   name!: string;
@@ -28,8 +32,14 @@ export class Campaign extends BaseEntity {
   @Property()
   budget!: number;
 
+  @Property({ default: 0 })
+  fee!: number;
+
   @Property()
-  link!: string;
+  perInteractionCost!: number;
+
+  @Property()
+  asset!: string;
 
   @Property()
   start!: Date;

@@ -23,6 +23,7 @@ import { Campaign } from '../../campaigns/entities/campaign.entity';
 import { Role } from './role.entity';
 import { Kyc } from '../../kyc/entities/kyc.entity';
 import { Attempt } from '../../kyc/entities/attempt.entity';
+import { Interaction } from '../../campaigns/entities/interaction.entity';
 
 @Entity()
 export class User extends BaseEntity {
@@ -37,6 +38,9 @@ export class User extends BaseEntity {
 
   @OneToMany(() => Campaign, (campaign) => campaign.user)
   createdCampaigns = new Collection<Campaign>(this);
+
+  @OneToMany(() => Interaction, (interaction) => interaction.user)
+  campaignInteractions = new Collection<Interaction>(this);
 
   @OneToOne(() => Wallet, (wallet) => wallet.user, { orphanRemoval: true })
   wallet?: Wallet;
