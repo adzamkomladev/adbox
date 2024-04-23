@@ -25,12 +25,12 @@ export class Attempt extends BaseEntity {
     @Enum({ items: () => Status })
     status!: Status;
 
+    @Property()
+    level: number = 1;
+
     @Property({ nullable: true })
     reason?: string;
 
-    @Embedded({ entity: () => Identity, object: true, nullable: true })
-    identity?: Identity;
-
-    @Embedded({ entity: () => Business, object: true, nullable: true })
-    business?: Business;
+    @Embedded({ entity: () => [Identity, Business], object: true, nullable: true })
+    details!: Identity | Business;
 }

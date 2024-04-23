@@ -18,6 +18,7 @@ export default defineConfig({
   },
   seeder: {
     path: 'src/@common/seeders',
+    defaultSeeder: 'DatabaseSeeder', // default seeder class name
   },
   extensions: [Migrator, SeedManager]
 });

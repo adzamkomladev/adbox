@@ -274,7 +274,8 @@
             "completed",
             "incomplete",
             "blocked",
-            "initiated"
+            "initiated",
+            "not_started"
           ],
           "mappedType": "enum"
         }
@@ -468,7 +469,8 @@
             "completed",
             "incomplete",
             "blocked",
-            "initiated"
+            "initiated",
+            "not_started"
           ],
           "mappedType": "enum"
         }
@@ -646,7 +648,8 @@
             "completed",
             "incomplete",
             "blocked",
-            "initiated"
+            "initiated",
+            "not_started"
           ],
           "mappedType": "enum"
         },
@@ -983,7 +986,8 @@
             "completed",
             "incomplete",
             "blocked",
-            "initiated"
+            "initiated",
+            "not_started"
           ],
           "mappedType": "enum"
         }
@@ -1223,9 +1227,20 @@
             "completed",
             "incomplete",
             "blocked",
-            "initiated"
+            "initiated",
+            "not_started"
           ],
           "mappedType": "enum"
+        },
+        "level": {
+          "name": "level",
+          "type": "int",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "default": "1",
+          "mappedType": "integer"
         },
         "reason": {
           "name": "reason",
@@ -1236,17 +1251,8 @@
           "nullable": true,
           "mappedType": "string"
         },
-        "identity": {
-          "name": "identity",
-          "type": "jsonb",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": true,
-          "mappedType": "json"
-        },
-        "business": {
-          "name": "business",
+        "details": {
+          "name": "details",
           "type": "jsonb",
           "unsigned": false,
           "autoincrement": false,
@@ -1381,7 +1387,8 @@
             "completed",
             "incomplete",
             "blocked",
-            "initiated"
+            "initiated",
+            "not_started"
           ],
           "mappedType": "enum"
         }
@@ -1558,7 +1565,8 @@
             "completed",
             "incomplete",
             "blocked",
-            "initiated"
+            "initiated",
+            "not_started"
           ],
           "mappedType": "enum"
         }

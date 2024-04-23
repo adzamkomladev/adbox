@@ -38,11 +38,10 @@ export class UsersService {
     private readonly eventEmitter: EventEmitter2,
   ) { }
 
-  @CreateRequestContext()
   async create(payload: CreateUserDto) {
-    const role = await this.rolesRepository.findOne({ code: 'SUBSCRIBER' });
+    const role = await this.em.findOne(Role, { code: 'SUBSCRIBER' });
 
-    const user = this.usersRepository.create({
+    const user = this.em.create(User, {
       ...payload,
       role
     });
@@ -81,11 +80,18 @@ export class UsersService {
 
   async setProfile(
     id: string,
-    { avatar, dateOfBirth, firstName, lastName, sex, phone }: CreateProfile
+    { avatar, dateOfBirth, firstName, lastName, sex }: CreateProfile
   ) {
     const user = await this.usersRepository.findOneOrFail(id);
 
-    wrap(user).assign({ firstName, lastName, sex, avatar: avatar || user?.avatar, dateOfBirth, status: Status.ACTIVE });
+    wrap(user).assign({
+      firstName,
+      lastName,
+      sex,
+      avatar: avatar || user?.avatar,
+      dateOfBirth,
+      status: Status.ACTIVE
+    });
     await this.em.persistAndFlush(user);
 
     return user;
