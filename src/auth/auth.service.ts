@@ -32,16 +32,16 @@ export class AuthService {
     let decodedToken: Partial<DecodedIdToken>;
 
     try {
-      // decodedToken = await this.firebase.auth.verifyIdToken(idToken);
+      decodedToken = await this.firebase.auth.verifyIdToken(idToken);
 
-      decodedToken = {
-        email: 'pinkmal@yopmail.com',
-        name: 'Pink Mal',
-        given_name: 'Pink',
-        family_name: 'Mal',
-        picture: 'https://ui-avatars.com/api/?name=Pink+Mal',
-        uid: '123456789',
-      };
+      // decodedToken = {
+      //   email: 'pinkmal@yopmail.com',
+      //   name: 'Pink Mal',
+      //   given_name: 'Pink',
+      //   family_name: 'Mal',
+      //   picture: 'https://ui-avatars.com/api/?name=Pink+Mal',
+      //   uid: '123456789',
+      // };
     } catch (e) {
       throw new BadRequestException('failed to decode firebase id token');
     }
