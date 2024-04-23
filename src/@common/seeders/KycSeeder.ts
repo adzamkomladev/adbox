@@ -17,7 +17,6 @@ import { Business } from '../../kyc/entities/business.entity';
 export class KycSeeder extends Seeder {
 
     async run(em: EntityManager): Promise<void> {
-
         const roles = await em.findAll(Role, {});
         const publisherRole = roles?.find(role => role.code === 'PUBLISHER');
         const subscriberRole = roles?.find(role => role.code === 'SUBSCRIBER');
@@ -30,11 +29,11 @@ export class KycSeeder extends Seeder {
 
     async initiatedIdentity(em: EntityManager, publisherRole: Role, subscriberRole: Role): Promise<void> {
         for (let i = 0; i < 40; i++) {
-            const identity = new Identity();
-            identity.type = Type.NATIONAL_ID;
-            identity.front = faker.image.avatar();
-            identity.back = faker.image.avatar();
-            identity.combined = faker.image.avatar();
+            const details = new Identity();
+            details.idType = Type.NATIONAL_ID;
+            details.front = faker.image.avatar();
+            details.back = faker.image.avatar();
+            details.combined = faker.image.avatar();
 
             const chosenRole = faker.helpers.arrayElement([publisherRole, subscriberRole]);
 
@@ -53,7 +52,8 @@ export class KycSeeder extends Seeder {
                     level: 1,
                     attempts: [
                         em.create(Attempt, {
-                            identity,
+                            details,
+                            level: 2,
                             status: Status.PENDING,
                         })
                     ]
@@ -66,11 +66,11 @@ export class KycSeeder extends Seeder {
         const admins = await em.findAll(User, { where: { role: { code: 'ADMIN' } } });
 
         for (let i = 0; i < 10; i++) {
-            const identity = new Identity();
-            identity.type = Type.NATIONAL_ID;
-            identity.front = faker.image.avatar();
-            identity.back = faker.image.avatar();
-            identity.combined = faker.image.avatar();
+            const details = new Identity();
+            details.idType = Type.NATIONAL_ID;
+            details.front = faker.image.avatar();
+            details.back = faker.image.avatar();
+            details.combined = faker.image.avatar();
 
             const chosenRole = faker.helpers.arrayElement([publisherRole, subscriberRole]);
             const chosenAdmin = faker.helpers.arrayElement(admins);
@@ -88,11 +88,11 @@ export class KycSeeder extends Seeder {
                 kyc: em.create(Kyc, {
                     country: 'GH',
                     level: 2,
-                    identity,
+                    identity: details,
                     attempts: [
                         em.create(Attempt, {
-                            identity,
-                            status: Status.COMPLETED,
+                            details,
+                            status: Status.APPROVED,
                             reason: 'This user is verified',
                             updatedBy: chosenAdmin
                         })
@@ -107,14 +107,14 @@ export class KycSeeder extends Seeder {
 
         for (let i = 0; i < 15; i++) {
             const identity = new Identity();
-            identity.type = Type.NATIONAL_ID;
+            identity.idType = Type.NATIONAL_ID;
             identity.front = faker.image.avatar();
             identity.back = faker.image.avatar();
             identity.combined = faker.image.avatar();
 
             const business = new Business();
             business.category = 'general';
-            business.type = 'sole_proprietorship';
+            business.docType = 'sole_proprietorship';
             business.url = faker.image.avatar();
 
             const chosenAdmin = faker.helpers.arrayElement(admins);
@@ -135,13 +135,15 @@ export class KycSeeder extends Seeder {
                     identity,
                     attempts: [
                         em.create(Attempt, {
-                            identity,
-                            status: Status.COMPLETED,
+                            details: identity,
+                            status: Status.APPROVED,
+                            level: 2,
                             reason: 'This user is verified',
                             updatedBy: chosenAdmin
                         }),
                         em.create(Attempt, {
-                            business,
+                            details: business,
+                            level: 4,
                             status: Status.PENDING,
                         })
                     ]
@@ -155,14 +157,14 @@ export class KycSeeder extends Seeder {
 
         for (let i = 0; i < 10; i++) {
             const identity = new Identity();
-            identity.type = Type.NATIONAL_ID;
+            identity.idType = Type.NATIONAL_ID;
             identity.front = faker.image.avatar();
             identity.back = faker.image.avatar();
             identity.combined = faker.image.avatar();
 
             const business = new Business();
             business.category = 'general';
-            business.type = Type.BUSINESS_REGISTRATION;
+            business.docType = Type.BUSINESS_REGISTRATION;
             business.url = faker.image.avatar();
             business.taxNumber = '10002304';
 
@@ -185,13 +187,15 @@ export class KycSeeder extends Seeder {
                     business,
                     attempts: [
                         em.create(Attempt, {
-                            identity,
+                            details: identity,
+                            level: 2,
                             status: Status.COMPLETED,
                             reason: 'This user is verified',
                             updatedBy: chosenAdmin
                         }),
                         em.create(Attempt, {
-                            business,
+                            details: business,
+                            level: 4,
                             status: Status.COMPLETED,
                             reason: 'This business has been verified',
                             updatedBy: chosenAdmin

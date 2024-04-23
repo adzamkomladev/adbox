@@ -1,9 +1,13 @@
 import { Embeddable, Property } from "@mikro-orm/core";
 
-@Embeddable()
-export class Identity {
+import { DetailsType } from "../enums/details.type.enum";
+
+import { Details } from "./details.entity";
+
+@Embeddable({ discriminatorValue: DetailsType.IDENTITY })
+export class Identity extends Details {
     @Property()
-    type!: string;
+    idType!: string;
 
     @Property({ type: 'text' })
     front!: string;
@@ -13,4 +17,10 @@ export class Identity {
 
     @Property({ type: 'text' })
     combined!: string;
+
+    constructor() {
+        super();
+        this.type = DetailsType.IDENTITY;
+        this.level = 2;
+    }
 }

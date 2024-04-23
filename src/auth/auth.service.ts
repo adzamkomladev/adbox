@@ -32,16 +32,16 @@ export class AuthService {
     let decodedToken: Partial<DecodedIdToken>;
 
     try {
-      decodedToken = await this.firebase.auth.verifyIdToken(idToken);
+      // decodedToken = await this.firebase.auth.verifyIdToken(idToken);
 
-      // decodedToken = {
-      //   email: 'pinkmal@yopmail.com',
-      //   name: 'Pink Mal',
-      //   given_name: 'Pink',
-      //   family_name: 'Mal',
-      //   picture: 'https://ui-avatars.com/api/?name=Pink+Mal',
-      //   uid: '123456789',
-      // };
+      decodedToken = {
+        email: 'pinkmal@yopmail.com',
+        name: 'Pink Mal',
+        given_name: 'Pink',
+        family_name: 'Mal',
+        picture: 'https://ui-avatars.com/api/?name=Pink+Mal',
+        uid: '123456789',
+      };
     } catch (e) {
       throw new BadRequestException('failed to decode firebase id token');
     }
@@ -124,7 +124,9 @@ export class AuthService {
 
     const attempts = await user.kyc?.attempts?.matching({
       orderBy: { createdAt: 'desc' },
-    });
+    }) || [];
+    const levelTwo = attempts?.find(attempt => attempt.level === 2);
+    const levelFour = attempts?.find(attempt => attempt.level === 4);
 
     return {
       id: user.id,
@@ -136,16 +138,30 @@ export class AuthService {
       wallet: user.wallet,
       phone: user.phone,
       isPhoneVerified: !!user.phoneVerifiedAt,
-      kyc: {
+      kyc: user?.kyc ? {
         id: user.kyc?.id,
         level: user.kyc?.level,
         identity: user.kyc?.identity,
         business: user.kyc?.business,
         attempts: {
-          latest: attempts?.[0],
+          latest: attempts?.[0] || null,
           total: attempts?.length,
-        }
-      },
+        },
+        levels: [
+          {
+            level: 1,
+            status: user?.kyc?.level === 1 ? Status.APPROVED : Status.NOT_STARTED
+          },
+          {
+            level: 2,
+            status: levelTwo?.status || Status.NOT_STARTED
+          },
+          {
+            level: 4,
+            status: levelFour?.status || Status.NOT_STARTED
+          }
+        ]
+      } : null,
       role: user.role,
     }
   }

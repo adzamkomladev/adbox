@@ -27,8 +27,6 @@ export class KycService {
     constructor(
         private readonly orm: MikroORM,
         private readonly em: EntityManager,
-        @InjectRepository(Kyc)
-        private readonly kycRepository: EntityRepository<Kyc>,
         private readonly usersService: UsersService
     ) { }
 
@@ -36,12 +34,16 @@ export class KycService {
         try {
             const user = await this.usersService.setProfile(id, payload);
 
-            const kyc = this.kycRepository.create({
-                level: 1,
-                user,
-                country: 'GH',
-            });
-            await this.em.persistAndFlush(kyc);
+            let kyc = await this.em.findOne(Kyc, { user: { id } });
+
+            if (!kyc) {
+                kyc = this.em.create(Kyc, {
+                    level: 1,
+                    user,
+                    country: 'GH',
+                });
+                await this.em.persistAndFlush(kyc);
+            }
 
             return user;
         } catch (e) {
@@ -53,16 +55,17 @@ export class KycService {
     async createIdentity(id: string, { type, front, back, combined }: CreateIdentity) {
         const kyc = await this.findKycByUser(id);
 
-        const identity = new Identity();
-        identity.type = type;
-        identity.front = front;
-        identity.back = back;
-        identity.combined = combined;
+        const details = new Identity();
+        details.front = front;
+        details.back = back;
+        details.combined = combined;
+        details.idType = type;
 
         kyc.attempts.add(
             this.em.create(
                 Attempt, {
-                identity,
+                    details,
+                    level: 2,
                 status: Status.PENDING,
             })
         );
@@ -75,16 +78,17 @@ export class KycService {
     async createBusiness(id: string, payload: CreateBusiness) {
         const kyc = await this.findKycByUser(id, false);
 
-        const business = new Business();
-        business.type = payload.type;
-        business.category = payload.category;
-        business.url = payload.url;
-        business.taxNumber = payload.taxNumber;
+        const details = new Business();
+        details.category = payload.category;
+        details.url = payload.url;
+        details.taxNumber = payload.taxNumber;
+        details.docType = payload.type;
 
         kyc.attempts.add(
             this.em.create(
                 Attempt, {
-                business,
+                    details,
+                    level: 4,
                 status: Status.PENDING,
             })
         );
@@ -95,7 +99,7 @@ export class KycService {
 
     async updateStatus(id: string, updatedBy: string, { type, status, reason }: UpdateStatus): Promise<Kyc> {
         const [kyc, user] = await Promise.all([
-            this.findKycWithAttemptsById(id, type),
+            this.findKycWithAttemptsById(id, type === AttemptType.IDENTITY ? 2 : 4),
             this.usersService.findOne(updatedBy)
         ]);
 
@@ -115,7 +119,8 @@ export class KycService {
     }
 
     async findAllKyc({ page = 1, size = 10 }: QueryDto) {
-        const [kycs, total] = await this.kycRepository.findAndCount(
+        const [kycs, total] = await this.em.findAndCount(
+            Kyc,
             {
                 user: {
                     role: {
@@ -130,7 +135,7 @@ export class KycService {
                 populate: ['user', 'user.role', 'attempts'],
                 limit: size,
                 offset: (page - 1) * size
-            })
+            });
 
         return {
             kycs,
@@ -141,17 +146,17 @@ export class KycService {
         }
     }
 
-    private async findKycWithAttemptsById(id: string, type: AttemptType) {
-        const condition = type === AttemptType.IDENTITY ? { $not: { identity: null } } : { $not: { business: null } };
-
-        const kyc = await this.kycRepository.findOneOrFail(
+    private async findKycWithAttemptsById(id: string, level: number) {
+        const kyc = await this.em.findOneOrFail(
+            Kyc,
             id,
             {
                 populate: ['attempts'],
                 populateWhere: {
                     attempts: {
                         status: Status.PENDING,
-                        ...condition
+                        level,
+                        $not: { details: null }
                     }
                 }
             }
@@ -167,21 +172,20 @@ export class KycService {
     }
 
     private async findKycByUser(id: string, isIdentity: boolean = true) {
-        const condition = isIdentity ? { $not: { identity: null } } : { $not: { business: null } };
-
-        const kyc = await this.kycRepository.findOneOrFail({
-            user: {
-                id
-            }
-        }, {
-            populate: ['attempts'],
-            populateWhere: {
-                attempts: {
-                    status: Status.PENDING,
-                    ...condition
+        const kyc = await this.em.findOneOrFail(
+            Kyc,
+            { user: { id } },
+            {
+                populate: ['attempts'],
+                populateWhere: {
+                    attempts: {
+                        status: Status.PENDING,
+                        level: isIdentity ? 2 : 4,
+                        $not: { details: null }
+                    }
                 }
             }
-        });
+        );
 
         const pendingAttemptExists = kyc.attempts.length > 0;
 

@@ -6,8 +6,7 @@ import {
   Patch,
   Param,
   HttpException,
-  BadRequestException,
-  Query,
+  BadRequestException
 } from '@nestjs/common';
 import { ApiBadRequestResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 
