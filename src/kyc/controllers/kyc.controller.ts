@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Get, HttpException, Param, Patch, Post, Query } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, HttpException, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { ApiBadRequestResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 
 import { ResponseMessage } from '../../@common/decorators/response.message.decorator';
@@ -16,6 +16,10 @@ import { SendVerificationCode } from '../dto/verification/send.verification.code
 
 import { KycService } from '../services/kyc.service';
 import { PhoneVerificationService } from '../services/phone-verification.service';
+import { PhoneVerifiedGuard } from '../../auth/guards/phone.verified.guard';
+import { KycLevels } from '../../@common/decorators/kyc.levels.decorator';
+import { KycLevel } from '../../@common/enums/kyc.level.enum';
+import { AuthenticatedUser } from '../../@common/dto/authenticated.user.dto';
 
 @Controller('kyc')
   @ApiTags('kyc')
@@ -51,11 +55,11 @@ export class KycController {
   @ApiBadRequestResponse()
   @ResponseMessage('phone number has been saved successfully')
   async savePhone(
-    @User('id') userId: string,
+    @User() user: AuthenticatedUser,
     @Body() body: SavePhone,
   ) {
     try {
-      return await this.phoneVerificationService.savePhoneNumber(userId, body);
+      return await this.phoneVerificationService.savePhoneNumber(user.id, body);
     } catch (e) {
       if (e instanceof HttpException) {
         throw e;

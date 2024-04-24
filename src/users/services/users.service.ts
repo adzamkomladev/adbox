@@ -124,11 +124,36 @@ export class UsersService {
   }
 
   async findOne(id: string): Promise<User> {
-    return await this.usersRepository.findOneOrFail(id, { populate: ['role', 'wallet', 'kyc'] });
+    return await this.em.findOneOrFail(
+      User,
+      id,
+      {
+        populate: ['role', 'wallet', 'kyc', 'kyc.attempts'],
+        populateOrderBy: {
+          kyc: {
+            attempts: {
+              createdAt: 'DESC'
+            }
+          }
+        }
+      });
   }
 
-  async findByEmail(email: string) {
-    return this.usersRepository.findOne({ email }, { populate: ['wallet', 'role', 'kyc'] });
+  async findByEmail(email: string): Promise<User> {
+    return await this.em.findOne(
+      User,
+      { email },
+      {
+        populate: ['wallet', 'role', 'kyc', 'kyc.attempts'],
+        populateOrderBy: {
+          kyc: {
+            attempts: {
+              createdAt: 'DESC'
+            }
+          }
+        }
+      }
+    );
   }
 
   async findByCredentials({ email, password }: CredentialsDto) {
