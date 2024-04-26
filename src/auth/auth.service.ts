@@ -120,8 +120,8 @@ export class AuthService {
     return {
       id: user.id,
       email: user.email,
-      firstName: user.firstName,
-      lastName: user.lastName,
+      firstName: user.firstName || null,
+      lastName: user.lastName || null,
       avatar: user.avatar,
       status: user.status,
       wallet: user.wallet,
