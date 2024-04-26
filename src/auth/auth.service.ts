@@ -35,12 +35,12 @@ export class AuthService {
       decodedToken = await this.firebase.auth.verifyIdToken(idToken);
 
       // decodedToken = {
-      //   email: 'pinkmal@yopmail.com',
-      //   name: 'Pink Mal',
-      //   given_name: 'Pink',
-      //   family_name: 'Mal',
-      //   picture: 'https://ui-avatars.com/api/?name=Pink+Mal',
-      //   uid: '123456789',
+      //   email: 'victord@yopmail.com',
+      //   name: 'Victor Adele',
+      //   given_name: 'Victor',
+      //   family_name: 'Adele',
+      //   picture: 'https://ui-avatars.com/api/?name=Victor+Adele',
+      //   uid: '12345678910',
       // };
     } catch (e) {
       this.logger.error(`Failed to decode firebase id token: ${e.message}`);

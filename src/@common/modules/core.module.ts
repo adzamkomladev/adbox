@@ -49,10 +49,6 @@ import { KycLevelGuard } from '../../auth/guards/kyc.level.guard';
     {
       provide: APP_INTERCEPTOR,
       useClass: TransformInterceptor,
-    },
-    {
-      provide: APP_GUARD,
-      useClass: KycLevelGuard
     }
   ],
 })
