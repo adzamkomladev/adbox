@@ -9,13 +9,13 @@ import { Status } from '../@common/enums/status.enum';
 
 import { JwtPayload } from './interfaces/jwt.payload';
 
+import { User } from '../users/entities/user.entity';
+
 import { AuthenticateDto } from './dto/authenticate.dto';
-import { AuthenticatedDto } from './dto/authenticated.dto';
+import { AuthenticatedDto, AuthenticatedUser } from './dto/authenticated.dto';
 import { LoginDto } from './dto/login.dto';
 
 import { UsersService } from '../users/services/users.service';
-import { User } from '../users/entities/user.entity';
-import { identity } from 'rxjs';
 
 @Injectable()
 export class AuthService {
@@ -35,19 +35,20 @@ export class AuthService {
       decodedToken = await this.firebase.auth.verifyIdToken(idToken);
 
       // decodedToken = {
-      //   email: 'pinkmal@yopmail.com',
-      //   name: 'Pink Mal',
-      //   given_name: 'Pink',
-      //   family_name: 'Mal',
-      //   picture: 'https://ui-avatars.com/api/?name=Pink+Mal',
-      //   uid: '123456789',
+      //   email: 'victord@yopmail.com',
+      //   name: 'Victor Adele',
+      //   given_name: 'Victor',
+      //   family_name: 'Adele',
+      //   picture: 'https://ui-avatars.com/api/?name=Victor+Adele',
+      //   uid: '12345678910',
       // };
     } catch (e) {
-      throw new BadRequestException('failed to decode firebase id token');
+      this.logger.error(`Failed to decode firebase id token: ${e.message}`);
+      throw new UnauthorizedException('Failed to authenticate user');
     }
 
     if (!decodedToken) {
-      throw new BadRequestException('failed to decode firebase id token');
+      throw new BadRequestException('Failed to authenticate user');
     }
 
     // const decodedToken = {
@@ -56,7 +57,7 @@ export class AuthService {
     //   picture: 'https://ui-avatars.com/api/?name=Pink+Mal',
     // };
 
-    let user = await this.usersService.findByEmail(decodedToken.email);
+    let user: User = await this.usersService.findByEmail(decodedToken.email);
 
     if (!user) {
       const newFirstName = firstName || decodedToken.given_name;
@@ -72,19 +73,11 @@ export class AuthService {
       });
     }
 
-    const payload: JwtPayload = { email: user.email, sub: user.id };
+    const payload = await this.generateJwtPayload(user);
     const accessToken = this.jwtService.sign(payload);
 
     return {
-      id: user.id,
-      email: user.email,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      isPhoneVerified: !!user.phoneVerifiedAt,
-      phone: user.phone,
-      avatar: user.avatar,
-      status: user.status,
-      walletId: user.wallet?.id,
+      user: this.formatUserData(user),
       accessToken,
     };
   }
@@ -102,19 +95,13 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    const payload: JwtPayload = { email: user.email, sub: user.id };
+    const payload = await this.generateJwtPayload(user);
     const accessToken = this.jwtService.sign(payload, {
       expiresIn: rememberMe ? this.config.get('auth.jwt.rememberMeExpiresIn') : this.config.get('auth.jwt.expiresIn'),
     });
 
     return {
-      id: user.id,
-      email: user.email,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      avatar: user.avatar,
-      status: user.status,
-      walletId: user.wallet?.id,
+      user: this.formatUserData(user),
       accessToken,
     };
   }
@@ -122,9 +109,11 @@ export class AuthService {
   async getFullUserData(payload: User) {
     const user = await this.usersService.findOne(payload.id);
 
-    const attempts = await user.kyc?.attempts?.matching({
-      orderBy: { createdAt: 'desc' },
-    }) || [];
+    return this.formatUserData(user);
+  }
+
+  private formatUserData(user: User): AuthenticatedUser {
+    const attempts = user.kyc?.attempts || [];
     const levelTwo = attempts?.find(attempt => attempt.level === 2);
     const levelFour = attempts?.find(attempt => attempt.level === 4);
 
@@ -162,7 +151,45 @@ export class AuthService {
           }
         ]
       } : null,
-      role: user.role,
+      role: {
+        id: user.role.id,
+        name: user.role.name,
+        code: user.role.code,
+      },
     }
+  }
+
+  private async generateJwtPayload(user: User): Promise<JwtPayload> {
+    const attempts = user.kyc?.attempts || [];
+    const levelTwo = attempts?.find(attempt => attempt.level === 2);
+    const levelFour = attempts?.find(attempt => attempt.level === 4);
+
+    return {
+      email: user.email,
+      sub: user.id,
+      isPhoneVerified: !!user.phoneVerifiedAt,
+      role: {
+        id: user.role.id,
+        name: user.role.name,
+        code: user.role.code,
+      },
+      kyc: user.kyc ? {
+        level: user.kyc?.level,
+        levels: [
+          {
+            level: 1,
+            status: user?.kyc?.level === 1 ? Status.APPROVED : Status.NOT_STARTED
+          },
+          {
+            level: 2,
+            status: levelTwo?.status || Status.NOT_STARTED
+          },
+          {
+            level: 4,
+            status: levelFour?.status || Status.NOT_STARTED
+          }
+        ]
+      } : null
+    };
   }
 }

@@ -1,4 +1,4 @@
-import { APP_INTERCEPTOR } from '@nestjs/core';
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { Global, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { CacheModule } from '@nestjs/cache-manager';
@@ -18,6 +18,8 @@ import paymentsConfig from '../configs/payments.config';
 import notificationsConfig from '../configs/notifications.config';
 
 import { TransformInterceptor } from '../interceptors/transform.interceptor';
+
+import { KycLevelGuard } from '../../auth/guards/kyc.level.guard';
 
 @Global()
 @Module({
@@ -47,7 +49,7 @@ import { TransformInterceptor } from '../interceptors/transform.interceptor';
     {
       provide: APP_INTERCEPTOR,
       useClass: TransformInterceptor,
-    },
+    }
   ],
 })
 export class CoreModule { }

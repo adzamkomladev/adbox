@@ -15,6 +15,7 @@ import { JwtGuard } from './guards/jwt.guard';
 import { JwtStrategy } from './strategies/jwt.strategy';
 
 import { AuthController } from './auth.controller';
+import { PhoneVerifiedGuard } from './guards/phone.verified.guard';
 
 @Module({
   imports: [
@@ -32,7 +33,7 @@ import { AuthController } from './auth.controller';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy, JwtGuard],
+  providers: [AuthService, JwtStrategy, JwtGuard, PhoneVerifiedGuard],
   exports: [AuthService, JwtGuard],
 })
 export class AuthModule {}
