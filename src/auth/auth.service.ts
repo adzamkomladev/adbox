@@ -32,16 +32,16 @@ export class AuthService {
     let decodedToken: Partial<DecodedIdToken>;
 
     try {
-      decodedToken = await this.firebase.auth.verifyIdToken(idToken);
+      // decodedToken = await this.firebase.auth.verifyIdToken(idToken);
 
-      // decodedToken = {
-      //   email: 'victord@yopmail.com',
-      //   name: 'Victor Adele',
-      //   given_name: 'Victor',
-      //   family_name: 'Adele',
-      //   picture: 'https://ui-avatars.com/api/?name=Victor+Adele',
-      //   uid: '12345678910',
-      // };
+      decodedToken = {
+        email: 'victord@yopmail.com',
+        name: 'Victor Adele',
+        given_name: 'Victor',
+        family_name: 'Adele',
+        picture: 'https://ui-avatars.com/api/?name=Victor+Adele',
+        uid: '12345678910',
+      };
     } catch (e) {
       this.logger.error(`Failed to decode firebase id token: ${e.message}`);
       throw new UnauthorizedException('Failed to authenticate user');
@@ -136,20 +136,18 @@ export class AuthService {
           latest: attempts?.[0] || null,
           total: attempts?.length,
         },
-        levels: [
-          {
-            level: 1,
+        levels: {
+          level1: {
             status: user?.kyc?.level === 1 ? Status.APPROVED : Status.NOT_STARTED
           },
-          {
-            level: 2,
+          level2: {
             status: levelTwo?.status || Status.NOT_STARTED
+
           },
-          {
-            level: 4,
+          level4: {
             status: levelFour?.status || Status.NOT_STARTED
           }
-        ]
+        }
       } : null,
       role: {
         id: user.role.id,

@@ -35,10 +35,16 @@ export interface AuthenticatedUserKyc {
     latest: Attempt | null;
     total: number;
   },
-  levels: KycLevelDetails[];
+  levels: KycLevelDetails;
 }
 
 export interface KycLevelDetails {
-  level: KycLevel;
-  status: Status;
+  level1: { status: Status };
+  level2: { status: Status };
+  level4: { status: Status };
 }
+
+// export interface KycLevelDetails {
+//   level: KycLevel;
+//   status: Status;
+// }
