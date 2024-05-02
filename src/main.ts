@@ -2,13 +2,15 @@ import { HttpAdapterHost, NestFactory } from '@nestjs/core';
 import { ValidationPipe, VersioningType } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { logger } from '@mikro-orm/nestjs';
 
 import { AppModule } from './app.module';
 
 import { ExceptionsFilter } from '@common/filters/exceptions.filter';
-import { logger } from '@mikro-orm/nestjs';
-
+import tracer from "./tracer";
 async function bootstrap() {
+
+  await tracer.start();
   const app = await NestFactory.create(AppModule);
 
   app.enableCors({
