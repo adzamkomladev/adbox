@@ -1,10 +1,13 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { CreateCampaignDto } from './dto/create-campaign.dto';
 import { UpdateCampaignDto } from './dto/update-campaign.dto';
-import { EntityManager, MikroORM } from '@mikro-orm/core';
+import { EntityManager, FilterQuery, MikroORM } from '@mikro-orm/core';
 import { User } from '../users/entities/user.entity';
 import { Campaign } from './entities/campaign.entity';
 import { Status } from '../@common/enums/status.enum';
+import { AuthenticatedUser } from '../@common/dto/authenticated.user.dto';
+import { GetTimelineDto } from './dto/get.timeline.dto';
+import { UsersService } from '../users/services/users.service';
 // import { WalletsService } from '../wallets/wallets.service';
 
 @Injectable()
@@ -12,10 +15,9 @@ export class CampaignsService {
   private readonly logger = new Logger(CampaignsService.name);
 
   constructor(
-    private readonly orm: MikroORM,
     private readonly em: EntityManager,
+    private readonly usersService: UsersService
   ) {
-    this.logger = new Logger(CampaignsService.name);
   }
 
   async create(userId: string, payload: CreateCampaignDto) {
@@ -61,5 +63,48 @@ export class CampaignsService {
 
   remove(id: number) {
     return `This action removes a #${id} campaign`;
+  }
+
+  async getTimeline(payload: GetTimelineDto, authUser: AuthenticatedUser) {
+    const page = payload.page || 1;
+    const size = payload.size || 20;
+
+    const user = await this.usersService.findOne(authUser.id);
+
+    const age = (new Date()).getFullYear() - user.dateOfBirth.getFullYear();
+
+    const filter: FilterQuery<Campaign> = {
+      status: Status.ACTIVE,
+      targetAge: { $lte: age },
+      demographic: user.kyc?.country
+    };
+
+    const dataQuery = this.em.findAll(
+      Campaign,
+      {
+        where: filter,
+        offset: size * (page - 1),
+        limit: size,
+        orderBy: {
+          createdAt: 'desc'
+        }
+      }
+    );
+    const countQuery = this.em.count(
+      Campaign,
+      filter
+    );
+
+    const [data, total] = await Promise.all([dataQuery, countQuery]);
+
+    return {
+      data,
+      meta: {
+        page,
+        size,
+        total,
+        totalPage: Math.ceil(total / size),
+      }
+    };
   }
 }

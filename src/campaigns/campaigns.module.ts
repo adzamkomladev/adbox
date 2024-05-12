@@ -8,9 +8,13 @@ import { Interaction } from './entities/interaction.entity';
 import { CampaignsService } from './campaigns.service';
 
 import { CampaignsController } from './campaigns.controller';
+import { UsersModule } from '../users/users.module';
 
 @Module({
-  imports: [MikroOrmModule.forFeature([Campaign, Interaction])],
+  imports: [
+    MikroOrmModule.forFeature([Campaign, Interaction]),
+    UsersModule
+  ],
   controllers: [CampaignsController],
   providers: [CampaignsService]
 })

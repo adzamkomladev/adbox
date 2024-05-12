@@ -139,6 +139,12 @@ export class UsersService {
       });
   }
 
+  async findByFirstName(firstName: string): Promise<User> {
+    return await this.em.findOne(
+      User,
+      { firstName }
+    );
+  }
   async findByEmail(email: string): Promise<User> {
     return await this.em.findOne(
       User,

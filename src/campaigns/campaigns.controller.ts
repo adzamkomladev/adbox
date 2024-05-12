@@ -8,6 +8,7 @@ import {
   Delete,
   HttpException,
   BadRequestException,
+  Query,
 } from '@nestjs/common';
 import { CampaignsService } from './campaigns.service';
 import { CreateCampaignDto } from './dto/create-campaign.dto';
@@ -15,6 +16,9 @@ import { UpdateCampaignDto } from './dto/update-campaign.dto';
 import { Auth } from '../auth/decorators/auth.decorator';
 import { ApiBadRequestResponse, ApiOkResponse } from '@nestjs/swagger';
 import { User } from '../auth/decorators/user.decorator';
+import { AuthenticatedUser } from '../@common/dto/authenticated.user.dto';
+import { InteractWithPostDto } from './dto/interact.with.post.dto';
+import { GetTimelineDto } from './dto/get.timeline.dto';
 
 @Controller('campaigns')
 export class CampaignsController {
@@ -25,11 +29,11 @@ export class CampaignsController {
   @ApiOkResponse()
   @ApiBadRequestResponse()
   async create(
-    @User('id') userId: string,
+    @User() user: AuthenticatedUser,
     @Body() createCampaignDto: CreateCampaignDto,
   ) {
     try {
-      return await this.campaignsService.create(userId, createCampaignDto);
+      return await this.campaignsService.create(user.id, createCampaignDto);
     } catch (e) {
       if (e instanceof HttpException) {
         throw e;
@@ -39,14 +43,35 @@ export class CampaignsController {
     }
   }
 
-  @Get()
-  findAll() {
+  @Auth()
+  @Patch(':id/interact')
+  @ApiOkResponse()
+  @ApiBadRequestResponse()
+  interact(
+    @User() user: AuthenticatedUser,
+    @Param('id') id: string,
+    @Body() body: InteractWithPostDto,
+  ) {
     return this.campaignsService.findAll();
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.campaignsService.findOne(+id);
+  @Auth()
+  @Get('timeline')
+  @ApiOkResponse()
+  @ApiBadRequestResponse()
+  async getTimeline(
+    @User() user: AuthenticatedUser,
+    @Query() query: GetTimelineDto
+  ) {
+    try {
+      return await this.campaignsService.getTimeline(query, user);
+    } catch (e) {
+      if (e instanceof HttpException) {
+        throw e;
+      }
+
+      throw new BadRequestException(e.message);
+    }
   }
 
   @Patch(':id')

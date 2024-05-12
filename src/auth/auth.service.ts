@@ -4,6 +4,7 @@ import { ConfigService } from '@nestjs/config';
 
 import { FirebaseAdmin, InjectFirebaseAdmin } from 'nestjs-firebase';
 import { DecodedIdToken } from 'firebase-admin/lib/auth/token-verifier';
+import * as uniqid from 'uniqid';
 
 import { Status } from '../@common/enums/status.enum';
 
@@ -34,13 +35,15 @@ export class AuthService {
     try {
       // decodedToken = await this.firebase.auth.verifyIdToken(idToken);
 
+      const user = await this.usersService.findByFirstName(firstName);
+      console.log(user)
       decodedToken = {
-        email: 'victord@yopmail.com',
+        email: user.email,
         name: 'Victor Adele',
-        given_name: 'Victor',
-        family_name: 'Adele',
-        picture: 'https://ui-avatars.com/api/?name=Victor+Adele',
-        uid: '12345678910',
+        given_name: user.firstName,
+        family_name: user.lastName,
+        picture: user.avatar,
+        uid: uniqid(),
       };
     } catch (e) {
       this.logger.error(`Failed to decode firebase id token: ${e.message}`);

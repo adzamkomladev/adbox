@@ -1,13 +1,14 @@
 import { HttpAdapterHost, NestFactory } from '@nestjs/core';
-import { ValidationPipe, VersioningType } from '@nestjs/common';
+import { Logger, ValidationPipe, VersioningType } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
-import { logger } from '@mikro-orm/nestjs';
+
+import tracer from "./tracer";
 
 import { AppModule } from './app.module';
 
 import { ExceptionsFilter } from '@common/filters/exceptions.filter';
-import tracer from "./tracer";
+
 async function bootstrap() {
 
   await tracer.start();
@@ -49,7 +50,7 @@ async function bootstrap() {
   const port = config.get<number>('app.port');
   await app.listen(port);
 
-  logger.log(
+  Logger.log(
     `${config.get('app.name')} is running on ${config.get('app.url')}`,
   );
 }

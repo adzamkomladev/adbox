@@ -1,5 +1,6 @@
 import {
   IsDate,
+  IsDateString,
   IsNotEmpty,
   IsNumber,
   IsOptional,
@@ -34,11 +35,11 @@ export class CreateCampaignDto {
   link!: string;
 
   @IsNotEmpty()
-  @IsDate()
+  @IsDateString()
   start!: Date;
 
   @IsNotEmpty()
-  @IsDate()
+  @IsDateString()
   end!: Date;
 
   @IsOptional()
