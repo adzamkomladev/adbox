@@ -17,7 +17,7 @@ import { Auth } from '../auth/decorators/auth.decorator';
 import { ApiBadRequestResponse, ApiOkResponse } from '@nestjs/swagger';
 import { User } from '../auth/decorators/user.decorator';
 import { AuthenticatedUser } from '../@common/dto/authenticated.user.dto';
-import { InteractWithPostDto } from './dto/interact.with.post.dto';
+import { InteractWithCampaignDto } from './dto/interact.with.campaign.dto';
 import { GetTimelineDto } from './dto/get.timeline.dto';
 
 @Controller('campaigns')
@@ -50,9 +50,9 @@ export class CampaignsController {
   interact(
     @User() user: AuthenticatedUser,
     @Param('id') id: string,
-    @Body() body: InteractWithPostDto,
+    @Body() body: InteractWithCampaignDto,
   ) {
-    return this.campaignsService.findAll();
+    return this.campaignsService.interactWithCampaign(id, body, user);
   }
 
   @Auth()

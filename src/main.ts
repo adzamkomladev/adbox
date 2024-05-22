@@ -11,7 +11,7 @@ import { ExceptionsFilter } from '@common/filters/exceptions.filter';
 
 async function bootstrap() {
 
-  await tracer.start();
+  // await tracer.start();
   const app = await NestFactory.create(AppModule);
 
   app.enableCors({

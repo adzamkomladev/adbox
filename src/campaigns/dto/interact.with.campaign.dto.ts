@@ -1,6 +1,6 @@
 import { IsBoolean, IsEmail, IsOptional } from "class-validator";
 
-export class InteractWithPostDto {
+export class InteractWithCampaignDto {
     @IsOptional()
     @IsBoolean()
     readonly like?: boolean;

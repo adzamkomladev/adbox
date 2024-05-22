@@ -29,22 +29,41 @@ export class AuthService {
     private readonly usersService: UsersService,
   ) { }
 
+  async jwtAuthentication(token?: string) {
+    if (!token) {
+      throw new UnauthorizedException('invalid authentication token');
+    }
+
+    try {
+      const payload = await this.jwtService.verifyAsync(
+        token,
+        {
+          secret: this.config.get('auth.jwt.secret'),
+        }
+      );
+      // 💡 We're assigning the payload to the request object here
+      // so that we can access it in our route handlers
+      return payload;
+    } catch {
+      throw new UnauthorizedException('invalid authentication token');
+    }
+  }
   async authenticate({ idToken, firstName, lastName }: AuthenticateDto): Promise<AuthenticatedDto> {
     let decodedToken: Partial<DecodedIdToken>;
 
     try {
-      // decodedToken = await this.firebase.auth.verifyIdToken(idToken);
+      decodedToken = await this.firebase.auth.verifyIdToken(idToken);
 
-      const user = await this.usersService.findByFirstName(firstName);
-      console.log(user)
-      decodedToken = {
-        email: user.email,
-        name: 'Victor Adele',
-        given_name: user.firstName,
-        family_name: user.lastName,
-        picture: user.avatar,
-        uid: uniqid(),
-      };
+      // const user = await this.usersService.findByFirstName(firstName);
+      // console.log(user)
+      // decodedToken = {
+      //   email: user.email,
+      //   name: 'Victor Adele',
+      //   given_name: user.firstName,
+      //   family_name: user.lastName,
+      //   picture: user.avatar,
+      //   uid: uniqid(),
+      // };
     } catch (e) {
       this.logger.error(`Failed to decode firebase id token: ${e.message}`);
       throw new UnauthorizedException('Failed to authenticate user');
