@@ -27,18 +27,23 @@ export class CampaignInteractionConsumer {
     @CreateRequestContext()
     async handleCampaignInteraction(job: Job<CampaignInteractionJobDto>) {
         this.logger.log('Start campaign interaction...');
+        const { interactionId } = job.data;
 
+
+        const interaction = await this.em.findOne(
+            Interaction,
+            { id: interactionId },
+            { fields: ['views', 'campaign.id', 'campaign.name', 'user.id'] }
+        );
+
+        // TODO: Credit wallet of subscriber
+        await this.sendCampaignInteractionUpdate(interaction);
+
+        this.logger.log('Campaign interaction completed');
+    }
+
+    private async sendCampaignInteractionUpdate(interaction: any) {
         try {
-            const { interactionId } = job.data;
-
-            // TODO: Credit wallet of subscriber
-
-            const interaction = await this.em.findOne(
-                Interaction,
-                { id: interactionId },
-                { fields: ['views', 'campaign.id', 'campaign.name', 'user.id'] }
-            );
-
             const likesQuery = this.em.qb(Interaction)
                 .count('liked')
                 .where({
@@ -80,9 +85,7 @@ export class CampaignInteractionConsumer {
                 }
             );
         } catch (error) {
-            console.log(error, 'thi sis the')
+            this.logger.error('Error sending campaign interaction', error);
         }
-
-        this.logger.log('Campaign interaction completed');
     }
 }

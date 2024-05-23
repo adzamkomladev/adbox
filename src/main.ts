@@ -11,7 +11,7 @@ import { ExceptionsFilter } from '@common/filters/exceptions.filter';
 
 async function bootstrap() {
 
-  // await tracer.start();
+  await tracer.start();
   const app = await NestFactory.create(AppModule);
 
   app.enableCors({
@@ -39,10 +39,20 @@ async function bootstrap() {
   const swaggerConfig = new DocumentBuilder()
     .setTitle('AdBox Backend API')
     .setDescription(
-      'The AdBox Backend API with endpoints used by the AdBox Mobile App',
+      'The AdBox Backend API with endpoints used by the AdBox Mobile App and Admin Dashboard',
     )
     .setVersion('1.0')
-    .addTag('adbox')
+    .addTag('Adbox')
+    .addBearerAuth(
+      {
+        description: `Please enter token in following format: Bearer <JWT>`,
+        name: 'Authorization',
+        bearerFormat: 'Bearer', // I`ve tested not to use this field, but the result was the same
+        scheme: 'Bearer',
+        type: 'http', // I`ve attempted type: 'apiKey' too
+        in: 'Header'
+      }
+    )
     .build();
   const document = SwaggerModule.createDocument(app, swaggerConfig);
   SwaggerModule.setup('api', app, document);

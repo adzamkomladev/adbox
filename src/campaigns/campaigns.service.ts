@@ -1,18 +1,24 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { CreateCampaignDto } from './dto/create-campaign.dto';
-import { UpdateCampaignDto } from './dto/update-campaign.dto';
+import { BadGatewayException, Injectable, Logger } from '@nestjs/common';
+import { InjectQueue } from '@nestjs/bull';
+
 import { EntityManager, FilterQuery, MikroORM, wrap } from '@mikro-orm/core';
+import { Queue } from 'bull';
+
+import { CAMPAIGN_INTERACTION_QUEUE } from './constants/queues.constant';
+
+import { Status } from '../@common/enums/status.enum';
+
 import { User } from '../users/entities/user.entity';
 import { Campaign } from './entities/campaign.entity';
-import { Status } from '../@common/enums/status.enum';
-import { AuthenticatedUser } from '../@common/dto/authenticated.user.dto';
-import { GetTimelineDto } from './dto/get.timeline.dto';
-import { UsersService } from '../users/services/users.service';
-import { InteractWithCampaignDto } from './dto/interact.with.campaign.dto';
 import { Interaction } from './entities/interaction.entity';
-import { Queue } from 'bull';
-import { InjectQueue } from '@nestjs/bull';
-import { CAMPAIGN_INTERACTION_QUEUE } from './constants/queues.constant';
+
+import { CreateCampaignDto } from './dto/create-campaign.dto';
+import { UpdateCampaignDto } from './dto/update-campaign.dto';
+import { AuthenticatedUser } from '../@common/dto/authenticated.user.dto';
+import { Campaign as TimelineCampaign, GetTimelineDto, GetTimelineQueryDto } from './dto/get.timeline.dto';
+import { InteractWithCampaignDto } from './dto/interact.with.campaign.dto';
+
+import { UsersService } from '../users/services/users.service';
 // import { WalletsService } from '../wallets/wallets.service';
 
 @Injectable()
@@ -72,17 +78,15 @@ export class CampaignsService {
     return `This action removes a #${id} campaign`;
   }
 
-  async getTimeline(payload: GetTimelineDto, authUser: AuthenticatedUser) {
+  async getTimeline(payload: GetTimelineQueryDto, authUser: AuthenticatedUser): Promise<GetTimelineDto> {
     const page = payload.page || 1;
     const size = payload.size || 20;
 
     const user = await this.usersService.findOne(authUser.id);
 
-    const age = (new Date()).getFullYear() - user.dateOfBirth.getFullYear();
-
     const filter: FilterQuery<Campaign> = {
       status: Status.ACTIVE,
-      targetAge: { $lte: age },
+      targetAge: { $lte: user.age },
       demographic: user.kyc?.country
     };
 
@@ -94,7 +98,8 @@ export class CampaignsService {
         limit: size,
         orderBy: {
           createdAt: 'desc'
-        }
+        },
+        fields: ['id', 'name', 'description', 'asset', 'status', 'start', 'end']
       }
     );
     const countQuery = this.em.count(
@@ -105,7 +110,7 @@ export class CampaignsService {
     const [data, total] = await Promise.all([dataQuery, countQuery]);
 
     return {
-      data,
+      data: data as TimelineCampaign[],
       meta: {
         page,
         size,
@@ -143,14 +148,14 @@ export class CampaignsService {
       interaction = this.em.create(Interaction, {
         campaign,
         user: this.em.getReference(User, authUser.id),
-        liked: !!payload.like,
+        liked: !!payload.toggleLike,
         views: payload.view ? 1 : 0,
         credit: payload.view ? campaign.perInteractionCost : 0,
       });
     }
 
     if (interaction) {
-      if (payload.like) {
+      if (payload.toggleLike) {
         interaction = this.likeInteraction(interaction);
       }
 
@@ -166,7 +171,7 @@ export class CampaignsService {
 
   private likeInteraction(interaction: Interaction) {
     wrap(interaction).assign({
-      liked: true
+      liked: !interaction.liked
     });
 
     return interaction;

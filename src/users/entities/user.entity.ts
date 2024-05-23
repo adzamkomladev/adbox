@@ -89,6 +89,12 @@ export class User extends BaseEntity {
   @Enum({ items: () => Status })
   status!: Status;
 
+
+  @Property({ persist: false })
+  get age() {
+    return (new Date()).getFullYear() - this.dateOfBirth.getFullYear();
+  }
+
   @BeforeCreate()
   async hashPassword() {
     if (this.password) {
