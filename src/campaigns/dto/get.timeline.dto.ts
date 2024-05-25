@@ -26,8 +26,8 @@ export interface Campaign {
     start: Date;
     end: Date;
     status: Status;
-    likes?: number;
-    views?: number;
+    likes: number;
+    views: number;
 }
 
 export interface Meta {

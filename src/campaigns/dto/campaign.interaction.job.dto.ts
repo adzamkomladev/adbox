@@ -1,3 +1,3 @@
 export class CampaignInteractionJobDto {
-    readonly interactionId: string;
+    readonly campaignId: string;
 }

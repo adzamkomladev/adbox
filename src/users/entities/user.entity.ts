@@ -6,6 +6,7 @@ import {
   ManyToOne,
   OneToMany,
   OneToOne,
+  Opt,
   Property,
 } from '@mikro-orm/core';
 
@@ -89,10 +90,9 @@ export class User extends BaseEntity {
   @Enum({ items: () => Status })
   status!: Status;
 
-
-  @Property({ persist: false })
+  @Property()
   get age() {
-    return (new Date()).getFullYear() - this.dateOfBirth.getFullYear();
+    return new Date().getFullYear() - new Date(this.dateOfBirth).getFullYear();
   }
 
   @BeforeCreate()

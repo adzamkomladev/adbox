@@ -49,4 +49,10 @@ export class Campaign extends BaseEntity {
 
   @Enum({ items: () => Status })
   status!: Status;
+
+  @Property({ default: 0 })
+  likes!: number;
+
+  @Property({ default: 0 })
+  views!: number;
 }

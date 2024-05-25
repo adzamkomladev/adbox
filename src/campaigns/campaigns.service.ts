@@ -79,6 +79,7 @@ export class CampaignsService {
   }
 
   async getTimeline(payload: GetTimelineQueryDto, authUser: AuthenticatedUser): Promise<GetTimelineDto> {
+    console.log(authUser, 'this is auth user')
     const page = payload.page || 1;
     const size = payload.size || 20;
 
@@ -99,7 +100,7 @@ export class CampaignsService {
         orderBy: {
           createdAt: 'desc'
         },
-        fields: ['id', 'name', 'description', 'asset', 'status', 'start', 'end']
+        fields: ['id', 'name', 'description', 'asset', 'status', 'start', 'end', 'likes', 'views']
       }
     );
     const countQuery = this.em.count(
@@ -126,7 +127,7 @@ export class CampaignsService {
 
     const interaction = await this.saveInteraction(payload, campaign, authUser);
 
-    await this.campaignInteractionQueue.add({ interactionId: interaction.id });
+    await this.campaignInteractionQueue.add({ campaignId: campaign.id });
 
     return interaction;
   }
@@ -148,41 +149,55 @@ export class CampaignsService {
       interaction = this.em.create(Interaction, {
         campaign,
         user: this.em.getReference(User, authUser.id),
-        liked: !!payload.toggleLike,
-        views: payload.view ? 1 : 0,
+        liked: false,
+        views: 0,
         credit: payload.view ? campaign.perInteractionCost : 0,
       });
     }
 
-    if (interaction) {
-      if (payload.toggleLike) {
-        interaction = this.likeInteraction(interaction);
-      }
+    if (payload.toggleLike) {
+      const res = this.likeInteraction(interaction, campaign);
 
-      if (payload.view) {
-        interaction = this.viewInteraction(interaction, campaign.perInteractionCost);
-      }
+      interaction = res.interaction;
+      campaign = res.campaign;
     }
 
-    this.em.persistAndFlush(interaction);
+    if (payload.view) {
+      const res = this.viewInteraction(interaction, campaign);
+
+      interaction = res.interaction;
+      campaign = res.campaign;
+    }
+
+    await this.em.persistAndFlush([interaction, campaign]);
 
     return interaction;
   }
 
-  private likeInteraction(interaction: Interaction) {
+  private likeInteraction(interaction: Interaction, campaign: Campaign) {
+    const liked = !interaction.liked;
+
     wrap(interaction).assign({
-      liked: !interaction.liked
+      liked
     });
 
-    return interaction;
+    wrap(campaign).assign({
+      likes: liked ? campaign.likes + 1 : campaign.likes - 1
+    });
+
+    return { interaction, campaign };
   }
 
-  private viewInteraction(interaction: Interaction, perInteractionCost: number) {
+  private viewInteraction(interaction: Interaction, campaign: Campaign) {
     wrap(interaction).assign({
       views: interaction.views + 1,
-      credit: interaction.views === 0 ? perInteractionCost : interaction.credit
+      credit: interaction.views === 0 ? campaign.perInteractionCost : interaction.credit
     });
 
-    return interaction;
+    wrap(campaign).assign({
+      views: campaign.views + 1
+    });
+
+    return { interaction, campaign };
   }
 }

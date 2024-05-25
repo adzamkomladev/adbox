@@ -8,10 +8,13 @@ import { Job } from 'bull';
 import { CAMPAIGN_INTERACTION_QUEUE } from '../constants/queues.constant';
 
 import { Interaction } from '../entities/interaction.entity';
+import { Status } from '../../@common/enums/status.enum';
+import { User } from '../../users/entities/user.entity';
+import { Campaign } from '../entities/campaign.entity';
 
 import { CampaignInteractionJobDto } from '../dto/campaign.interaction.job.dto';
+
 import { CampaignGateway } from '../gateways/campaign.gateway';
-import { Campaign } from '../entities/campaign.entity';
 
 @Processor(CAMPAIGN_INTERACTION_QUEUE)
 export class CampaignInteractionConsumer {
@@ -27,59 +30,85 @@ export class CampaignInteractionConsumer {
     @CreateRequestContext()
     async handleCampaignInteraction(job: Job<CampaignInteractionJobDto>) {
         this.logger.log('Start campaign interaction...');
-        const { interactionId } = job.data;
 
-
-        const interaction = await this.em.findOne(
-            Interaction,
-            { id: interactionId },
-            { fields: ['views', 'campaign.id', 'campaign.name', 'user.id'] }
+        const { campaignId } = job.data;
+        const campaign = await this.em.findOne(
+            Campaign,
+            { id: campaignId },
+            { fields: ['name', 'views', 'likes', 'targetAge', 'demographic'] }
         );
 
-        // TODO: Credit wallet of subscriber
-        await this.sendCampaignInteractionUpdate(interaction);
+        if (!campaign) {
+            this.logger.error(`Campaign with id: ${campaignId} not found`);
+            return false;
+        }
 
-        this.logger.log('Campaign interaction completed');
+        const { name, views, likes, targetAge, demographic } = campaign;
+
+        let hasMore = true;
+        let skip = 0;
+
+        const batchProcessingSize: number = 100;
+        while (hasMore) {
+            const users =
+                await this.em.findAll(
+                    User,
+                    {
+                        where: {
+                            status: Status.ACTIVE,
+                            kyc: {
+                                country: demographic,
+                            }
+                        },
+                        limit: batchProcessingSize,
+                        offset: skip,
+                        orderBy: { createdAt: 'ASC' },
+                        fields: [
+                            'campaignInteractions.views',
+                            'campaignInteractions.liked',
+                            'campaignInteractions.liked'
+                        ],
+                        populateWhere: {
+                            campaignInteractions: {
+                                campaign: { id: campaign.id },
+                            }
+                        }
+                    }
+                );
+
+            console.log(users)
+            if (users.length === 0) {
+                hasMore = false;
+            } else {
+                for (const user of users) {
+                    try {
+                        const { views: interactionViews, liked } = user.campaignInteractions?.[0] || null;
+
+                        await this.sendCampaignInteractionUpdate(
+                            { id: campaignId, name, views, likes },
+                            { user: { id: user.id }, views: interactionViews || 0, liked }
+                        );
+                    } catch (error) {
+                        this.logger.error(
+                            `Failed to send campaign interaction update:  ${error}`,
+                        );
+                    }
+                }
+                skip += users.length;
+            }
+        }
     }
 
-    private async sendCampaignInteractionUpdate(interaction: any) {
+    private async sendCampaignInteractionUpdate(campaign: Partial<Campaign>, interaction: Pick<Interaction, 'liked' | 'views'> & { user: Pick<User, 'id'> }) {
         try {
-            const likesQuery = this.em.qb(Interaction)
-                .count('liked')
-                .where({
-                    campaign: { id: interaction.campaign.id },
-                    liked: true
-                })
-                .execute();
-            const viewsQuery = this.em.qb(Interaction)
-                .count('views')
-                .where({
-                    campaign: { id: interaction.campaign.id },
-                    views: { $gt: 0 }
-                })
-                .execute();
-            const likedQuery = this.em.findOne(
-                Interaction,
-                {
-                    campaign: { id: interaction.campaign.id },
-                    liked: true,
-                    user: { id: interaction.user.id },
-                },
-                { fields: ['liked'] }
-            );
-
-            const [likesRes, viewsRes, likedRes] = await Promise.all([likesQuery, viewsQuery, likedQuery]);
-            const { count: likes } = likesRes?.[0];
-            const { count: views } = viewsRes?.[0];
-
             this.campaignGateway.sendCampaignInteraction(
                 interaction.user.id,
                 {
-                    campaignId: interaction.campaign.id,
-                    views,
-                    likes,
-                    liked: !!likedRes?.liked,
-                    campaignName: interaction.campaign.name,
+                    campaignId: campaign.id,
+                    views: campaign.views,
+                    likes: campaign.likes,
+                    liked: !!interaction.liked,
+                    campaignName: campaign.name,
                     viewed: interaction.views > 0,
                     currentTime: new Date()
                 }
