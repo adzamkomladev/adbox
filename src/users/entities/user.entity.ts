@@ -90,7 +90,7 @@ export class User extends BaseEntity {
   @Enum({ items: () => Status })
   status!: Status;
 
-  @Property()
+  @Property({ persist: false })
   get age() {
     return new Date().getFullYear() - new Date(this.dateOfBirth).getFullYear();
   }
