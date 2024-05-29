@@ -1,11 +1,11 @@
 import { Entity, Enum, ManyToOne, OneToOne, Property } from '@mikro-orm/core';
 
-import { Status } from '../../@common/enums/status.enum';
-import { TransactionType } from '../enums/transaction-type.enum';
+import { Status } from '../../../enums/status.enum';
+import { TransactionType } from '../../../../wallets/enums/transaction-type.enum';
 
-import { BaseEntity } from '../../@common/entities/base.entity';
+import { BaseEntity } from '../base.entity';
 import { Wallet } from './wallet.entity';
-import { Payment } from '../../payments/entities/payment.entity';
+import { Payment } from '../payments/payment.entity';
 
 @Entity()
 export class WalletTransaction extends BaseEntity {

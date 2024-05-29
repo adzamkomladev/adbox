@@ -8,8 +8,8 @@ import {
     Property,
 } from '@mikro-orm/core';
 
-import { BaseEntity } from '../../@common/entities/base.entity';
-import { User } from '../../users/entities/user.entity';
+import { BaseEntity } from '../base.entity';
+import { User } from '../users/user.entity';
 import { Attempt } from './attempt.entity';
 import { Identity } from './identity.entity';
 import { Business } from './business.entity';

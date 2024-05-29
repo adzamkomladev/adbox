@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 
-import { User } from '../../users/entities/user.entity';
+import { User } from '../../@common/db/entities/users/user.entity';
 
 import { VerifyCode } from '../dto/verification/verify.dto';
 import { SavePhone } from '../dto/verification/save.phone.dto';

@@ -1,6 +1,6 @@
 import { Embeddable, Property } from "@mikro-orm/core";
 
-import { DetailsType } from "../enums/details.type.enum";
+import { DetailsType } from "../../../../kyc/enums/details.type.enum";
 
 import { Details } from "./details.entity";
 

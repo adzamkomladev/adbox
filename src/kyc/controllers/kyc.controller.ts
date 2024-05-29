@@ -5,7 +5,7 @@ import { ResponseMessage } from '../../@common/decorators/response.message.decor
 import { Auth } from '../../auth/decorators/auth.decorator';
 import { User } from '../../auth/decorators/user.decorator';
 
-import { User as UserEntity } from '../../users/entities/user.entity';
+import { User as UserEntity } from '../../@common/db/entities/users/user.entity';
 
 import { CreateProfile } from '../dto/create.profile.dto';
 import { CreateIdentity } from '../dto/create.identity.dto';

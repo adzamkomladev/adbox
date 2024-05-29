@@ -14,9 +14,9 @@ import { WALLET_WITHDRAWALS_QUEUE } from '../constants/queues.constant';
 import { Status } from '@common/enums/status.enum';
 import { TransactionType } from '../enums/transaction-type.enum';
 
-import { PaymentMethod } from '@app/payments/entities/payment-method.entity';
-import { Wallet } from '../entities/wallet.entity';
-import { WalletTransaction } from '../entities/wallet-transaction.entity';
+import { PaymentMethod } from '@app/@common/db/entities/payments/payment-method.entity';
+import { Wallet } from '../../@common/db/entities/wallets/wallet.entity';
+import { WalletTransaction } from '../../@common/db/entities/wallets/wallet-transaction.entity';
 
 import { WalletTopUpJobDto } from '../dto/wallet-top-up-job.dto';
 

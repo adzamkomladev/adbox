@@ -5,10 +5,10 @@ import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { UsersModule } from '../users/users.module';
 import { NotificationsModule } from '../notifications/notifications.module';
 
-import { Kyc } from './entities/kyc.entity';
-import { Attempt } from './entities/attempt.entity';
-import { Identity } from './entities/identity.entity';
-import { Business } from './entities/business.entity';
+import { Kyc } from '../@common/db/entities/kyc/kyc.entity';
+import { Attempt } from '../@common/db/entities/kyc/attempt.entity';
+import { Identity } from '../@common/db/entities/kyc/identity.entity';
+import { Business } from '../@common/db/entities/kyc/business.entity';
 
 import { KycService } from './services/kyc.service';
 

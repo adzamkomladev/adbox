@@ -1,11 +1,8 @@
 import { KycLevel } from '../../@common/enums/kyc.level.enum';
 import { Status } from '../../@common/enums/status.enum';
 
-import { Attempt } from '../../kyc/entities/attempt.entity';
-import { Business } from '../../kyc/entities/business.entity';
-import { Identity } from '../../kyc/entities/identity.entity';
-import { Role } from '../../users/entities/role.entity';
-import { Wallet } from '../../wallets/entities/wallet.entity';
+import { Wallet, Role, Identity, Business, Attempt } from '../../@common/db/entities';
+
 
 export class AuthenticatedDto {
   readonly user: AuthenticatedUser;

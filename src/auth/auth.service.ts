@@ -10,7 +10,7 @@ import { Status } from '../@common/enums/status.enum';
 
 import { JwtPayload } from './interfaces/jwt.payload';
 
-import { User } from '../users/entities/user.entity';
+import { User } from '../@common/db/entities/users/user.entity';
 
 import { AuthenticateDto } from './dto/authenticate.dto';
 import { AuthenticatedDto, AuthenticatedUser } from './dto/authenticated.dto';

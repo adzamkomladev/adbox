@@ -13,18 +13,18 @@ import {
 import * as bcrypt from 'bcrypt';
 import { Exclude } from 'class-transformer';
 
-import { Status } from '../../@common/enums/status.enum';
-import { Sex } from '../enums/sex.enum';
+import { Status } from '../../../enums/status.enum';
+import { Sex } from '../../../../users/enums/sex.enum';
 
-import { BaseEntity } from '../../@common/entities/base.entity';
-import { Wallet } from '../../wallets/entities/wallet.entity';
-import { Payment } from '../../payments/entities/payment.entity';
-import { PaymentMethod } from '../../payments/entities/payment-method.entity';
-import { Campaign } from '../../campaigns/entities/campaign.entity';
+import { BaseEntity } from '../base.entity';
+import { Wallet } from '../wallets/wallet.entity';
+import { Payment } from '../payments/payment.entity';
+import { PaymentMethod } from '../payments/payment-method.entity';
+import { Campaign } from '../campaigns/campaign.entity';
 import { Role } from './role.entity';
-import { Kyc } from '../../kyc/entities/kyc.entity';
-import { Attempt } from '../../kyc/entities/attempt.entity';
-import { Interaction } from '../../campaigns/entities/interaction.entity';
+import { Kyc } from '../kyc/kyc.entity';
+import { Attempt } from '../kyc/attempt.entity';
+import { Interaction } from '../campaigns/interaction.entity';
 
 @Entity()
 export class User extends BaseEntity {

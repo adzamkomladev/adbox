@@ -7,11 +7,11 @@ import {
   Property,
 } from '@mikro-orm/core';
 
-import { Status } from '../../@common/enums/status.enum';
+import { Status } from '../../../enums/status.enum';
 
-import { BaseEntity } from '../../@common/entities/base.entity';
+import { BaseEntity } from '../base.entity';
 import { WalletTransaction } from './wallet-transaction.entity';
-import { User } from '../../users/entities/user.entity';
+import { User } from '../users/user.entity';
 
 @Entity()
 export class Wallet extends BaseEntity {

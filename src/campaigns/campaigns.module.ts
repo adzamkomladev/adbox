@@ -1,27 +1,25 @@
 import { Module } from '@nestjs/common';
+import { BullModule } from '@nestjs/bull';
 
-import { MikroOrmModule } from '@mikro-orm/nestjs';
+import { BullBoardModule } from '@bull-board/nestjs';
+import { BullAdapter } from '@bull-board/api/bullAdapter';
 
 import { AuthModule } from '../auth/auth.module';
 import { UsersModule } from '../users/users.module';
 
-import { Campaign } from './entities/campaign.entity';
-import { Interaction } from './entities/interaction.entity';
+import { CAMPAIGN_INTERACTION_QUEUE } from './constants/queues.constant';
 
-import { CampaignGateway } from './gateways/campaign.gateway';
 
 import { CampaignsService } from './campaigns.service';
 
-import { CampaignsController } from './campaigns.controller';
-import { CAMPAIGN_INTERACTION_QUEUE } from './constants/queues.constant';
-import { BullModule } from '@nestjs/bull';
-import { BullBoardModule } from '@bull-board/nestjs';
-import { BullAdapter } from '@bull-board/api/bullAdapter';
+import { CampaignGateway } from './gateways/campaign.gateway';
+
 import { CampaignInteractionConsumer } from './consumers/campaign.interaction.consumer';
+
+import { CampaignsController } from './campaigns.controller';
 
 @Module({
   imports: [
-    MikroOrmModule.forFeature([Campaign, Interaction]),
     BullModule.registerQueue({
       name: CAMPAIGN_INTERACTION_QUEUE,
     }),

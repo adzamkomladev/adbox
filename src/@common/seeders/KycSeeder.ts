@@ -7,12 +7,7 @@ import { Status } from '../enums/status.enum';
 import { Sex } from '../../users/enums/sex.enum';
 import { Type } from '../../kyc/enums/type.enum';
 
-import { User } from '../../users/entities/user.entity';
-import { Role } from '../../users/entities/role.entity';
-import { Kyc } from '../../kyc/entities/kyc.entity';
-import { Identity } from '../../kyc/entities/identity.entity';
-import { Attempt } from '../../kyc/entities/attempt.entity';
-import { Business } from '../../kyc/entities/business.entity';
+import { User, Role, Kyc, Identity, Attempt, Business } from '../db/entities';
 
 export class KycSeeder extends Seeder {
 

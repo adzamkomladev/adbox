@@ -7,14 +7,14 @@ import {
   Property,
 } from '@mikro-orm/core';
 
-import { Status } from '../../@common/enums/status.enum';
-import { Channel } from '../enums/channel.enum';
-import { Activity } from '../../wallets/enums/activity.enum';
+import { Status } from '../../../enums/status.enum';
+import { Channel } from '../../../../payments/enums/channel.enum';
+import { Activity } from '../../../../wallets/enums/activity.enum';
 
-import { BaseEntity } from '../../@common/entities/base.entity';
+import { BaseEntity } from '../base.entity';
 import { ChannelDetails } from './channel-details.enitty';
-import { WalletTransaction } from '../../wallets/entities/wallet-transaction.entity';
-import { User } from '../../users/entities/user.entity';
+import { WalletTransaction } from '../wallets/wallet-transaction.entity';
+import { User } from '../users/user.entity';
 
 @Entity()
 export class Payment extends BaseEntity {

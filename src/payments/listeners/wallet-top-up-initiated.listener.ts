@@ -14,8 +14,8 @@ import { WALLET_TOP_UP_INITIATED } from '@common/constants/events.constant';
 import { Status } from '@common/enums/status.enum';
 import { Activity } from "@app/wallets/enums/activity.enum";
 
-import { Payment } from '../entities/payment.entity';
-import { PaymentMethod } from '../entities/payment-method.entity';
+import { Payment } from '../../@common/db/entities/payments/payment.entity';
+import { PaymentMethod } from '../../@common/db/entities/payments/payment-method.entity';
 
 
 import { WalletTopUpInitiatedEvent } from '@app/wallets/events/wallet-top-up-initiated.event';

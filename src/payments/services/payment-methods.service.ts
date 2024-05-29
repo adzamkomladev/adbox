@@ -9,10 +9,10 @@ import { PhoneService } from '@adbox/utils';
 import { Status } from '@common/enums/status.enum';
 import { Channel } from '../enums/channel.enum';
 
-import { PaymentMethod } from '../entities/payment-method.entity';
+import { PaymentMethod } from '../../@common/db/entities/payments/payment-method.entity';
 
 import { CreatePaymentMethodDto } from '../dto/create-payment-method.dto';
-import { User } from '../../users/entities/user.entity';
+import { User } from '../../@common/db/entities/users/user.entity';
 
 @Injectable()
 export class PaymentMethodsService {

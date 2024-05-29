@@ -10,8 +10,8 @@ import { WALLET_TOP_UPS_QUEUE, WALLET_WITHDRAWALS_QUEUE } from './constants/queu
 
 import { Status } from '@common/enums/status.enum';
 
-import { Wallet } from './entities/wallet.entity';
-import { WalletTransaction } from './entities/wallet-transaction.entity';
+import { Wallet } from '../@common/db/entities/wallets/wallet.entity';
+import { WalletTransaction } from '../@common/db/entities/wallets/wallet-transaction.entity';
 
 import { CreateWalletDto } from './dto/create-wallet.dto';
 import { FindWalletBalanceDto } from './dto/find-wallet-balance.dto';

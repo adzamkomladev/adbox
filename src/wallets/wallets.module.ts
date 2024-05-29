@@ -11,8 +11,8 @@ import { PaymentsModule } from '../payments/payments.module';
 
 import { WALLET_TOP_UPS_QUEUE, WALLET_WITHDRAWALS_QUEUE } from './constants/queues.constant';
 
-import { Wallet } from './entities/wallet.entity';
-import { WalletTransaction } from './entities/wallet-transaction.entity';
+import { Wallet } from '../@common/db/entities/wallets/wallet.entity';
+import { WalletTransaction } from '../@common/db/entities/wallets/wallet-transaction.entity';
 
 import { WalletsService } from './wallets.service';
 

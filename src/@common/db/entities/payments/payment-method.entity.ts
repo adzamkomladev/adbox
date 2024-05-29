@@ -1,11 +1,11 @@
 import { Entity, Enum, ManyToOne, Property } from '@mikro-orm/core';
 
-import { Status } from '../../@common/enums/status.enum';
-import { Channel } from '../enums/channel.enum';
-import { Network } from '../enums/network.enum';
+import { Status } from '../../../enums/status.enum';
+import { Channel } from '../../../../payments/enums/channel.enum';
+import { Network } from '../../../../payments/enums/network.enum';
 
-import { BaseEntity } from '../../@common/entities/base.entity';
-import { User } from '../../users/entities/user.entity';
+import { BaseEntity } from '../base.entity';
+import { User } from '../users/user.entity';
 
 @Entity()
 export class PaymentMethod extends BaseEntity {

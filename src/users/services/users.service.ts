@@ -1,8 +1,7 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 
-import { CreateRequestContext, EntityRepository, MikroORM, wrap } from '@mikro-orm/core';
-import { InjectRepository } from '@mikro-orm/nestjs';
+import { CreateRequestContext, MikroORM, wrap } from '@mikro-orm/core';
 import { EntityManager } from '@mikro-orm/postgresql';
 
 import {
@@ -12,8 +11,7 @@ import {
 
 import { Status } from '../../@common/enums/status.enum';
 
-import { User } from '../entities/user.entity';
-import { Role } from '../entities/role.entity';
+import { User, Role } from '../../@common/db/entities';
 
 import { CreateUserDto } from '../dto/create-user.dto';
 import { CredentialsDto } from '../dto/credentials.dto';
@@ -31,10 +29,6 @@ export class UsersService {
   constructor(
     private readonly orm: MikroORM,
     private readonly em: EntityManager,
-    @InjectRepository(User)
-    private readonly usersRepository: EntityRepository<User>,
-    @InjectRepository(Role)
-    private readonly rolesRepository: EntityRepository<Role>,
     private readonly eventEmitter: EventEmitter2,
   ) { }
 
@@ -59,9 +53,9 @@ export class UsersService {
 
   @CreateRequestContext()
   async createAdmin({ roleId, roleTitle, email, status, firstName, lastName }: CreateUserDto) {
-    const role = await this.rolesRepository.findOneOrFail(roleId);
+    const role = await this.em.findOneOrFail(Role, roleId);
 
-    const user = this.usersRepository.create({
+    const user = this.em.create(User, {
       firstName,
       lastName,
       email,
@@ -82,7 +76,7 @@ export class UsersService {
     id: string,
     { avatar, dateOfBirth, firstName, lastName, sex }: CreateProfile
   ) {
-    const user = await this.usersRepository.findOneOrFail(id);
+    const user = await this.em.findOneOrFail(User, id);
 
     wrap(user).assign({
       firstName,
@@ -98,7 +92,8 @@ export class UsersService {
   }
 
   async findAllAdmin({ page = 1, size = 10 }: QueryDto) {
-    const [users, total] = await this.usersRepository.findAndCount(
+    const [users, total] = await this.em.findAndCount(
+      User,
       {
         role: {
           code: { $in: ['ADMIN', 'SUPER_ADMIN'] },
@@ -163,7 +158,7 @@ export class UsersService {
   }
 
   async findByCredentials({ email, password }: CredentialsDto) {
-    const user = await this.usersRepository.findOne({ email });
+    const user = await this.em.findOne(User, { email });
 
     if (!user) {
       throw new UnauthorizedException('Invalid credentials');
@@ -178,8 +173,8 @@ export class UsersService {
 
   async setRole(id: string, { role }: SetRoleDto) {
     const [user, foundRole] = await Promise.all([
-      this.usersRepository.findOneOrFail(id),
-      this.rolesRepository.findOneOrFail({ code: role })
+      this.em.findOneOrFail(User, id),
+      this.em.findOneOrFail(Role, { code: role })
     ]);
 
     wrap(user).assign({ role: foundRole });
@@ -204,7 +199,7 @@ export class UsersService {
   }
 
   async markUserPhoneAsVerified(id: string) {
-    const user = await this.usersRepository.findOneOrFail(id);
+    const user = await this.em.findOneOrFail(User, id);
 
     wrap(user).assign({ phoneVerifiedAt: new Date() });
     await this.em.persistAndFlush(user);
@@ -216,7 +211,7 @@ export class UsersService {
     id: string,
     { dateOfBirth, country }: SetExtraDetailsDto,
   ): Promise<User> {
-    const user = await this.usersRepository.findOneOrFail(id);
+    const user = await this.em.findOneOrFail(User, id);
 
     wrap(user).assign({ dateOfBirth, status: Status.ACTIVE });
     await this.em.persistAndFlush(user);
@@ -228,7 +223,7 @@ export class UsersService {
     id: string,
     phone: string
   ): Promise<User> {
-    const user = await this.usersRepository.findOneOrFail(id);
+    const user = await this.em.findOneOrFail(User, id);
 
     wrap(user).assign({ phone, phoneVerifiedAt: null });
     await this.em.persistAndFlush(user);
@@ -244,12 +239,12 @@ export class UsersService {
     lastName,
     walletBalance,
   }: SetupFirebaseUserDto): Promise<User> {
-    let user = await this.usersRepository.findOne({ firebaseId });
+    let user = await this.em.findOne(User, { firebaseId });
 
     if (user) {
       wrap(user).assign({ avatar, email, firstName, lastName });
     } else {
-      user = this.usersRepository.create({ firebaseId, avatar, email, firstName, lastName, });
+      user = this.em.create(User, { firebaseId, avatar, email, firstName, lastName, });
     }
 
     await this.em.persistAndFlush(user);

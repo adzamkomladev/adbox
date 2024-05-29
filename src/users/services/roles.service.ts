@@ -1,18 +1,14 @@
 import { Injectable } from '@nestjs/common';
 
-import { InjectRepository } from '@mikro-orm/nestjs';
-import { EntityRepository } from '@mikro-orm/postgresql';
+import { EntityManager } from '@mikro-orm/postgresql';
 
-import { Role } from '../entities/role.entity';
+import { Role } from '../../@common/db/entities';
 
 @Injectable()
 export class RolesService {
-    constructor(
-        @InjectRepository(Role)
-        private readonly rolesRepository: EntityRepository<Role>,
-    ) { }
+    constructor(private readonly em: EntityManager) { }
 
     async findAll() {
-        return await this.rolesRepository.findAll();
+        return await this.em.findAll(Role);
     }
 }

@@ -1,6 +1,6 @@
 import { Embeddable, Enum, Property } from '@mikro-orm/core';
 
-import { DetailsType } from '../enums/details.type.enum';
+import { DetailsType } from '../../../../kyc/enums/details.type.enum';
 
 @Embeddable({ abstract: true, discriminatorColumn: 'type' })
 export abstract class Details {

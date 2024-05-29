@@ -8,9 +8,7 @@ import { CAMPAIGN_INTERACTION_QUEUE } from './constants/queues.constant';
 
 import { Status } from '../@common/enums/status.enum';
 
-import { User } from '../users/entities/user.entity';
-import { Campaign } from './entities/campaign.entity';
-import { Interaction } from './entities/interaction.entity';
+import { User, Campaign, Interaction } from '../@common/db/entities';
 
 import { CreateCampaignDto } from './dto/create-campaign.dto';
 import { UpdateCampaignDto } from './dto/update-campaign.dto';

@@ -7,10 +7,9 @@ import { Job } from 'bull';
 
 import { CAMPAIGN_INTERACTION_QUEUE } from '../constants/queues.constant';
 
-import { Interaction } from '../entities/interaction.entity';
 import { Status } from '../../@common/enums/status.enum';
-import { User } from '../../users/entities/user.entity';
-import { Campaign } from '../entities/campaign.entity';
+
+import { User, Campaign, Interaction } from '../../@common/db/entities';
 
 import { CampaignInteractionJobDto } from '../dto/campaign.interaction.job.dto';
 

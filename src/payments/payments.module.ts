@@ -8,9 +8,9 @@ import { UtilsModule } from '@adbox/utils';
 
 import { UsersModule } from '../users/users.module';
 
-import { Payment } from './entities/payment.entity';
-import { PaymentMethod } from './entities/payment-method.entity';
-import { ChannelDetails } from './entities/channel-details.enitty';
+import { Payment } from '../@common/db/entities/payments/payment.entity';
+import { PaymentMethod } from '../@common/db/entities/payments/payment-method.entity';
+import { ChannelDetails } from '../@common/db/entities/payments/channel-details.enitty';
 
 import { PaymentsService } from './services/payments.service';
 import { PaymentMethodsService } from './services/payment-methods.service';

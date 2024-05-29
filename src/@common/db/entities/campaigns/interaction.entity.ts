@@ -1,7 +1,7 @@
 import { Entity, ManyToOne, Property } from '@mikro-orm/core';
 
-import { BaseEntity } from '../../@common/entities/base.entity';
-import { User } from '../../users/entities/user.entity';
+import { BaseEntity } from '../base.entity';
+import { User } from '../users/user.entity';
 import { Campaign } from './campaign.entity';
 
 @Entity()

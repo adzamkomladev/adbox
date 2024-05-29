@@ -12,7 +12,7 @@ import {
   ZEEPAY_WEBHOOK_RECEIVED,
 } from '../../@common/constants/events.constant';
 
-import { Payment } from '../entities/payment.entity';
+import { Payment } from '../../@common/db/entities/payments/payment.entity';
 
 import { ZeepayWebhookReceivedEvent } from '../../webhooks/events/zeepay-webhook-received.event';
 import { PaymentCompletedEvent } from '../events/payment-completed.event';

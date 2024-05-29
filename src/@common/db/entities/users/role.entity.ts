@@ -5,7 +5,7 @@ import {
     Property,
 } from '@mikro-orm/core';
 
-import { BaseEntity } from '../../@common/entities/base.entity';
+import { BaseEntity } from '../base.entity';
 import { User } from './user.entity';
 
 @Entity()

@@ -1,6 +1,6 @@
 import type { EntityManager } from '@mikro-orm/core';
 import { Seeder } from '@mikro-orm/seeder';
-import { Role } from '../../users/entities/role.entity';
+import { Role } from '../db/entities';
 
 export class RoleSeeder extends Seeder {
 

@@ -7,7 +7,7 @@ import { Auth } from '../auth/decorators/auth.decorator';
 import { User } from '../auth/decorators/user.decorator';
 import { CreatePaymentMethodDto } from './dto/create-payment-method.dto';
 import { ResponseMessage } from '../@common/decorators/response.message.decorator';
-import { User as UserEntity } from '../users/entities/user.entity';
+import { User as UserEntity } from '../@common/db/entities/users/user.entity';
 
 @ApiTags('payments')
 @Controller('payments')

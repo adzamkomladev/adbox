@@ -7,10 +7,10 @@ import { EntityRepository } from '@mikro-orm/postgresql';
 import { AttemptType } from '../enums/attempt.type.enum';
 import { Status } from '../../@common/enums/status.enum';
 
-import { Kyc } from '../entities/kyc.entity';
-import { Identity } from '../entities/identity.entity';
-import { Business } from '../entities/business.entity';
-import { Attempt } from '../entities/attempt.entity';
+import { Kyc } from '../../@common/db/entities/kyc/kyc.entity';
+import { Identity } from '../../@common/db/entities/kyc/identity.entity';
+import { Business } from '../../@common/db/entities/kyc/business.entity';
+import { Attempt } from '../../@common/db/entities/kyc/attempt.entity';
 
 import { CreateProfile } from '../dto/create.profile.dto';
 import { CreateIdentity } from '../dto/create.identity.dto';

@@ -11,8 +11,8 @@ import { Activity } from '../enums/activity.enum';
 
 import { PAYMENT_COMPLETED } from '../../@common/constants/events.constant';
 
-import { Wallet } from '../entities/wallet.entity';
-import { WalletTransaction } from '../entities/wallet-transaction.entity';
+import { Wallet } from '../../@common/db/entities/wallets/wallet.entity';
+import { WalletTransaction } from '../../@common/db/entities/wallets/wallet-transaction.entity';
 
 import { PaymentCompletedEvent } from '../../payments/events/payment-completed.event';
 

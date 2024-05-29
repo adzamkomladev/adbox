@@ -6,8 +6,7 @@ import { Seeder } from '@mikro-orm/seeder';
 import { Sex } from '../../users/enums/sex.enum';
 import { Status } from '../enums/status.enum';
 
-import { Role } from '../../users/entities/role.entity';
-import { User } from '../../users/entities/user.entity';
+import { User, Role } from '../db/entities';
 
 export class UserSeeder extends Seeder {
 

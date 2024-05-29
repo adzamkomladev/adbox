@@ -1,8 +1,9 @@
 import { Entity, Enum, Property } from '@mikro-orm/core';
 
-import { Service } from '../../@common/enums/service.enum';
+import { Service } from '../../../enums/service.enum';
 
-import { BaseEntity } from '../../@common/entities/base.entity';
+import { BaseEntity } from '../base.entity';
+
 
 @Entity()
 export class Webhook extends BaseEntity {
