@@ -1,17 +1,13 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-
-import { CreateRequestContext, MikroORM, wrap } from '@mikro-orm/core';
-import { EntityManager } from '@mikro-orm/postgresql';
 
 import {
   FIREBASE_USER_SETUP,
   USER_CREATED,
 } from '../../@common/constants/events.constant';
 
-import { Status } from '../../@common/enums/status.enum';
 
-import { User, Role } from '../../@common/db/entities';
+import { User } from '../../@common/db/entities';
 
 import { CreateUserDto } from '../dto/create-user.dto';
 import { CredentialsDto } from '../dto/credentials.dto';
@@ -24,94 +20,39 @@ import { QueryDto } from '../dto/query.dto';
 import { FirebaseUserSetupEvent } from '../events/firebase-user-setup.event';
 import { UserCreatedEvent } from '../events/user.created.event';
 
+import { UserRepository } from '../../@common/db/repositories';
+
 @Injectable()
 export class UsersService {
   constructor(
-    private readonly orm: MikroORM,
-    private readonly em: EntityManager,
     private readonly eventEmitter: EventEmitter2,
+    private readonly userRepository: UserRepository
   ) { }
 
   async create(payload: CreateUserDto) {
-    const role = await this.em.findOne(Role, { code: 'SUBSCRIBER' });
-
-    const user = this.em.create(User, {
-      ...payload,
-      role
-    });
-    await this.em.persistAndFlush(user);
+    const user = await this.userRepository.createSubscriber(payload);
 
     const event = new UserCreatedEvent();
     event.user = user;
 
     this.eventEmitter.emit(USER_CREATED, event);
-
-    await this.em.populate(user, ['wallet']);
-
     return user;
   }
 
-  @CreateRequestContext()
-  async createAdmin({ roleId, roleTitle, email, status, firstName, lastName }: CreateUserDto) {
-    const role = await this.em.findOneOrFail(Role, roleId);
-
-    const user = this.em.create(User, {
-      firstName,
-      lastName,
-      email,
-      roleTitle,
-      status: status || Status.ACTIVE,
-      avatar: `https://ui-avatars.com/api/?name=${firstName} ${lastName}`,
-      password: 'Abcde12345!',
-      role
-    });
-    await this.em.persistAndFlush(user);
-
-    await this.em.populate(user, ['role']);
-
-    return user;
+  async createAdmin(payload: CreateUserDto) {
+    return await this.userRepository.createAdmin(payload);
   }
 
-  async setProfile(
-    id: string,
-    { avatar, dateOfBirth, firstName, lastName, sex }: CreateProfile
-  ) {
-    const user = await this.em.findOneOrFail(User, id);
+  async setProfile(id: string, payload: CreateProfile) {
+    const user = await this.userRepository.saveProfile(id, payload);
 
-    wrap(user).assign({
-      firstName,
-      lastName,
-      sex,
-      avatar: avatar || user?.avatar,
-      dateOfBirth,
-      status: Status.ACTIVE
-    });
-    await this.em.persistAndFlush(user);
+    if (!user) throw new BadRequestException('failed to set profile');
 
     return user;
   }
 
   async findAllAdmin({ page = 1, size = 10 }: QueryDto) {
-    const [users, total] = await this.em.findAndCount(
-      User,
-      {
-        role: {
-          code: { $in: ['ADMIN', 'SUPER_ADMIN'] },
-        }
-      },
-      {
-        populate: ['role'],
-        limit: size,
-        offset: (page - 1) * size
-      })
-
-    return {
-      users,
-      total,
-      page: +page,
-      size: +size,
-      totalPages: Math.ceil(total / size)
-    }
+    return await this.userRepository.findAllAdminsPaginated(page, size);
   }
 
   findAll() {
@@ -119,66 +60,32 @@ export class UsersService {
   }
 
   async findOne(id: string): Promise<User> {
-    return await this.em.findOneOrFail(
-      User,
-      id,
-      {
-        populate: ['role', 'wallet', 'kyc', 'kyc.attempts'],
-        populateOrderBy: {
-          kyc: {
-            attempts: {
-              createdAt: 'DESC'
-            }
-          }
-        }
-      });
+    const user = await this.userRepository.findOneById(id);
+
+    if (!user) throw new BadRequestException('failed to find user');
+
+    return user;
   }
 
   async findByFirstName(firstName: string): Promise<User> {
-    return await this.em.findOne(
-      User,
-      { firstName }
-    );
+    return await this.userRepository.findOneByFirstName(firstName);
   }
   async findByEmail(email: string): Promise<User> {
-    return await this.em.findOne(
-      User,
-      { email },
-      {
-        populate: ['wallet', 'role', 'kyc', 'kyc.attempts'],
-        populateOrderBy: {
-          kyc: {
-            attempts: {
-              createdAt: 'DESC'
-            }
-          }
-        }
-      }
-    );
+    return await this.userRepository.findOneByEmail(email);
   }
 
   async findByCredentials({ email, password }: CredentialsDto) {
-    const user = await this.em.findOne(User, { email });
+    const user = await this.userRepository.findOneByCredentials(email, password);
 
-    if (!user) {
-      throw new UnauthorizedException('Invalid credentials');
-    }
-
-    const isMatch = await user.validatePassword(password);
-
-    if (!isMatch) {
-      throw new UnauthorizedException('Invalid credentials');
-    }
+    if (!user) throw new UnauthorizedException('Invalid credentials');
   }
 
-  async setRole(id: string, { role }: SetRoleDto) {
-    const [user, foundRole] = await Promise.all([
-      this.em.findOneOrFail(User, id),
-      this.em.findOneOrFail(Role, { code: role })
-    ]);
+  async setRole(id: string, { role: roleCode }: SetRoleDto) {
+    const res = await this.userRepository.setUserRole(id, roleCode);
 
-    wrap(user).assign({ role: foundRole });
-    await this.em.persistAndFlush(user);
+    if (!res) throw new BadRequestException('failed to set user role');
+
+    const { user, role } = res;
 
     return {
       id: user.id,
@@ -188,9 +95,9 @@ export class UsersService {
       lastName: user.lastName,
       avatar: user.avatar,
       role: {
-        id: foundRole.id,
-        code: foundRole.code,
-        name: foundRole.name,
+        id: role.id,
+        code: role.code,
+        name: role.name,
         title: user.roleTitle,
       },
       createdAt: user.createdAt,
@@ -199,22 +106,20 @@ export class UsersService {
   }
 
   async markUserPhoneAsVerified(id: string) {
-    const user = await this.em.findOneOrFail(User, id);
+    const user = await this.userRepository.markPhoneAsVerified(id);
 
-    wrap(user).assign({ phoneVerifiedAt: new Date() });
-    await this.em.persistAndFlush(user);
+    if (!user) throw new BadRequestException('failed to mark user phone as verified');
 
     return user;
   }
 
   async setExtraDetails(
     id: string,
-    { dateOfBirth, country }: SetExtraDetailsDto,
+    payload: SetExtraDetailsDto,
   ): Promise<User> {
-    const user = await this.em.findOneOrFail(User, id);
+    const user = await this.userRepository.saveExtraProfileDetails(id, payload);
 
-    wrap(user).assign({ dateOfBirth, status: Status.ACTIVE });
-    await this.em.persistAndFlush(user);
+    if (!user) throw new BadRequestException('failed to set extra details');
 
     return user;
   }
@@ -223,36 +128,20 @@ export class UsersService {
     id: string,
     phone: string
   ): Promise<User> {
-    const user = await this.em.findOneOrFail(User, id);
+    const user = await this.userRepository.savePhone(id, phone);
 
-    wrap(user).assign({ phone, phoneVerifiedAt: null });
-    await this.em.persistAndFlush(user);
+    if (!user) throw new BadRequestException('failed to set user phone number');
 
     return user;
   }
 
-  async setupFirebaseUser({
-    firebaseId,
-    avatar,
-    email,
-    firstName,
-    lastName,
-    walletBalance,
-  }: SetupFirebaseUserDto): Promise<User> {
-    let user = await this.em.findOne(User, { firebaseId });
-
-    if (user) {
-      wrap(user).assign({ avatar, email, firstName, lastName });
-    } else {
-      user = this.em.create(User, { firebaseId, avatar, email, firstName, lastName, });
-    }
-
-    await this.em.persistAndFlush(user);
+  async setupFirebaseUser(payload: SetupFirebaseUserDto): Promise<User> {
+    const user = await this.userRepository.saveExternalAuthUser(payload);
 
     const event = new FirebaseUserSetupEvent();
     event.userId = user.id;
     event.hasWallet = !!user.wallet;
-    event.walletBalance = walletBalance;
+    event.walletBalance = payload.walletBalance;
 
     this.eventEmitter.emit(FIREBASE_USER_SETUP, event);
 
