@@ -1,10 +1,12 @@
 import { BadRequestException, Injectable, Logger, UnauthorizedException } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 
 import { FirebaseAdmin, InjectFirebaseAdmin } from 'nestjs-firebase';
 import { DecodedIdToken } from 'firebase-admin/lib/auth/token-verifier';
-import * as uniqid from 'uniqid';
+
+import { USER_CREATED } from '../@common/constants/events.constant';
 
 import { Status } from '../@common/enums/status.enum';
 
@@ -16,7 +18,9 @@ import { AuthenticateDto } from './dto/authenticate.dto';
 import { AuthenticatedDto, AuthenticatedUser } from './dto/authenticated.dto';
 import { LoginDto } from './dto/login.dto';
 
-import { UsersService } from '../users/services/users.service';
+import { UserCreatedEvent } from '../users/events/user.created.event';
+
+import { UserRepository } from '../@common/db/repositories';
 
 @Injectable()
 export class AuthService {
@@ -24,9 +28,11 @@ export class AuthService {
 
   constructor(
     private readonly config: ConfigService,
+    private readonly eventEmitter: EventEmitter2,
     private readonly jwtService: JwtService,
-    @InjectFirebaseAdmin() private readonly firebase: FirebaseAdmin,
-    private readonly usersService: UsersService,
+    @InjectFirebaseAdmin()
+    private readonly firebase: FirebaseAdmin,
+    private readonly userRepository: UserRepository
   ) { }
 
   async jwtAuthentication(token?: string) {
@@ -54,7 +60,7 @@ export class AuthService {
     try {
       decodedToken = await this.firebase.auth.verifyIdToken(idToken);
 
-      // const user = await this.usersService.findByFirstName(firstName);
+      // const user = await this.userRepository.findByFirstName(firstName);
       // console.log(user)
       // decodedToken = {
       //   email: user.email,
@@ -79,13 +85,13 @@ export class AuthService {
     //   picture: 'https://ui-avatars.com/api/?name=Pink+Mal',
     // };
 
-    let user: User = await this.usersService.findByEmail(decodedToken.email);
+    let user: User = await this.userRepository.findOneByEmail(decodedToken.email);
 
     if (!user) {
       const newFirstName = firstName || decodedToken.given_name;
       const newLastName = lastName || decodedToken.family_name;
       const newAvatar = `https://ui-avatars.com/api/?name=${newFirstName}+${newLastName}`;
-      user = await this.usersService.create({
+      user = await this.userRepository.createSubscriber({
         email: decodedToken.email,
         firstName: newFirstName,
         lastName: newLastName,
@@ -93,6 +99,11 @@ export class AuthService {
         firebaseId: decodedToken.uid,
         status: Status.ACTIVE,
       });
+
+      const event = new UserCreatedEvent();
+      event.user = user;
+
+      this.eventEmitter.emit(USER_CREATED, event);
     }
 
     const payload = await this.generateJwtPayload(user);
@@ -105,17 +116,9 @@ export class AuthService {
   }
 
   async login({ email, password, rememberMe }: LoginDto) {
-    const user = await this.usersService.findByEmail(email);
+    const user = await this.userRepository.findOneByCredentials(email, password);
 
-    if (!user) {
-      throw new UnauthorizedException('Invalid credentials');
-    }
-
-    const isValid = await user.validatePassword(password);
-
-    if (!isValid) {
-      throw new UnauthorizedException('Invalid credentials');
-    }
+    if (!user) throw new UnauthorizedException('invalid credentials');
 
     const payload = await this.generateJwtPayload(user);
     const accessToken = this.jwtService.sign(payload, {
@@ -129,7 +132,7 @@ export class AuthService {
   }
 
   async getFullUserData(payload: User) {
-    const user = await this.usersService.findOne(payload.id);
+    const user = await this.userRepository.findOneById(payload.id);
 
     return this.formatUserData(user);
   }

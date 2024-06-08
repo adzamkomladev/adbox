@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 
 import { EntityManager, wrap } from '@mikro-orm/postgresql';
 
-import { Role, User } from '../../entities';
+import { Kyc, Role, User } from '../../entities';
 import { Status } from '../../../enums/status.enum';
 
 @Injectable()
@@ -88,7 +88,7 @@ export class UserRepository {
     }
 
     async saveProfile(id: string, { avatar, dateOfBirth, firstName, lastName, sex }: any) {
-        const user = await this.em.findOne(User, id);
+        const user = await this.em.findOne(User, id, { populate: ['kyc'] });
 
         if (!user) return null;
 
@@ -100,6 +100,14 @@ export class UserRepository {
             dateOfBirth,
             status: Status.ACTIVE
         });
+
+        if (!user.kyc) {
+            user.kyc = this.em.create(Kyc, {
+                level: 1,
+                country: 'GH',
+            });
+        }
+
         await this.em.persistAndFlush(user);
 
         return user;

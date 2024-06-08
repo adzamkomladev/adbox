@@ -6,8 +6,6 @@ import { JwtModule } from '@nestjs/jwt';
 import { resolve } from 'app-root-path';
 import { FirebaseModule } from 'nestjs-firebase';
 
-import { UsersModule } from '../users/users.module';
-
 import { AuthService } from './auth.service';
 
 import { JwtGuard } from './guards/jwt.guard';
@@ -19,7 +17,6 @@ import { PhoneVerifiedGuard } from './guards/phone.verified.guard';
 
 @Module({
   imports: [
-    UsersModule,
     FirebaseModule.forRoot({
       googleApplicationCredential: resolve('firebase-adminsdk.json'),
     }),

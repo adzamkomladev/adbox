@@ -2,7 +2,6 @@ import { Module } from '@nestjs/common';
 
 import { MikroOrmModule } from '@mikro-orm/nestjs';
 
-import { UsersModule } from '../users/users.module';
 import { NotificationsModule } from '../notifications/notifications.module';
 
 import { Kyc } from '../@common/db/entities/kyc/kyc.entity';
@@ -17,7 +16,7 @@ import { AdminController } from './controllers/admin.controller';
 import { PhoneVerificationService } from './services/phone-verification.service';
 
 @Module({
-  imports: [MikroOrmModule.forFeature([Kyc, Attempt, Business, Identity]), UsersModule, NotificationsModule],
+  imports: [MikroOrmModule.forFeature([Kyc, Attempt, Business, Identity]), NotificationsModule],
   controllers: [KycController, AdminController],
   providers: [KycService, PhoneVerificationService],
 })

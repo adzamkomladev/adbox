@@ -1,8 +1,11 @@
 import { Global, Module } from '@nestjs/common';
-import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { ConfigService } from '@nestjs/config';
+
+import { MikroOrmModule } from '@mikro-orm/nestjs';
+
 import { Campaign, Interaction, Role, User, Webhook } from '../db/entities';
-import { UserRepository } from '../db/repositories';
+
+import { RoleRepository, UserRepository } from '../db/repositories';
 
 @Global()
 @Module({
@@ -21,7 +24,7 @@ import { UserRepository } from '../db/repositories';
       Interaction
     ])
   ],
-  providers: [UserRepository],
-  exports: [UserRepository]
+  providers: [UserRepository, RoleRepository],
+  exports: [UserRepository, RoleRepository]
 })
-export class DbModule {}
+export class DbModule { }

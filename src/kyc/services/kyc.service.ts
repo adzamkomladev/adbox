@@ -18,7 +18,7 @@ import { CreateBusiness } from '../dto/create.business.dto';
 import { QueryDto } from '../dto/query.dto';
 import { UpdateStatus } from '../dto/update.status.dto';
 
-import { UsersService } from '../../users/services/users.service';
+import { UserRepository } from '../../@common/db/repositories';
 
 @Injectable()
 export class KycService {
@@ -27,23 +27,14 @@ export class KycService {
     constructor(
         private readonly orm: MikroORM,
         private readonly em: EntityManager,
-        private readonly usersService: UsersService
+        private readonly userRepository: UserRepository
     ) { }
 
     async createProfile(id: string, payload: CreateProfile) {
         try {
-            const user = await this.usersService.setProfile(id, payload);
+            const user = await this.userRepository.saveProfile(id, payload);
 
-            let kyc = await this.em.findOne(Kyc, { user: { id } });
-
-            if (!kyc) {
-                kyc = this.em.create(Kyc, {
-                    level: 1,
-                    user,
-                    country: 'GH',
-                });
-                await this.em.persistAndFlush(kyc);
-            }
+            if (!user) throw new BadRequestException('failed to set profile');
 
             return user;
         } catch (e) {
@@ -100,7 +91,7 @@ export class KycService {
     async updateStatus(id: string, updatedBy: string, { type, status, reason }: UpdateStatus): Promise<Kyc> {
         const [kyc, user] = await Promise.all([
             this.findKycWithAttemptsById(id, type === AttemptType.IDENTITY ? 2 : 4),
-            this.usersService.findOne(updatedBy)
+            this.userRepository.findOneById(updatedBy)
         ]);
 
         if (status !== Status.APPROVED) {

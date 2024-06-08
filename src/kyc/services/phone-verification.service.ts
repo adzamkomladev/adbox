@@ -7,18 +7,19 @@ import { SavePhone } from '../dto/verification/save.phone.dto';
 
 import { OtpService } from '../../notifications/services/otp.service';
 import { UsersService } from '../../users/services/users.service';
+import { UserRepository } from '../../@common/db/repositories';
 
 @Injectable()
 export class PhoneVerificationService {
     private readonly logger = new Logger(PhoneVerificationService.name);
 
     constructor(
-        private readonly usersService: UsersService,
+        private readonly userRepository: UserRepository,
         private readonly otpService: OtpService
     ) { }
 
     async sendVerificationCode(user: User, type?: string) {
-        const fullUserDetails = await this.usersService.findOne(user.id);
+        const fullUserDetails = await this.userRepository.findOneById(user.id);
         const { success, code } = await this.otpService.generateOtpForUser({
             phone: fullUserDetails.phone,
             userId: user.id,
@@ -32,7 +33,7 @@ export class PhoneVerificationService {
     }
 
     async verifyVerificationCode(user: User, { code }: VerifyCode) {
-        const fullUserDetails = await this.usersService.findOne(user.id);
+        const fullUserDetails = await this.userRepository.findOneById(user.id);
 
         const success = await this.otpService.verifyOtpForUser({
             phone: fullUserDetails.phone,
@@ -45,7 +46,9 @@ export class PhoneVerificationService {
         }
 
         try {
-            await this.usersService.markUserPhoneAsVerified(user.id);
+            const res = await this.userRepository.markPhoneAsVerified(user.id);
+
+            if (!res) throw new Error('Failed to mark phone as verified');
         } catch (e) {
             this.logger.error(`failed to mark user phone as verified ${e}`);
             throw new BadRequestException('failed to verify code');
@@ -53,7 +56,7 @@ export class PhoneVerificationService {
     }
 
     async savePhoneNumber(userId: string, { phone }: SavePhone) {
-        const user = await this.usersService.setPhoneNumber(userId, phone);
+        const user = await this.userRepository.savePhone(userId, phone);
 
         if (!user) {
             throw new BadRequestException('failed to save phone number');
