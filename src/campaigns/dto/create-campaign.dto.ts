@@ -16,17 +16,17 @@ export class CreateCampaignDto {
 
   @IsNotEmpty()
   @IsNumber()
-  @Min(0)
+  @Min(16)
   targetAge!: number;
 
   @IsNotEmpty()
   @IsNumber()
-  @Min(0)
+  @Min(1)
   targetReach!: number;
 
   @IsNotEmpty()
   @IsNumber()
-  @Min(0)
+  @Min(1)
   budget!: number;
 
   @IsNotEmpty()
