@@ -1,5 +1,4 @@
 import {
-  IsDate,
   IsDateString,
   IsNotEmpty,
   IsNumber,
@@ -7,7 +6,10 @@ import {
   IsString,
   IsUrl,
   Min,
+  MinDate,
 } from 'class-validator';
+
+import { IsAfterStart } from '../../@common/validators/is-after-start.validator';
 
 export class CreateCampaignDto {
   @IsNotEmpty()
@@ -36,10 +38,12 @@ export class CreateCampaignDto {
 
   @IsNotEmpty()
   @IsDateString()
+  @MinDate(new Date())
   start!: Date;
 
   @IsNotEmpty()
   @IsDateString()
+  @IsAfterStart()
   end!: Date;
 
   @IsOptional()
