@@ -24,6 +24,7 @@ import { InteractWithCampaignDto } from './dto/interact.with.campaign.dto';
 import { GetTimelineQueryDto } from './dto/get.timeline.dto';
 
 import { CampaignsService } from './campaigns.service';
+import { GetCreatedCampaignsDto, GetCreatedCampaignsQueryDto } from './dto/get-created-campaigns.dto';
 
 @Controller('campaigns')
 @ApiTags('Campaigns')
@@ -86,16 +87,27 @@ export class CampaignsController {
     }
   }
 
-  @Patch(':id')
-  update(
-    @Param('id') id: string,
-    @Body() updateCampaignDto: UpdateCampaignDto,
+  @Auth()
+  @Get('created')
+  @ApiOperation({ summary: 'Used to retrieve campaigns created by authenticated user' })
+  @ApiOkResponse({ description: 'Created campaigns retrieved' })
+  @ApiBadRequestResponse({ description: 'Failed to retrieve created campaings' })
+  @ResponseMessage('created campaigns retrieved')
+  async getCreatedCampaigns(
+    @User() user: AuthenticatedUser,
+    @Query() query: GetCreatedCampaignsQueryDto
   ) {
-    return this.campaignsService.update(+id, updateCampaignDto);
+    try {
+      return await this.campaignsService.getCreatedCampaigns(query, user);
+    } catch (e) {
+      this.logger.error(`Failed to retrieve created campaigns with error ==> ${e}`);
+
+      if (e instanceof HttpException) {
+        throw e;
+      }
+
+      throw new BadRequestException('failed to retrieve created campaigns');
+    }
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.campaignsService.remove(+id);
-  }
 }

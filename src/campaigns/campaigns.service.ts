@@ -12,6 +12,7 @@ import { GetTimelineDto, GetTimelineQueryDto } from './dto/get.timeline.dto';
 import { InteractWithCampaignDto } from './dto/interact.with.campaign.dto';
 
 import { CampaignRepository, InteractionRepository } from '../@common/db/repositories';
+import { GetCreatedCampaignsDto, GetCreatedCampaignsQueryDto } from './dto/get-created-campaigns.dto';
 
 @Injectable()
 export class CampaignsService {
@@ -71,5 +72,13 @@ export class CampaignsService {
     await this.campaignInteractionQueue.add({ campaignId: campaign.id });
 
     return interaction;
+  }
+
+  async getCreatedCampaigns(payload: GetCreatedCampaignsQueryDto, authUser: AuthenticatedUser): Promise<GetCreatedCampaignsDto> {
+    const timeline = await this.campaignRepository.getCreatedCampaigns(authUser.id, payload);
+
+    if (!timeline) throw new BadRequestException('failed to get created campaigns');
+
+    return timeline;
   }
 }

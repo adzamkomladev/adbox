@@ -5,6 +5,7 @@ import { Campaign, User } from '../../entities';
 
 import { Status } from '../../../enums/status.enum';
 import { Campaign as TimelineCampaign } from '../../../../campaigns/dto/get.timeline.dto';
+import { Campaign as CreatedCampaign } from '../../../../campaigns/dto/get-created-campaigns.dto';
 
 
 @Injectable()
@@ -58,10 +59,10 @@ export class CampaignRepository {
             demographic: user.kyc?.country
         };
 
-        const dataQuery = this.em.findAll(
+        const [data, total] = await this.em.findAndCount(
             Campaign,
+            filter,
             {
-                where: filter,
                 offset: size * (page - 1),
                 limit: size,
                 orderBy: {
@@ -70,12 +71,6 @@ export class CampaignRepository {
                 fields: ['id', 'name', 'description', 'asset', 'status', 'start', 'end', 'likes', 'views']
             }
         );
-        const countQuery = this.em.count(
-            Campaign,
-            filter
-        );
-
-        const [data, total] = await Promise.all([dataQuery, countQuery]);
 
         return {
             data: data as TimelineCampaign[],
@@ -88,4 +83,39 @@ export class CampaignRepository {
         };
     }
 
+    async getCreatedCampaigns(userId: string, query: any) {
+        const page = query.page || 1;
+        const size = query.size || 10;
+
+        const [data, total] = await this.em.qb(Campaign)
+            .select([
+                'id',
+                'name',
+                'demographic',
+                'targetAge',
+                'status',
+                "JSON_BUILD_OBJECT('value', views + likes, 'change', 'none') as impressions",
+                "JSON_BUILD_OBJECT('value', views + likes, 'change', 'none') as crt",
+                "JSON_BUILD_OBJECT('value', views, 'change', 'none') as uniqueViews",
+            ])
+            .where({ user: { id: userId } })
+            .orderBy({
+                status: 'asc',
+                createdAt: 'desc'
+            })
+            .limit(size)
+            .offset(size * (page - 1))
+            .getResultAndCount();
+
+
+        return {
+            data: data as any[],
+            meta: {
+                page,
+                size,
+                total,
+                totalPage: Math.ceil(total / size),
+            }
+        };
+    }
 }
