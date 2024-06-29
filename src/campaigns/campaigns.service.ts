@@ -81,4 +81,30 @@ export class CampaignsService {
 
     return timeline;
   }
+
+  async pauseCampaign(campaignId: string, authUser: AuthenticatedUser) {
+    const campaign = await this.campaignRepository.pauseCampaign(campaignId, authUser.id);
+
+    if (!campaign) throw new Error(`failed to retrieve campaign with id: ${campaignId} and status: active`);
+  }
+
+  async unPauseCampaign(campaignId: string, authUser: AuthenticatedUser) {
+    const campaign = await this.campaignRepository.unPauseCampaign(campaignId, authUser.id);
+
+    if (!campaign) throw new Error(`failed to retrieve campaign with id: ${campaignId} and status: paused`);
+  }
+
+  async stopCampaign(campaignId: string, authUser: AuthenticatedUser) {
+    const campaign = await this.campaignRepository.stopCampaign(campaignId, authUser.id);
+
+    if (!campaign) throw new Error(`failed to retrieve campaign with id: ${campaignId} and status: active or paused`);
+
+    // CAMPAIGN STOPPED EVENT EMITTED OR QUEUED
+  }
+
+  async checkIfCampaignBelongsToUser(campaignId: string, authUser: AuthenticatedUser) {
+    const campaign = await this.campaignRepository.findOneByIdAndOwner(campaignId, authUser.id);
+
+    return !!campaign;
+  }
 }

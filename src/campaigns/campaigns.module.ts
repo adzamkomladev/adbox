@@ -17,6 +17,7 @@ import { CampaignGateway } from './gateways/campaign.gateway';
 import { CampaignInteractionConsumer } from './consumers/campaign.interaction.consumer';
 
 import { CampaignsController } from './campaigns.controller';
+import { CampaignOwnerGuard } from './guards/campaign-owner.guard';
 
 @Module({
   imports: [
@@ -31,6 +32,6 @@ import { CampaignsController } from './campaigns.controller';
     UsersModule
   ],
   controllers: [CampaignsController],
-  providers: [CampaignsService, CampaignGateway, CampaignInteractionConsumer]
+  providers: [CampaignsService, CampaignGateway, CampaignInteractionConsumer, CampaignOwnerGuard]
 })
 export class CampaignsModule { }

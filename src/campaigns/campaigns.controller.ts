@@ -10,6 +10,8 @@ import {
   BadRequestException,
   Query,
   Logger,
+  Put,
+  UseGuards,
 } from '@nestjs/common';
 import { ApiBadRequestResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 
@@ -25,6 +27,7 @@ import { GetTimelineQueryDto } from './dto/get.timeline.dto';
 
 import { CampaignsService } from './campaigns.service';
 import { GetCreatedCampaignsDto, GetCreatedCampaignsQueryDto } from './dto/get-created-campaigns.dto';
+import { CampaignOwnerGuard } from './guards/campaign-owner.guard';
 
 @Controller('campaigns')
 @ApiTags('Campaigns')
@@ -110,4 +113,75 @@ export class CampaignsController {
     }
   }
 
+  @Auth()
+  @UseGuards(CampaignOwnerGuard)
+  @Put(':id/pause')
+  @ApiOperation({ summary: 'Used to pause a campaign' })
+  @ApiOkResponse({ description: 'Campaign paused' })
+  @ApiBadRequestResponse({ description: 'Failed to pause campaign' })
+  @ResponseMessage('campaign paused')
+  async pauseCampaign(
+    @User() user: AuthenticatedUser,
+    @Param('id') id: string
+  ) {
+    try {
+      return await this.campaignsService.pauseCampaign(id, user);
+    } catch (e) {
+      this.logger.error(`Failed to pause campaign with error ==> ${e}`);
+
+      if (e instanceof HttpException) {
+        throw e;
+      }
+
+      throw new BadRequestException('failed to pause campaign');
+    }
+  }
+
+  @Auth()
+  @UseGuards(CampaignOwnerGuard)
+  @Put(':id/unpause')
+  @ApiOperation({ summary: 'Used to unpause a campaign' })
+  @ApiOkResponse({ description: 'Campaign unpaused' })
+  @ApiBadRequestResponse({ description: 'Failed to unpause campaign' })
+  @ResponseMessage('campaign unpaused')
+  async unPauseCampaign(
+    @User() user: AuthenticatedUser,
+    @Param('id') id: string
+  ) {
+    try {
+      return await this.campaignsService.unPauseCampaign(id, user);
+    } catch (e) {
+      this.logger.error(`Failed to unpause campaign with error ==> ${e}`);
+
+      if (e instanceof HttpException) {
+        throw e;
+      }
+
+      throw new BadRequestException('failed to unpause campaign');
+    }
+  }
+
+  @Auth()
+  @UseGuards(CampaignOwnerGuard)
+  @Put(':id/stop')
+  @ApiOperation({ summary: 'Used to stop a campaign' })
+  @ApiOkResponse({ description: 'Campaign stopped' })
+  @ApiBadRequestResponse({ description: 'Failed to stop campaign' })
+  @ResponseMessage('campaign stopped')
+  async stopCampaign(
+    @User() user: AuthenticatedUser,
+    @Param('id') id: string
+  ) {
+    try {
+      return await this.campaignsService.stopCampaign(id, user);
+    } catch (e) {
+      this.logger.error(`Failed to stop campaign with error ==> ${e}`);
+
+      if (e instanceof HttpException) {
+        throw e;
+      }
+
+      throw new BadRequestException('failed to stop campaign');
+    }
+  }
 }

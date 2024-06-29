@@ -14,5 +14,7 @@ export enum Status {
   INCOMPLETE = 'incomplete',
   BLOCKED = 'blocked',
   INITIATED = 'initiated',
-  NOT_STARTED = 'not_started'
+  NOT_STARTED = 'not_started',
+  PAUSED = 'paused',
+  STOPPED = 'stopped'
 }

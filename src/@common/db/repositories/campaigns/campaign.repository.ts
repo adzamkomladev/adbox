@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 
-import { EntityManager, FilterQuery } from '@mikro-orm/postgresql';
+import { EntityManager, FilterQuery, wrap } from '@mikro-orm/postgresql';
 import { Campaign, User } from '../../entities';
 
 import { Status } from '../../../enums/status.enum';
@@ -117,5 +117,51 @@ export class CampaignRepository {
                 totalPage: Math.ceil(total / size),
             }
         };
+    }
+
+    async pauseCampaign(campaignId: string, pausedBy: string) {
+        const campaign = await this.em.findOne(Campaign, { id: campaignId, status: Status.ACTIVE });
+
+        if (!campaign) return null;
+
+        wrap(campaign).assign({
+            status: Status.PAUSED
+        });
+
+        await this.em.persistAndFlush(campaign);
+
+        return campaign;
+    }
+
+    async unPauseCampaign(campaignId: string, unPausedBy: string) {
+        const campaign = await this.em.findOne(Campaign, { id: campaignId, status: Status.PAUSED });
+
+        if (!campaign) return null;
+
+        wrap(campaign).assign({
+            status: Status.ACTIVE
+        });
+
+        await this.em.persistAndFlush(campaign);
+
+        return campaign;
+    }
+
+    async stopCampaign(campaignId: string, stoppedBy: string) {
+        const campaign = await this.em.findOne(Campaign, { id: campaignId, status: { $in: [Status.PAUSED, Status.ACTIVE] } });
+
+        if (!campaign) return null;
+
+        wrap(campaign).assign({
+            status: Status.STOPPED
+        });
+
+        await this.em.persistAndFlush(campaign);
+
+        return campaign;
+    }
+
+    async findOneByIdAndOwner(campaignId: string, ownedBy: string) {
+        return await this.em.findOne(Campaign, { id: campaignId, user: { id: ownedBy } }, { fields: ['id', 'name', 'status'] });
     }
 }
