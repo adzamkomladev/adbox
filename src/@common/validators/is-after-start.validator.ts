@@ -9,9 +9,7 @@ export class IsAfterStartConstraint implements ValidatorConstraintInterface {
 
         if (!start) return false;
 
-        const startDate = new Date(start);
-
-        return startDate?.getTime() < date?.getTime();
+        return (new Date(start))?.getTime() < (new Date(date))?.getTime();
     }
 
     defaultMessage(args: ValidationArguments) {
