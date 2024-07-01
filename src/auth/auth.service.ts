@@ -3,6 +3,7 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 
+import * as uniqid from 'uniqid';
 import { FirebaseAdmin, InjectFirebaseAdmin } from 'nestjs-firebase';
 import { DecodedIdToken } from 'firebase-admin/lib/auth/token-verifier';
 
@@ -60,7 +61,7 @@ export class AuthService {
     try {
       decodedToken = await this.firebase.auth.verifyIdToken(idToken);
 
-      // const user = await this.userRepository.findByFirstName(firstName);
+      // const user = await this.userRepository.findOneByFirstName(firstName);
       // console.log(user)
       // decodedToken = {
       //   email: user.email,
