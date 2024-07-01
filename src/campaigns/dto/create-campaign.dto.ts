@@ -9,9 +9,9 @@ import {
   Min,
   MinDate,
 } from 'class-validator';
+import { Type } from 'class-transformer';
 
 import { IsAfterStart } from '../../@common/validators/is-after-start.validator';
-import { Type } from 'class-transformer';
 
 export class CreateCampaignDto {
   @IsNotEmpty()
@@ -39,14 +39,14 @@ export class CreateCampaignDto {
   link!: string;
 
   @IsNotEmpty()
-  @IsDate()
   @Type(() => Date)
+  @IsDate()
   @MinDate(new Date())
   start!: Date;
 
   @IsNotEmpty()
-  @IsDate()
   @Type(() => Date)
+  @IsDate()
   @IsAfterStart()
   end!: Date;
 
