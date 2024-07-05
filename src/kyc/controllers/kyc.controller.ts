@@ -16,11 +16,8 @@ import { SendVerificationCode } from '../dto/verification/send.verification.code
 
 import { KycService } from '../services/kyc.service';
 import { PhoneVerificationService } from '../services/phone-verification.service';
-import { PhoneVerifiedGuard } from '../../auth/guards/phone.verified.guard';
-import { KycLevels } from '../../@common/decorators/kyc.levels.decorator';
-import { KycLevel } from '../../@common/enums/kyc.level.enum';
 import { AuthenticatedUser } from '../../@common/dto/authenticated.user.dto';
-import { KycLevelGuard } from '../../auth/guards/kyc.level.guard';
+import { Throttle } from '@nestjs/throttler';
 
 @Controller('kyc')
   @ApiTags('kyc')
@@ -50,6 +47,7 @@ export class KycController {
     }
   }
 
+  @Throttle({ default: { limit: 1, ttl: 60000 } })
   @Auth()
   @Patch('profile/phone')
   @ApiOkResponse()
@@ -70,6 +68,7 @@ export class KycController {
     }
   }
 
+  @Throttle({ default: { limit: 1, ttl: 60000 } })
   @Auth()
   @Get('phone/verification/code/send')
   @ApiOkResponse()

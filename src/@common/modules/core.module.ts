@@ -1,10 +1,10 @@
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { Global, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { CacheModule } from '@nestjs/cache-manager';
 import { ScheduleModule } from '@nestjs/schedule';
 import { BullModule } from '@nestjs/bull';
 import { EventEmitterModule } from '@nestjs/event-emitter';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 
 
 import { BullBoardModule } from '@bull-board/nestjs';
@@ -16,17 +16,21 @@ import redisConfig from '../configs/redis.config';
 import authConfig from '../configs/auth.config';
 import paymentsConfig from '../configs/payments.config';
 import notificationsConfig from '../configs/notifications.config';
+import throttlerConfig from '../configs/throttler.config';
 
 import { TransformInterceptor } from '../interceptors/transform.interceptor';
 
-import { KycLevelGuard } from '../../auth/guards/kyc.level.guard';
 
 @Global()
 @Module({
   imports: [
     ConfigModule.forRoot({
-      load: [appConfig, dbConfig, redisConfig, authConfig, paymentsConfig, notificationsConfig],
+      load: [appConfig, dbConfig, redisConfig, authConfig, paymentsConfig, notificationsConfig, throttlerConfig],
       isGlobal: true,
+    }),
+    ThrottlerModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => config.get<any[]>('throttler.list'),
     }),
     ScheduleModule.forRoot(),
 
@@ -49,6 +53,10 @@ import { KycLevelGuard } from '../../auth/guards/kyc.level.guard';
     {
       provide: APP_INTERCEPTOR,
       useClass: TransformInterceptor,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard
     }
   ],
 })
