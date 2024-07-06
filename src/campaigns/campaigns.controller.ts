@@ -38,8 +38,10 @@ export class CampaignsController {
 
   @Auth()
   @Post()
-  @ApiOkResponse()
-  @ApiBadRequestResponse()
+  @ApiOperation({ summary: 'Used to create a new campaign' })
+  @ApiOkResponse({ description: 'Campaign created' })
+  @ApiBadRequestResponse({ description: 'Failed to create campaign' })
+  @ResponseMessage('campaign created')
   async create(
     @User() user: AuthenticatedUser,
     @Body() createCampaignDto: CreateCampaignDto,
@@ -57,14 +59,26 @@ export class CampaignsController {
 
   @Auth()
   @Patch(':id/interact')
-  @ApiOkResponse()
-  @ApiBadRequestResponse()
+  @ApiOperation({ summary: 'Used to interact with a campaign (view or/and like)' })
+  @ApiOkResponse({ description: 'Interacted with campaign' })
+  @ApiBadRequestResponse({ description: 'Failed to interact with campaign' })
+  @ResponseMessage('interacted with campaign')
   interact(
     @User() user: AuthenticatedUser,
     @Param('id') id: string,
     @Body() body: InteractWithCampaignDto,
   ) {
-    return this.campaignsService.interactWithCampaign(id, body, user);
+    try {
+      return this.campaignsService.interactWithCampaign(id, body, user);
+    } catch (e) {
+      this.logger.error(`Failed to interact with campaign with error ==> ${e}`);
+
+      if (e instanceof HttpException) {
+        throw e;
+      }
+
+      throw new BadRequestException('failed to interact with campaign');
+    }
   }
 
   @Auth()
