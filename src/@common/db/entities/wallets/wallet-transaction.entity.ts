@@ -1,4 +1,4 @@
-import { Entity, Enum, ManyToOne, OneToOne, Property } from '@mikro-orm/core';
+import { Collection, Entity, Enum, ManyToOne, OneToMany, OneToOne, Property } from '@mikro-orm/core';
 
 import { Status } from '../../../enums/status.enum';
 import { TransactionType } from '../../../../wallets/enums/transaction-type.enum';
@@ -6,6 +6,7 @@ import { TransactionType } from '../../../../wallets/enums/transaction-type.enum
 import { BaseEntity } from '../base.entity';
 import { Wallet } from './wallet.entity';
 import { Payment } from '../payments/payment.entity';
+import { WalletTransactionChange } from './wallet-transaction-change.entity';
 
 @Entity()
 export class WalletTransaction extends BaseEntity {
@@ -17,6 +18,9 @@ export class WalletTransaction extends BaseEntity {
     nullable: true,
   })
   payment?: Payment;
+
+  @OneToMany(() => WalletTransactionChange, (change) => change.transaction)
+  changes = new Collection<WalletTransactionChange>(this);
 
   @Property()
   amount!: number;

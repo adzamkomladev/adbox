@@ -1,8 +1,9 @@
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
-import { InjectRepository } from '@mikro-orm/nestjs';
 import { MikroORM, EntityManager, wrap } from '@mikro-orm/core';
-import { EntityRepository } from '@mikro-orm/postgresql';
+
+import { KYC_LEVEL_TWO_APPROVED } from '../../@common/constants/events.constant';
 
 import { AttemptType } from '../enums/attempt.type.enum';
 import { Status } from '../../@common/enums/status.enum';
@@ -18,6 +19,8 @@ import { CreateBusiness } from '../dto/create.business.dto';
 import { QueryDto } from '../dto/query.dto';
 import { UpdateStatus } from '../dto/update.status.dto';
 
+import { KycLevelTwoApprovedEvent } from '../../@common/events';
+
 import { UserRepository } from '../../@common/db/repositories';
 
 @Injectable()
@@ -25,6 +28,7 @@ export class KycService {
     private readonly logger = new Logger(KycService.name);
 
     constructor(
+        private readonly eventEmitter: EventEmitter2,
         private readonly orm: MikroORM,
         private readonly em: EntityManager,
         private readonly userRepository: UserRepository
@@ -104,6 +108,9 @@ export class KycService {
         kyc.attempts[0].reason = reason;
         kyc.attempts[0].updatedBy = user;
 
+        const event = new KycLevelTwoApprovedEvent(kyc.user?.id);
+        this.eventEmitter.emit(KYC_LEVEL_TWO_APPROVED, event);
+
         await this.em.persistAndFlush(kyc);
 
         return kyc;
@@ -142,7 +149,7 @@ export class KycService {
             Kyc,
             id,
             {
-                populate: ['attempts'],
+                populate: ['attempts', 'user'],
                 populateWhere: {
                     attempts: {
                         status: Status.PENDING,

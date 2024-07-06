@@ -18,6 +18,7 @@ export * from './payments/channel-details.enitty';
 
 export * from './wallets/wallet.entity';
 export * from './wallets/wallet-transaction.entity';
+export * from './wallets/wallet-transaction-change.entity';
 
 
 export * from './webhooks/webhook.entity';

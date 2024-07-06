@@ -19,9 +19,10 @@ import { WalletsService } from './wallets.service';
 import { WalletTopUpsConsumer } from './consumers/wallet-top-ups.consumer';
 import { PaymentCompletedEventListener } from './listeners/payment.completed.listener';
 import { UserCreatedListener } from './listeners/user.created.listener';
+import { FirebaseUserSetupListener } from './listeners/firebase.user.setup.listener';
+import { KycLevelTwoApprovedListener } from './listeners/kyc-level-two-approved.listener';
 
 import { WalletsController } from './wallets.controller';
-import { FirebaseUserSetupListener } from './listeners/firebase.user.setup.listener';
 
 @Module({
   imports: [
@@ -50,7 +51,8 @@ import { FirebaseUserSetupListener } from './listeners/firebase.user.setup.liste
     WalletTopUpsConsumer,
     PaymentCompletedEventListener,
     UserCreatedListener,
-    FirebaseUserSetupListener
+    FirebaseUserSetupListener,
+    KycLevelTwoApprovedListener
   ],
 })
 export class WalletsModule { }

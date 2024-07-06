@@ -13,3 +13,6 @@ export const PAYMENT_COMPLETED = 'payment.completed';
 
 export const FIREBASE_USER_SETUP = 'firebase.user.setup';
 export const USER_CREATED = 'user.created';
+
+// KYC EVENTS
+export const KYC_LEVEL_TWO_APPROVED = 'kyc.level.two.approved';
