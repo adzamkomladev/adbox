@@ -11,29 +11,47 @@ import { AuthenticatedUser } from '../@common/dto/authenticated.user.dto';
 import { GetTimelineDto, GetTimelineQueryDto } from './dto/get.timeline.dto';
 import { InteractWithCampaignDto } from './dto/interact.with.campaign.dto';
 
-import { CampaignRepository, InteractionRepository } from '../@common/db/repositories';
+import { CampaignRepository, InteractionRepository, WalletRepository } from '../@common/db/repositories';
 import { GetCreatedCampaignsDto, GetCreatedCampaignsQueryDto } from './dto/get-created-campaigns.dto';
+import { CampaignCreatedEvent } from '../@common/events/campaigns/campaign-created.event';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { CAMPAIGN_CREATED } from '../@common/constants/events.constant';
 
 @Injectable()
 export class CampaignsService {
   private readonly logger = new Logger(CampaignsService.name);
 
   constructor(
+    private readonly eventEmitter: EventEmitter2,
     @InjectQueue(CAMPAIGN_INTERACTION_QUEUE)
     private readonly campaignInteractionQueue: Queue,
     private readonly campaignRepository: CampaignRepository,
     private readonly interactionRepository: InteractionRepository,
+    private readonly walletRepository: WalletRepository
   ) { }
 
   async create(userId: string, payload: CreateCampaignDto) {
 
-    // const walletBalance = this.walletsService.walletBalance({userId})
+    let transaction;
+    try {
+      const res = await this.walletRepository.deductFromWallet(userId, payload.budget, 0, 'campaign creation payment');
+
+      if (!res) throw new BadRequestException('failed to deduct from your wallet');
+
+      transaction = res.transaction;
+    } catch (e) {
+      this.logger.error(`Wallet deduction error ==> ${e}`);
+
+      throw new BadRequestException('failed to deduct from your wallet');
+    }
 
     const campaign = await this.campaignRepository.create(userId, payload);
 
     if (!campaign) throw new BadRequestException('failed to create campaign');
 
     // TODO: Publish campaign created event
+    const event = new CampaignCreatedEvent(campaign.id, transaction?.id);
+    this.eventEmitter.emit(CAMPAIGN_CREATED, event);
 
     return campaign;
   }

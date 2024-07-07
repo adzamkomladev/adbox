@@ -1525,6 +1525,16 @@
           "nullable": false,
           "mappedType": "integer"
         },
+        "fee": {
+          "name": "fee",
+          "type": "int",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "default": "0",
+          "mappedType": "integer"
+        },
         "before": {
           "name": "before",
           "type": "int",
@@ -1550,6 +1560,15 @@
           "autoincrement": false,
           "primary": false,
           "nullable": false,
+          "mappedType": "string"
+        },
+        "link_id": {
+          "name": "link_id",
+          "type": "varchar(255)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
           "mappedType": "string"
         },
         "description": {
@@ -1654,6 +1673,157 @@
           ],
           "referencedTableName": "public.payment",
           "deleteRule": "set null",
+          "updateRule": "cascade"
+        }
+      },
+      "nativeEnums": {}
+    },
+    {
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "varchar(255)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "string"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 6,
+          "mappedType": "datetime"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 6,
+          "mappedType": "datetime"
+        },
+        "transaction_id": {
+          "name": "transaction_id",
+          "type": "varchar(255)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "string"
+        },
+        "updated_by_id": {
+          "name": "updated_by_id",
+          "type": "varchar(255)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "string"
+        },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "enumItems": [
+            "active",
+            "inactive",
+            "pending",
+            "deleted",
+            "verified",
+            "unverified",
+            "approved",
+            "unapproved",
+            "rejected",
+            "accepted",
+            "failed",
+            "completed",
+            "incomplete",
+            "blocked",
+            "initiated",
+            "not_started",
+            "paused",
+            "stopped"
+          ],
+          "mappedType": "enum"
+        },
+        "start_date": {
+          "name": "start_date",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 6,
+          "mappedType": "datetime"
+        },
+        "end_date": {
+          "name": "end_date",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 6,
+          "mappedType": "datetime"
+        },
+        "reason": {
+          "name": "reason",
+          "type": "varchar(255)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "string"
+        }
+      },
+      "name": "wallet_transaction_change",
+      "schema": "public",
+      "indexes": [
+        {
+          "keyName": "wallet_transaction_change_pkey",
+          "columnNames": [
+            "id"
+          ],
+          "composite": false,
+          "constraint": true,
+          "primary": true,
+          "unique": true
+        }
+      ],
+      "checks": [],
+      "foreignKeys": {
+        "wallet_transaction_change_transaction_id_foreign": {
+          "constraintName": "wallet_transaction_change_transaction_id_foreign",
+          "columnNames": [
+            "transaction_id"
+          ],
+          "localTableName": "public.wallet_transaction_change",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.wallet_transaction",
+          "updateRule": "cascade"
+        },
+        "wallet_transaction_change_updated_by_id_foreign": {
+          "constraintName": "wallet_transaction_change_updated_by_id_foreign",
+          "columnNames": [
+            "updated_by_id"
+          ],
+          "localTableName": "public.wallet_transaction_change",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.user",
           "updateRule": "cascade"
         }
       },

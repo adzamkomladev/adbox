@@ -16,3 +16,6 @@ export const USER_CREATED = 'user.created';
 
 // KYC EVENTS
 export const KYC_LEVEL_TWO_APPROVED = 'kyc.level.two.approved';
+
+// CAMPAIGN EVENTS
+export const CAMPAIGN_CREATED = 'campaign.created'

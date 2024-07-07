@@ -25,6 +25,9 @@ export class WalletTransaction extends BaseEntity {
   @Property()
   amount!: number;
 
+  @Property({ default: 0 })
+  fee: number = 0;
+
   @Property()
   before!: number;
 
@@ -33,6 +36,9 @@ export class WalletTransaction extends BaseEntity {
 
   @Property()
   reference!: string;
+
+  @Property({ nullable: true })
+  linkId?: string;
 
   @Property({ nullable: true })
   description?: string;
