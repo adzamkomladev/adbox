@@ -50,6 +50,7 @@ export class CampaignRepository {
             { id: userId },
             { fields: ['dateOfBirth', 'age', 'kyc.country'] }
         );
+        console.log(user, user.age, 'user timeline')
 
         if (!user) return null;
 
