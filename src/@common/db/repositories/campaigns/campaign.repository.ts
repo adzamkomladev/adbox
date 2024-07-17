@@ -48,14 +48,14 @@ export class CampaignRepository {
         const user = await this.em.findOne(
             User,
             { id: userId },
-            { fields: ['age', 'kyc.country'] }
+            { fields: ['dateOfBirth', 'age', 'kyc.country'] }
         );
 
         if (!user) return null;
 
         const filter: FilterQuery<Campaign> = {
             status: Status.ACTIVE,
-            targetAge: { $lte: user.age },
+            targetAge: { $lte: user.age || 16 },
             demographic: user.kyc?.country
         };
 
