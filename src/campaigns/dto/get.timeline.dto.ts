@@ -1,13 +1,16 @@
 import { IsNumber, IsOptional } from "class-validator";
 
 import { Status } from "../../@common/enums/status.enum";
+import { Type } from "class-transformer";
 
 export class GetTimelineQueryDto {
     @IsOptional()
+    @Type(() => Number)
     @IsNumber()
     readonly page?: number;
 
     @IsOptional()
+    @Type(() => Number)
     @IsNumber()
     readonly size?: number;
 }
