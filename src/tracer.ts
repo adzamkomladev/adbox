@@ -17,7 +17,7 @@ const sdk = new opentelemetry.NodeSDK({
     traceExporter,
     instrumentations: [getNodeAutoInstrumentations()],
     resource: new Resource({
-        [SemanticResourceAttributes.SERVICE_NAME]: 'adbox',
+        [SemanticResourceAttributes.SERVICE_NAME]: 'main-adbox',
     }),
 });
 
