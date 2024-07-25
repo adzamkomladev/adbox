@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 
-import { EntityManager, FilterQuery, wrap } from '@mikro-orm/postgresql';
+import { EntityManager, FilterQuery, raw, wrap } from '@mikro-orm/postgresql';
 import { Campaign, User } from '../../entities';
 
 import { Status } from '../../../enums/status.enum';
@@ -88,16 +88,16 @@ export class CampaignRepository {
         const page = query.page || 1;
         const size = query.size || 10;
 
-        const [data, total] = await this.em.qb(Campaign)
+        const dataQuery = this.em.qb(Campaign, 'c')
             .select([
-                'id',
-                'name',
-                'demographic',
-                'targetAge',
-                'status',
-                "JSON_BUILD_OBJECT('value', views + likes, 'change', 'none') as impressions",
-                "JSON_BUILD_OBJECT('value', views + likes, 'change', 'none') as crt",
-                "JSON_BUILD_OBJECT('value', views, 'change', 'none') as uniqueViews",
+                'c.id',
+                'c.name',
+                'c.demographic',
+                'c.targetAge',
+                'c.status',
+                raw("JSON_BUILD_OBJECT('value', c.views + c.likes, 'change', 'none') as impressions"),
+                raw("JSON_BUILD_OBJECT('value', c.views + c.likes, 'change', 'none') as crt"),
+                raw("JSON_BUILD_OBJECT('value', c.views, 'change', 'none') as uniqueViews"),
             ])
             .where({ user: { id: userId } })
             .orderBy({
@@ -105,9 +105,11 @@ export class CampaignRepository {
                 createdAt: 'desc'
             })
             .limit(size)
-            .offset(size * (page - 1))
-            .getResultAndCount();
+            .offset(size * (page - 1));
 
+        const totalQuery = this.em.qb(Campaign).count().where({ user: { id: userId } });
+
+        const [data, total] = await Promise.all([dataQuery.execute(), totalQuery]);
 
         return {
             data: data as any[],

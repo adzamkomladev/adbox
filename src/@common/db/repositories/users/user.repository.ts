@@ -153,6 +153,7 @@ export class UserRepository {
 
         const user = this.em.create(User, {
             ...data,
+            roleTitle: 'Subscriber',
             role
         });
         await this.em.persistAndFlush(user);
