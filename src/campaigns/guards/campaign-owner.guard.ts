@@ -5,7 +5,7 @@ import { CampaignsService } from '../campaigns.service';
 @Injectable()
 export class CampaignOwnerGuard implements CanActivate {
   constructor(private readonly campaignsService: CampaignsService) { }
-
+  // TODO: MUST BE FIXED
   async canActivate(context: ExecutionContext) {
     const request = context.switchToHttp().getRequest();
 

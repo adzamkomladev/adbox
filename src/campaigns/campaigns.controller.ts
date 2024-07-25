@@ -128,7 +128,7 @@ export class CampaignsController {
   }
 
   @Auth()
-  @UseGuards(CampaignOwnerGuard)
+    // @UseGuards(CampaignOwnerGuard)
   @Put(':id/pause')
   @ApiOperation({ summary: 'Used to pause a campaign' })
   @ApiOkResponse({ description: 'Campaign paused' })
@@ -152,7 +152,7 @@ export class CampaignsController {
   }
 
   @Auth()
-  @UseGuards(CampaignOwnerGuard)
+    // @UseGuards(CampaignOwnerGuard)
   @Put(':id/unpause')
   @ApiOperation({ summary: 'Used to unpause a campaign' })
   @ApiOkResponse({ description: 'Campaign unpaused' })
@@ -176,7 +176,7 @@ export class CampaignsController {
   }
 
   @Auth()
-  @UseGuards(CampaignOwnerGuard)
+    // @UseGuards(CampaignOwnerGuard)
   @Put(':id/stop')
   @ApiOperation({ summary: 'Used to stop a campaign' })
   @ApiOkResponse({ description: 'Campaign stopped' })
