@@ -51,7 +51,8 @@ jobs:
             [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
             pm2 stop adbox
             npm install
-            npx mikro-orm migration:up
+            npx mikro-orm database:create
+            npx mikro-orm migration:fresh --seed
             npm run build
             pm2 start adbox --update-env
             tail -n 30 /home/webapps/.pm2/logs/adbox-out.log

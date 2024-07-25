@@ -3,7 +3,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { EntityManager, wrap } from '@mikro-orm/postgresql';
 import * as uniqid from 'uniqid';
 
-import { Wallet, WalletTransaction, WalletTransactionChange } from '../../entities';
+import { User, Wallet, WalletTransaction, WalletTransactionChange } from '../../entities';
 import { TransactionType } from '../../../../wallets/enums/transaction-type.enum';
 import { Status } from '../../../enums/status.enum';
 
@@ -51,7 +51,8 @@ export class WalletRepository {
         const change = this.em.create(WalletTransactionChange, {
             status: Status.COMPLETED,
             transaction,
-            reason
+            reason,
+            updatedBy: this.em.getReference(User, userId)
         });
 
         await this.em.persistAndFlush([wallet, transaction, change]);

@@ -4,6 +4,7 @@ import { Seeder } from '@mikro-orm/seeder';
 import { RoleSeeder } from './RoleSeeder';
 import { UserSeeder } from './UserSeeder';
 import { KycSeeder } from './KycSeeder';
+import { WalletSeeder } from './WalletSeeder';
 
 export class DatabaseSeeder extends Seeder {
 
@@ -12,6 +13,7 @@ export class DatabaseSeeder extends Seeder {
             RoleSeeder,
             UserSeeder,
             KycSeeder,
+            WalletSeeder
         ]);
     }
 }
