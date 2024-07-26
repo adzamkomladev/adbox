@@ -205,4 +205,10 @@ export class UserRepository {
             totalPages: Math.ceil(total / size)
         }
     }
+
+    async updateStatus({ userId, status }: any) {
+        const res = await this.em.nativeUpdate(User, { id: userId }, { status });
+
+        return res !== 0;
+    }
 }

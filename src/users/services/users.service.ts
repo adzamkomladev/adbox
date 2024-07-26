@@ -147,4 +147,11 @@ export class UsersService {
 
     return user;
   }
+
+  async updateStatus(userId: string, { status }: any) {
+    const success = await this.userRepository.updateStatus({ userId, status });
+
+    if (!success) throw new BadRequestException('failed to update user status');
+  }
+
 }
