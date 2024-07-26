@@ -6,10 +6,10 @@ import { Auth } from '../../auth/decorators/auth.decorator';
 
 import { QueryDto } from '../dto/query.dto';
 import { CreateUserDto } from '../dto/create-user.dto';
+import { UpdateStatusDto } from '../dto/update-status.dto';
 
 import { UsersService } from '../services/users.service';
 import { RolesService } from '../services/roles.service';
-import { UpdateStatusDto } from '../dto/update-status.dto';
 
 @ApiTags('users admin')
 @Controller('admin/users')

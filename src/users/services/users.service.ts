@@ -16,6 +16,7 @@ import { SetExtraDetailsDto } from '../dto/set-extra-details.dto';
 import { SetupFirebaseUserDto } from '../dto/setup-firebase-user.dto';
 import { CreateProfile } from '../../kyc/dto/create.profile.dto';
 import { QueryDto } from '../dto/query.dto';
+import { UpdateStatusDto } from '../dto/update-status.dto';
 
 import { FirebaseUserSetupEvent } from '../events/firebase-user-setup.event';
 import { UserCreatedEvent } from '../events/user.created.event';
@@ -148,7 +149,7 @@ export class UsersService {
     return user;
   }
 
-  async updateStatus(userId: string, { status }: any) {
+  async updateStatus(userId: string, { status }: UpdateStatusDto) {
     const success = await this.userRepository.updateStatus({ userId, status });
 
     if (!success) throw new BadRequestException('failed to update user status');
