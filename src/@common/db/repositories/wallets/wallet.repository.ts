@@ -13,6 +13,21 @@ export class WalletRepository {
 
     constructor(private readonly em: EntityManager) { }
 
+    async create({ userId, balance = 0, currency = 'GHS' }: any) {
+        const user = this.em.getReference(User, userId);
+
+        const wallet = this.em.create(Wallet, {
+            user,
+            balance,
+            currency,
+            status: Status.ACTIVE,
+        });
+
+        await this.em.persistAndFlush(wallet);
+
+        return wallet;
+    }
+
     async findAll() {
         return await this.em.findAll(Wallet);
     }
@@ -64,5 +79,19 @@ export class WalletRepository {
         const res = await this.em.nativeUpdate(WalletTransaction, { id: transactionId }, { linkId });
 
         return res > 0;
+    }
+
+    async getWalletBalance(userId: string) {
+        return await this.em.findOne(Wallet, { user: { id: userId } }, { fields: ['id', 'balance', 'currency'] });
+    }
+
+    async checkWithdrawal({ id, userId, amount }: any) {
+        const wallet = await this.em.findOne(
+            Wallet,
+            { id, balance: { $gte: amount }, status: Status.ACTIVE, user: { id: userId } },
+            { fields: ['id'] }
+        );
+
+        return !!wallet;
     }
 }

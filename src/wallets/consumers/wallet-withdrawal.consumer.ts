@@ -22,6 +22,7 @@ import { WalletTopUpJobDto } from '../dto/wallet-top-up-job.dto';
 
 import { PaymentMethodsService } from '@app/payments/services/payment-methods.service';
 import { WalletsService } from '../wallets.service';
+import { WalletRepository } from '../../@common/db/repositories';
 
 @Processor(WALLET_WITHDRAWALS_QUEUE)
 export class WalletWithdrawalConsumer {
@@ -34,6 +35,7 @@ export class WalletWithdrawalConsumer {
         private readonly walletRepository: EntityRepository<Wallet>,
         @InjectRepository(WalletTransaction)
         private readonly walletTransactionRepository: EntityRepository<WalletTransaction>,
+        private readonly walletRepo: WalletRepository,
         private readonly walletService: WalletsService,
         private readonly paymentMethodsService: PaymentMethodsService) { }
 
@@ -50,7 +52,7 @@ export class WalletWithdrawalConsumer {
             return false;
         }
 
-        if (!this.walletService.canWithdraw(wallet, amount)) {
+        if (!await this.walletRepo.checkWithdrawal({ userId, walletId, amount })) {
             this.logger.warn('Withdrawal check failed', job.data);
             return false;
         }

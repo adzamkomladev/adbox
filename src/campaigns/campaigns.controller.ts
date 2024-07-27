@@ -108,7 +108,7 @@ export class CampaignsController {
   @Get('created')
   @ApiOperation({ summary: 'Used to retrieve campaigns created by authenticated user' })
   @ApiOkResponse({ description: 'Created campaigns retrieved' })
-  @ApiBadRequestResponse({ description: 'Failed to retrieve created campaings' })
+  @ApiBadRequestResponse({ description: 'Failed to retrieve created campaigns' })
   @ResponseMessage('created campaigns retrieved')
   async getCreatedCampaigns(
     @User() user: AuthenticatedUser,
