@@ -69,7 +69,7 @@ export class AdminController {
         }
     }
 
-    @Auth()
+    // @Auth()
     @Patch(':id/status/update')
     @ApiOperation({ summary: 'Used to update status of a user' })
     @ApiOkResponse({ description: 'User status has been updated' })
