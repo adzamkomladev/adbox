@@ -1,6 +1,8 @@
 import { BadRequestException, Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 
+import { JsonLogger, LoggerFactory } from 'json-logger-service';
+
 import {
   FIREBASE_USER_SETUP,
   USER_CREATED,
@@ -25,7 +27,8 @@ import { UserRepository } from '../../@common/db/repositories';
 
 @Injectable()
 export class UsersService {
-  private readonly logger = new Logger(UsersService.name);
+  private readonly logger: JsonLogger = LoggerFactory.createLogger(UsersService.name);
+
   constructor(
     private readonly eventEmitter: EventEmitter2,
     private readonly userRepository: UserRepository
@@ -54,9 +57,9 @@ export class UsersService {
   }
 
   async findAllAdmin({ page = 1, size = 10 }: QueryDto) {
-    this.logger.log(`Find all Admin: ${page} ${size}`);
+    this.logger.info(`Find all Admin: ${page} ${size}`);
     const res = await this.userRepository.findAllAdminsPaginated(page, size);
-    this.logger.log(res);
+    this.logger.debug(res);
     return res;
   }
 
