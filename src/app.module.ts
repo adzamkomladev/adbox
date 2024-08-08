@@ -1,5 +1,5 @@
 import { CampaignGateway } from './campaigns/gateways/campaign.gateway';
-import { Module } from '@nestjs/common';
+import { Logger, Module } from '@nestjs/common';
 
 import { CoreModule } from './@common/modules/core.module';
 import { DbModule } from './@common/modules/db.module';
@@ -30,7 +30,6 @@ import { AppController } from './app.controller';
     NotificationsModule,
   ],
   controllers: [AppController],
-  providers: [
-    CampaignGateway, AppService],
+  providers: [Logger, AppService],
 })
 export class AppModule { }

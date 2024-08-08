@@ -47,6 +47,7 @@
     "@nestjs/websockets": "^10.3.8",
     "@opentelemetry/api": "^1.6.0",
     "@opentelemetry/auto-instrumentations-node": "^0.39.4",
+    "@opentelemetry/exporter-logs-otlp-http": "^0.52.1",
     "@opentelemetry/exporter-trace-otlp-http": "^0.45.1",
     "@opentelemetry/instrumentation-pg": "^0.41.0",
     "@opentelemetry/sdk-node": "^0.45.1",
@@ -64,6 +65,7 @@
     "jsonwebtoken": "^9.0.2",
     "jwks-rsa": "^3.1.0",
     "nanoid": "^3.3.7",
+    "nest-winston": "^1.9.7",
     "nestjs-firebase": "^10.5.0",
     "npm-check-updates": "^16.14.6",
     "passport": "^0.6.0",
@@ -72,7 +74,8 @@
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.1",
     "uniqid": "^5.4.0",
-    "uuid": "^9.0.1"
+    "uuid": "^9.0.1",
+    "winston": "^3.13.1"
   },
   "devDependencies": {
     "@faker-js/faker": "^8.4.1",

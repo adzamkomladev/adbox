@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 
 import {
@@ -26,6 +26,7 @@ import { UserRepository } from '../../@common/db/repositories';
 @Injectable()
 export class UsersService {
   constructor(
+    private readonly logger: Logger,
     private readonly eventEmitter: EventEmitter2,
     private readonly userRepository: UserRepository
   ) { }
@@ -53,7 +54,10 @@ export class UsersService {
   }
 
   async findAllAdmin({ page = 1, size = 10 }: QueryDto) {
-    return await this.userRepository.findAllAdminsPaginated(page, size);
+    this.logger.log(`Find all Admin: ${page} ${size}`, UsersService.name);
+    const res = await this.userRepository.findAllAdminsPaginated(page, size);
+    this.logger.log(res, UsersService.name);
+    return res;
   }
 
   findAll() {

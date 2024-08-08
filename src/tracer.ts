@@ -17,13 +17,14 @@ const sdk = new opentelemetry.NodeSDK({
     traceExporter,
     instrumentations: [getNodeAutoInstrumentations()],
     resource: new Resource({
-        [SemanticResourceAttributes.SERVICE_NAME]: 'main-adbox',
+        [SemanticResourceAttributes.SERVICE_NAME]: 'adbox',
     }),
 });
 
 // initialize the SDK and register with the OpenTelemetry API
 // this enables the API to record telemetry
 sdk.start();
+console.log('Tracing has started');
 
 // gracefully shut down the SDK on process exit
 process.on('SIGTERM', () => {
