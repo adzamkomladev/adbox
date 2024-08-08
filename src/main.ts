@@ -8,24 +8,12 @@ import tracer from "./tracer";
 import { AppModule } from './app.module';
 
 import { ExceptionsFilter } from '@common/filters/exceptions.filter';
-import { WinstonModule } from 'nest-winston';
-import { createLogger, transports, config } from 'winston';
 
 async function bootstrap() {
 
   await tracer.start();
 
-  const instance = createLogger({
-    level: 'debug',
-    transports: [
-      new transports.Console({}),
-    ]
-  });
-  const app = await NestFactory.create(AppModule, {
-    logger: WinstonModule.createLogger({
-      instance,
-    }),
-  });
+  const app = await NestFactory.create(AppModule);
 
   app.enableCors({
     origin: '*',

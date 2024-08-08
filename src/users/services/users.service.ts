@@ -25,8 +25,8 @@ import { UserRepository } from '../../@common/db/repositories';
 
 @Injectable()
 export class UsersService {
+  private readonly logger = new Logger(UsersService.name);
   constructor(
-    private readonly logger: Logger,
     private readonly eventEmitter: EventEmitter2,
     private readonly userRepository: UserRepository
   ) { }
@@ -54,9 +54,9 @@ export class UsersService {
   }
 
   async findAllAdmin({ page = 1, size = 10 }: QueryDto) {
-    this.logger.log(`Find all Admin: ${page} ${size}`, UsersService.name);
+    this.logger.log(`Find all Admin: ${page} ${size}`);
     const res = await this.userRepository.findAllAdminsPaginated(page, size);
-    this.logger.log(res, UsersService.name);
+    this.logger.log(res);
     return res;
   }
 
