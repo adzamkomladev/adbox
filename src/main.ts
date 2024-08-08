@@ -3,7 +3,7 @@ import { Logger, ValidationPipe, VersioningType } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 
-import { JsonLoggerService, RequestLogger } from 'json-logger-service';
+// import { JsonLoggerService, RequestLogger } from 'json-logger-service';
 
 
 import tracer from "./tracer";
@@ -11,14 +11,17 @@ import tracer from "./tracer";
 import { AppModule } from './app.module';
 
 import { ExceptionsFilter } from '@common/filters/exceptions.filter';
+import { OtlpLogger } from './@common/loggers/otlp.logger';
 
 async function bootstrap() {
 
   await tracer.start();
 
-  const app = await NestFactory.create(AppModule);
-  app.useLogger(new JsonLoggerService('Adbox'));
-  app.use(RequestLogger.buildExpressRequestLogger());
+  const app = await NestFactory.create(AppModule, {
+    bufferLogs: true
+  });
+  app.useLogger(app.get(OtlpLogger));
+  // app.use(RequestLogger.buildExpressRequestLogger());
 
 
   app.enableCors({

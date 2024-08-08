@@ -2,6 +2,8 @@ import { registerAs } from '@nestjs/config';
 
 import { PostgreSqlDriver } from '@mikro-orm/postgresql';
 
+import { DbLogger } from '../loggers/db.logger';
+
 export default registerAs('db', () => ({
   driver: PostgreSqlDriver,
   autoLoadEntities: true,
@@ -9,6 +11,7 @@ export default registerAs('db', () => ({
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   host: process.env.DB_HOST,
-  port: +process.env.DB_PORT ?? 5432,
+  port: +process.env.DB_PORT || 5432,
   debug: true,
+  loggerFactory: (options) => new DbLogger(options),
 }));

@@ -19,6 +19,7 @@ import notificationsConfig from '../configs/notifications.config';
 import throttlerConfig from '../configs/throttler.config';
 
 import { TransformInterceptor } from '../interceptors/transform.interceptor';
+import { OtlpLogger } from '../loggers/otlp.logger';
 
 
 @Global()
@@ -50,6 +51,7 @@ import { TransformInterceptor } from '../interceptors/transform.interceptor';
     EventEmitterModule.forRoot(),
   ],
   providers: [
+    OtlpLogger,
     {
       provide: APP_INTERCEPTOR,
       useClass: TransformInterceptor,
@@ -59,5 +61,6 @@ import { TransformInterceptor } from '../interceptors/transform.interceptor';
       useClass: ThrottlerGuard
     }
   ],
+  exports: [OtlpLogger]
 })
 export class CoreModule { }

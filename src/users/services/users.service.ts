@@ -24,15 +24,17 @@ import { FirebaseUserSetupEvent } from '../events/firebase-user-setup.event';
 import { UserCreatedEvent } from '../events/user.created.event';
 
 import { UserRepository } from '../../@common/db/repositories';
+import { OtlpLogger } from '../../@common/loggers/otlp.logger';
 
 @Injectable()
 export class UsersService {
-  private readonly logger: JsonLogger = LoggerFactory.createLogger(UsersService.name);
+  private readonly logger = new OtlpLogger(UsersService.name);
 
   constructor(
     private readonly eventEmitter: EventEmitter2,
     private readonly userRepository: UserRepository
-  ) { }
+  ) {
+  }
 
   async create(payload: CreateUserDto) {
     const user = await this.userRepository.createSubscriber(payload);
@@ -57,9 +59,9 @@ export class UsersService {
   }
 
   async findAllAdmin({ page = 1, size = 10 }: QueryDto) {
-    this.logger.info(`Find all Admin: ${page} ${size}`);
+    this.logger.log(`Find all Admin: ${page} ${size}`, { page, size });
     const res = await this.userRepository.findAllAdminsPaginated(page, size);
-    this.logger.debug(res);
+    this.logger.debug('Log all data from users', res);
     return res;
   }
 
