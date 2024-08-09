@@ -19,7 +19,7 @@ const loggerProvider = new LoggerProvider({
 });
 
 loggerProvider.addLogRecordProcessor(new BatchLogRecordProcessor(new OTLPLogExporter({
-    url: 'http://localhost:8082',
+    url: 'http://localhost:4318/v1/logs',
     keepAlive: true,
 })));
 
@@ -33,6 +33,11 @@ export class OtlpLogger extends ConsoleLogger {
      */
     log(message: any, ...optionalParams: any[]) {
         super.log(message, optionalParams);
+        this.otlpLogging(message, { text: 'INFO', number: SeverityNumber.INFO }, optionalParams);
+    }
+
+    info(message: any, ...optionalParams: any[]) {
+        super.log(message);
         this.otlpLogging(message, { text: 'INFO', number: SeverityNumber.INFO }, optionalParams);
     }
 
@@ -57,7 +62,7 @@ export class OtlpLogger extends ConsoleLogger {
      * Write a 'warn' level log.
      */
     warn(message: any, ...optionalParams: any[]) {
-        super.warn(message, optionalParams);
+        super.warn(message);
         this.otlpLogging(message, { text: 'WARN', number: SeverityNumber.WARN }, optionalParams);
     }
 
