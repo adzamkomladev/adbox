@@ -1,5 +1,6 @@
 import { ConsoleLogger, Injectable } from "@nestjs/common";
 
+import { trace, context } from '@opentelemetry/api'
 import { SeverityNumber } from '@opentelemetry/api-logs';
 import { Resource } from '@opentelemetry/resources';
 import {
@@ -89,6 +90,8 @@ export class OtlpLogger extends ConsoleLogger {
             severityText: text,
             body: message,
             attributes,
+            context: context.active(),
+            timestamp: new Date()
         });
     }
 }
