@@ -6,6 +6,7 @@ import { Resource } from '@opentelemetry/resources';
 import {
     LoggerProvider,
     BatchLogRecordProcessor,
+    SimpleLogRecordProcessor,
 } from '@opentelemetry/sdk-logs';
 import { OTLPLogExporter } from '@opentelemetry/exporter-logs-otlp-http';
 import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions';
@@ -20,7 +21,7 @@ const loggerProvider = new LoggerProvider({
     resource
 });
 
-loggerProvider.addLogRecordProcessor(new BatchLogRecordProcessor(new OTLPLogExporter({
+loggerProvider.addLogRecordProcessor(new SimpleLogRecordProcessor(new OTLPLogExporter({
     url: 'http://localhost:4318/v1/logs',
     keepAlive: true,
 })));
