@@ -1,17 +1,16 @@
 import { ConsoleLogger, Injectable } from "@nestjs/common";
 
-import { DiagConsoleLogger, trace, context, DiagLogLevel, diag } from '@opentelemetry/api'
+import { DiagConsoleLogger, context, DiagLogLevel, diag } from '@opentelemetry/api'
 import { SeverityNumber } from '@opentelemetry/api-logs';
 import { Resource } from '@opentelemetry/resources';
 import {
     LoggerProvider,
-    BatchLogRecordProcessor,
     SimpleLogRecordProcessor,
 } from '@opentelemetry/sdk-logs';
 import { OTLPLogExporter } from '@opentelemetry/exporter-logs-otlp-http';
 import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions';
 
-diag.setLogger(new DiagConsoleLogger(), DiagLogLevel.DEBUG);
+// diag.setLogger(new DiagConsoleLogger(), DiagLogLevel.DEBUG);
 
 const resource = new Resource({
     [SemanticResourceAttributes.SERVICE_NAME]: 'adbox',
@@ -21,10 +20,13 @@ const loggerProvider = new LoggerProvider({
     resource
 });
 
-loggerProvider.addLogRecordProcessor(new SimpleLogRecordProcessor(new OTLPLogExporter({
-    url: 'http://localhost:4318/v1/logs',
-    keepAlive: true,
-})));
+loggerProvider.addLogRecordProcessor(
+    new SimpleLogRecordProcessor(
+        new OTLPLogExporter({
+            url: 'http://localhost:4318/v1/logs',
+            keepAlive: true,
+        }))
+);
 
 
 @Injectable()
@@ -87,6 +89,7 @@ export class OtlpLogger extends ConsoleLogger {
 
     private otlpLogging(message: any, { text, number }: { text: string, number: SeverityNumber }, ...optionalParams: any[]) {
         let [attributes] = optionalParams;
+        attributes = attributes?.[0];
 
         if (typeof attributes === "string") {
             attributes = { appContext: attributes };
