@@ -2,6 +2,7 @@
 
 import { getNodeAutoInstrumentations } from '@opentelemetry/auto-instrumentations-node';
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
+import { NestInstrumentation } from '@opentelemetry/instrumentation-nestjs-core';
 import { Resource } from '@opentelemetry/resources';
 import * as opentelemetry from '@opentelemetry/sdk-node';
 import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions';
@@ -17,7 +18,7 @@ const traceExporter = new OTLPTraceExporter(exporterOptions);
 
 const sdk = new opentelemetry.NodeSDK({
     traceExporter,
-    instrumentations: [getNodeAutoInstrumentations()],
+    instrumentations: [new NestInstrumentation()],
     resource: new Resource({
         [SemanticResourceAttributes.SERVICE_NAME]: 'adbox',
     }),
