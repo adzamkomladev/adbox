@@ -5,6 +5,8 @@ import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
 import { Resource } from '@opentelemetry/resources';
 import * as opentelemetry from '@opentelemetry/sdk-node';
 import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions';
+import { NodeTracerProvider } from '@opentelemetry/node';
+import { ConsoleSpanExporter, SimpleSpanProcessor } from '@opentelemetry/tracing';
 
 
 // Configure the SDK to export telemetry data to the console
@@ -14,6 +16,13 @@ const exporterOptions = {
 };
 
 const traceExporter = new OTLPTraceExporter(exporterOptions);
+
+
+const provider = new NodeTracerProvider({});
+const consoleExporter = new ConsoleSpanExporter();
+const spanProcessor = new SimpleSpanProcessor(consoleExporter);
+provider.addSpanProcessor(spanProcessor);
+provider.register();
 
 const sdk = new opentelemetry.NodeSDK({
     traceExporter,
