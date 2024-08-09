@@ -1,6 +1,6 @@
 import { ConsoleLogger, Injectable } from "@nestjs/common";
 
-import { trace, context } from '@opentelemetry/api'
+import { DiagConsoleLogger, trace, context, DiagLogLevel, diag } from '@opentelemetry/api'
 import { SeverityNumber } from '@opentelemetry/api-logs';
 import { Resource } from '@opentelemetry/resources';
 import {
@@ -10,6 +10,7 @@ import {
 import { OTLPLogExporter } from '@opentelemetry/exporter-logs-otlp-http';
 import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions';
 
+diag.setLogger(new DiagConsoleLogger(), DiagLogLevel.DEBUG);
 
 const resource = new Resource({
     [SemanticResourceAttributes.SERVICE_NAME]: 'adbox',
@@ -84,12 +85,23 @@ export class OtlpLogger extends ConsoleLogger {
     }
 
     private otlpLogging(message: any, { text, number }: { text: string, number: SeverityNumber }, ...optionalParams: any[]) {
-        const [attributes] = optionalParams;
+        let [attributes] = optionalParams;
+
+        if (typeof attributes === "string") {
+            attributes = { appContext: attributes };
+        } else {
+            attributes = { ...(attributes || {}), appContext: this.context };
+        }
+
+
         this.loggerOtel.emit({
             severityNumber: number,
             severityText: text,
             body: message,
-            attributes,
+            attributes: {
+                ...attributes,
+
+            },
             context: context.active(),
             timestamp: new Date()
         });
