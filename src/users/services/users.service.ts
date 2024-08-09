@@ -61,7 +61,7 @@ export class UsersService {
   async findAllAdmin({ page = 1, size = 10 }: QueryDto) {
     this.logger.info(`Find all Admin: ${page} ${size}`, { page, size });
     const res = await this.userRepository.findAllAdminsPaginated(page, size);
-    this.logger.info('Log all data from users', { paginatedData: { name: 'komla', toys: ['games', 'fifa', 'sekiro'], tags: [{ name: 'toys', total: 23 }, { name: 'toys', total: 23 }] } });
+    this.logger.debug('Log all data from users', { paginatedUserData: JSON.stringify(res) });
     return res;
   }
 

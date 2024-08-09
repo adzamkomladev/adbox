@@ -44,7 +44,7 @@ export class OtlpLogger extends ConsoleLogger {
         } else {
             super.log(message, optionalParams);
         }
-        super.log(message, optionalParams);
+
         this.otlpLogging(message, { text: 'INFO', number: SeverityNumber.INFO }, optionalParams);
     }
 
@@ -97,15 +97,12 @@ export class OtlpLogger extends ConsoleLogger {
     private otlpLogging(message: any, { text, number }: { text: string, number: SeverityNumber }, ...optionalParams: any[]) {
         let [attributes] = optionalParams;
         attributes = attributes?.[0];
-        console.log('Fucking attributes before', attributes)
 
         if (typeof attributes === "string") {
             attributes = { appContext: attributes };
         } else {
             attributes = { ...(attributes || {}), appContext: this.context };
         }
-        console.log('After you know what the deal is', attributes)
-
 
         this.loggerOtel.emit({
             severityNumber: number,
