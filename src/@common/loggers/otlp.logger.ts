@@ -37,6 +37,13 @@ export class OtlpLogger extends ConsoleLogger {
      * Write a 'log' level log.
      */
     log(message: any, ...optionalParams: any[]) {
+        const [attributes] = optionalParams;
+
+        if (typeof attributes === 'string') {
+            super.log(message, attributes);
+        } else {
+            super.log(message, optionalParams);
+        }
         super.log(message, optionalParams);
         this.otlpLogging(message, { text: 'INFO', number: SeverityNumber.INFO }, optionalParams);
     }

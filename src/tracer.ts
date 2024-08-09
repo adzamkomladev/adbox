@@ -6,6 +6,7 @@ import { Resource } from '@opentelemetry/resources';
 import * as opentelemetry from '@opentelemetry/sdk-node';
 import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions';
 
+
 // Configure the SDK to export telemetry data to the console
 // Enable all auto-instrumentations from the meta package
 const exporterOptions = {
@@ -13,12 +14,14 @@ const exporterOptions = {
 };
 
 const traceExporter = new OTLPTraceExporter(exporterOptions);
+
 const sdk = new opentelemetry.NodeSDK({
     traceExporter,
     instrumentations: [getNodeAutoInstrumentations()],
     resource: new Resource({
         [SemanticResourceAttributes.SERVICE_NAME]: 'adbox',
     }),
+    autoDetectResources: true,
 });
 
 // initialize the SDK and register with the OpenTelemetry API
