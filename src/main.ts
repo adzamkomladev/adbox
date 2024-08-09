@@ -6,7 +6,7 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 // import { JsonLoggerService, RequestLogger } from 'json-logger-service';
 
 
-import tracer from "./tracer";
+const tracer = require("./tracer");
 
 import { AppModule } from './app.module';
 
@@ -14,9 +14,7 @@ import { ExceptionsFilter } from '@common/filters/exceptions.filter';
 import { OtlpLogger } from './@common/loggers/otlp.logger';
 
 async function bootstrap() {
-
-  await tracer.start();
-
+  // tracer.startSpan('bootstrap').end();
   const app = await NestFactory.create(AppModule, {
     bufferLogs: true
   });

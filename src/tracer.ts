@@ -5,13 +5,17 @@ import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
 import { Resource } from '@opentelemetry/resources';
 import * as opentelemetry from '@opentelemetry/sdk-node';
 import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions';
-import { NodeTracerProvider } from '@opentelemetry/node';
-import { ConsoleSpanExporter } from '@opentelemetry/tracing';
+// import { NodeTracerProvider } from '@opentelemetry/node';
+import { registerInstrumentations } from "@opentelemetry/instrumentation";
+import { NestInstrumentation } from '@opentelemetry/instrumentation-nestjs-core'
+import { trace } from '@opentelemetry/api';
+
 import {
+    ConsoleSpanExporter,
     BatchSpanProcessor,
-    WebTracerProvider,
+    NodeTracerProvider,
     SimpleSpanProcessor
-} from '@opentelemetry/sdk-trace-web';
+} from '@opentelemetry/sdk-trace-node';
 
 // Configure the SDK to export telemetry data to the console
 // Enable all auto-instrumentations from the meta package
@@ -22,34 +26,48 @@ const exporterOptions = {
 const traceExporter = new OTLPTraceExporter(exporterOptions);
 
 
-const provider = new WebTracerProvider({});
-// const consoleExporter = new ConsoleSpanExporter();
-// const spanProcessor = new SimpleSpanProcessor(consoleExporter);
-// provider.addSpanProcessor(spanProcessor);
-provider.addSpanProcessor(new SimpleSpanProcessor(traceExporter));
-provider.register();
-
-const sdk = new opentelemetry.NodeSDK({
-    traceExporter,
-    instrumentations: [getNodeAutoInstrumentations()],
+const provider = new NodeTracerProvider({
     resource: new Resource({
         [SemanticResourceAttributes.SERVICE_NAME]: 'adbox',
-    }),
-    autoDetectResources: true,
+    })
+});
+const consoleExporter = new ConsoleSpanExporter();
+const spanProcessor = new SimpleSpanProcessor(traceExporter);
+provider.addSpanProcessor(spanProcessor);
+// provider.addSpanProcessor(new SimpleSpanProcessor(traceExporter));
+provider.register();
+
+registerInstrumentations({
+    instrumentations: [new NestInstrumentation()],
+    tracerProvider: provider
 });
 
-// initialize the SDK and register with the OpenTelemetry API
-// this enables the API to record telemetry
-sdk.start();
+// const sdk = new opentelemetry.NodeSDK({
+//     traceExporter,
+//     instrumentations: [getNodeAutoInstrumentations()],
+//     resource: new Resource({
+//         [SemanticResourceAttributes.SERVICE_NAME]: 'adbox',
+//     }),
+//     autoDetectResources: true,
+// });
+
+// // initialize the SDK and register with the OpenTelemetry API
+// // this enables the API to record telemetry
+// sdk.start();
 console.log('Tracing has started');
 
 // gracefully shut down the SDK on process exit
-process.on('SIGTERM', () => {
-    sdk
-        .shutdown()
-        .then(() => console.log('Tracing terminated'))
-        .catch((error) => console.log('Error terminating tracing', error))
-        .finally(() => process.exit(0));
-});
+// process.on('SIGTERM', () => {
+//     sdk
+//         .shutdown()
+//         .then(() => console.log('Tracing terminated'))
+//         .catch((error) => console.log('Error terminating tracing', error))
+//         .finally(() => process.exit(0));
+// });
 
-export default sdk;
+// export default sdk;
+
+const tracer = trace.getTracer('adbox');
+tracer.startSpan('startserver').end();
+
+export default tracer;
