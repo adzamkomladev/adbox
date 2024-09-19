@@ -84,6 +84,14 @@ export class CampaignRepository {
         };
     }
 
+    async getCampaign(userId: string, filter: any) {
+        return await this.em.findOne(
+            Campaign,
+            { id: filter.id, user: { id: userId } },
+            { populate: ['comments'] }
+        );
+    }
+
     async getCreatedCampaigns(userId: string, query: any) {
         const page = query.page || 1;
         const size = query.size || 10;

@@ -60,9 +60,7 @@ export class CampaignsService {
     return `This action returns all campaigns`;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} campaign`;
-  }
+
 
   update(id: number, updateCampaignDto: UpdateCampaignDto) {
     return `This action updates a #${id} campaign`;
@@ -70,6 +68,14 @@ export class CampaignsService {
 
   remove(id: number) {
     return `This action removes a #${id} campaign`;
+  }
+
+  async findOne(id: string, authUser: AuthenticatedUser) {
+    const campaign = await this.campaignRepository.getCampaign(authUser.id, { id });
+
+    if (!campaign) throw new BadRequestException('failed to get campaign');
+
+    return campaign;
   }
 
   async getTimeline(payload: GetTimelineQueryDto, authUser: AuthenticatedUser): Promise<GetTimelineDto> {

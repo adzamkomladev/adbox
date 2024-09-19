@@ -21,7 +21,6 @@ import { WalletTransaction } from '../../@common/db/entities/wallets/wallet-tran
 import { WalletTopUpJobDto } from '../dto/wallet-top-up-job.dto';
 
 import { PaymentMethodsService } from '@app/payments/services/payment-methods.service';
-import { WalletsService } from '../wallets.service';
 import { WalletRepository } from '../../@common/db/repositories';
 
 @Processor(WALLET_WITHDRAWALS_QUEUE)
@@ -31,13 +30,11 @@ export class WalletWithdrawalConsumer {
     constructor(
         private readonly zeepay: ZeepayService,
         private readonly em: EntityManager,
-        @InjectRepository(Wallet)
-        private readonly walletRepository: EntityRepository<Wallet>,
         @InjectRepository(WalletTransaction)
         private readonly walletTransactionRepository: EntityRepository<WalletTransaction>,
-        private readonly walletRepo: WalletRepository,
-        private readonly walletService: WalletsService,
-        private readonly paymentMethodsService: PaymentMethodsService) { }
+        private readonly walletRepository: WalletRepository,
+        private readonly paymentMethodsService: PaymentMethodsService
+    ) { }
 
     @Process()
     async handleWalletTopUp(job: Job<WalletTopUpJobDto>) {
@@ -45,14 +42,14 @@ export class WalletWithdrawalConsumer {
         this.logger.debug(job.data);
 
         const { userId, walletId, amount, paymentMethodId } = job.data;
-        const wallet = await this.walletRepository.findOneOrFail({ id: walletId, user: { id: userId } });
+        let wallet = await this.walletRepository.findOneByUser({ id: walletId, userId });
 
         if (!wallet) {
             this.logger.warn('Wallet for withdrawal does not exist', job.data);
             return false;
         }
 
-        if (!await this.walletRepo.checkWithdrawal({ userId, walletId, amount })) {
+        if (!await this.walletRepository.checkWithdrawal({ userId, walletId, amount })) {
             this.logger.warn('Withdrawal check failed', job.data);
             return false;
         }
@@ -65,18 +62,22 @@ export class WalletWithdrawalConsumer {
             return false;
         }
 
-
         const reference = uuid();
 
         try {
-            await this.debitWallet(wallet, amount, reference);
-        } catch (e) {
-            this.logger.error('Failed to perform wallet debit for withdrawal', e);
-            return false;
-        }
+            const res = await this.walletRepository.debit({
+                id: walletId,
+                userId,
+                amount,
+                fee: 0,
+                reason: 'Wallet Withdrawal',
+                status: Status.INITIATED,
+                reference
+            });
 
-        try {
-            await this.debitWallet(wallet, amount, reference);
+            if (!res) throw new Error('Walled debit failed!');
+
+            wallet = res.wallet
         } catch (e) {
             this.logger.error('Failed to perform wallet debit for withdrawal', e);
             return false;

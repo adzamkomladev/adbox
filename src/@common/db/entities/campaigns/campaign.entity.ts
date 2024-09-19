@@ -5,6 +5,7 @@ import { Status } from '../../../enums/status.enum';
 import { BaseEntity } from '../base.entity';
 import { User } from '../users/user.entity';
 import { Interaction } from './interaction.entity';
+import { Comment } from './comment.entity';
 
 @Entity()
 export class Campaign extends BaseEntity {
@@ -13,6 +14,9 @@ export class Campaign extends BaseEntity {
 
   @OneToMany(() => Interaction, (interaction) => interaction.campaign)
   interactions = new Collection<Interaction>(this);
+
+  @OneToMany(() => Comment, (comment) => comment.campaign)
+  comments = new Collection<Comment>(this);
 
   @Property({ index: true })
   name!: string;

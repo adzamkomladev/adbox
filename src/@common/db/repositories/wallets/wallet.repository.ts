@@ -75,6 +75,50 @@ export class WalletRepository {
         return { wallet, transaction, change };
     }
 
+    async debit({ id, userId, amount, fee, reason, status, reference }: any) {
+        const wallet = await this.em.findOne(Wallet, { id, user: { id: userId } });
+
+        if (!wallet) {
+            this.logger.error(`Failed to find wallet of user with id: ${userId}`);
+            return null;
+        }
+
+        const totalAmountToWithdraw = amount + fee;
+        if (wallet.balance < totalAmountToWithdraw) {
+            this.logger.error(`The user's balance is insufficient to withdraw ${totalAmountToWithdraw} from their ${wallet.currency} wallet`);
+            return null;
+        }
+
+        const balanceBefore = wallet.balance;
+        const balanceAfter = wallet.balance - totalAmountToWithdraw;
+
+        wrap(wallet).assign({ balance: wallet.balance - totalAmountToWithdraw });
+
+        const transaction = this.em.create(WalletTransaction, {
+            before: balanceBefore,
+            after: balanceAfter,
+            amount,
+            fee,
+            type: TransactionType.DEBIT,
+            status: status,
+            reference: reference || uniqid('ADBOX-'),
+            description: reason,
+            wallet
+        });
+
+        const change = this.em.create(WalletTransactionChange, {
+            status: status,
+            transaction,
+            reason,
+            updatedBy: this.em.getReference(User, userId)
+        });
+
+        await this.em.persistAndFlush([wallet, transaction, change]);
+
+        return { wallet, transaction, change };
+    }
+
+
     async linkTransaction(transactionId: string, linkId: string) {
         const res = await this.em.nativeUpdate(WalletTransaction, { id: transactionId }, { linkId });
 
@@ -93,5 +137,9 @@ export class WalletRepository {
         );
 
         return !!wallet;
+    }
+
+    async findOneByUser({ userId, id }: any) {
+        return await this.em.findOne(Wallet, { id, user: { id: userId } });
     }
 }

@@ -24,9 +24,10 @@ import { UpdateCampaignDto } from './dto/update-campaign.dto';
 import { AuthenticatedUser } from '../@common/dto/authenticated.user.dto';
 import { InteractWithCampaignDto } from './dto/interact.with.campaign.dto';
 import { GetTimelineQueryDto } from './dto/get.timeline.dto';
+import { GetCreatedCampaignsQueryDto } from './dto/get-created-campaigns.dto';
 
 import { CampaignsService } from './campaigns.service';
-import { GetCreatedCampaignsDto, GetCreatedCampaignsQueryDto } from './dto/get-created-campaigns.dto';
+
 import { CampaignOwnerGuard } from './guards/campaign-owner.guard';
 
 @Controller('campaigns')
@@ -56,6 +57,30 @@ export class CampaignsController {
       throw new BadRequestException(e.message);
     }
   }
+
+  @Auth()
+  @Get(':id')
+  @ApiOperation({ summary: 'Used to retrieve campaign' })
+  @ApiOkResponse({ description: 'Campaign retrieved' })
+  @ApiBadRequestResponse({ description: 'Failed to retrieve campaign' })
+  @ResponseMessage('campaign retrieved')
+  findOne(
+    @User() user: AuthenticatedUser,
+    @Param('id') id: string,
+  ) {
+    try {
+      return this.campaignsService.findOne(id, user);
+    } catch (e) {
+      this.logger.error(`Failed to retrieve campaign with error ==> ${e}`);
+
+      if (e instanceof HttpException) {
+        throw e;
+      }
+
+      throw new BadRequestException('failed to retrieve campaign');
+    }
+  }
+
 
   @Auth()
   @Patch(':id/interact')
