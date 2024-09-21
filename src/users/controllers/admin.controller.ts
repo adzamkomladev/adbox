@@ -10,6 +10,7 @@ import { UpdateStatusDto } from '../dto/update-status.dto';
 
 import { UsersService } from '../services/users.service';
 import { RolesService } from '../services/roles.service';
+import { OtelMethodCounter } from 'nestjs-otel';
 
 @ApiTags('users admin')
 @Controller('admin/users')
@@ -41,6 +42,7 @@ export class AdminController {
     @ApiOkResponse()
     @ApiBadRequestResponse()
     @ResponseMessage('admin users retrieved')
+    @OtelMethodCounter()
     async findAllUsers(@Query() query: QueryDto) {
         try {
             return await this.usersService.findAllAdmin(query);

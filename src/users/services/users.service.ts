@@ -25,16 +25,22 @@ import { UserCreatedEvent } from '../events/user.created.event';
 
 import { UserRepository } from '../../@common/db/repositories';
 import { OtlpLogger } from '../../@common/loggers/otlp.logger';
-import { Span } from 'nestjs-otel';
+import { MetricService, OtelMethodCounter, Span } from 'nestjs-otel';
+import { Counter } from '@opentelemetry/api';
 
 @Injectable()
 export class UsersService {
   private readonly logger = new OtlpLogger(UsersService.name);
+  private customMetricCounter: Counter;
 
   constructor(
     private readonly eventEmitter: EventEmitter2,
+    private readonly metricService: MetricService,
     private readonly userRepository: UserRepository
   ) {
+    this.customMetricCounter = this.metricService.getCounter('custom_counter', {
+      description: 'Description for counter',
+    });
   }
 
   async create(payload: CreateUserDto) {
@@ -60,8 +66,11 @@ export class UsersService {
   }
 
   @Span()
+  @OtelMethodCounter()
   async findAllAdmin({ page = 1, size = 10 }: QueryDto) {
     // const currentSpan = this.traceService.getSpan();
+    this.customMetricCounter.add(1);
+
     const res = await this.userRepository.findAllAdminsPaginated(page, size);
     return res;
   }
