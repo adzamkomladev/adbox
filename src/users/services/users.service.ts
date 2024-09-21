@@ -25,6 +25,7 @@ import { UserCreatedEvent } from '../events/user.created.event';
 
 import { UserRepository } from '../../@common/db/repositories';
 import { OtlpLogger } from '../../@common/loggers/otlp.logger';
+import { Span } from 'nestjs-otel';
 
 @Injectable()
 export class UsersService {
@@ -58,7 +59,9 @@ export class UsersService {
     return user;
   }
 
+  @Span()
   async findAllAdmin({ page = 1, size = 10 }: QueryDto) {
+    // const currentSpan = this.traceService.getSpan();
     const res = await this.userRepository.findAllAdminsPaginated(page, size);
     return res;
   }
