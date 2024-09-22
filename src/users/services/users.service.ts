@@ -1,8 +1,6 @@
 import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 
-import { OtelMethodCounter, Span } from 'nestjs-otel';
-
 import {
   FIREBASE_USER_SETUP,
   USER_CREATED,
@@ -59,10 +57,7 @@ export class UsersService {
     return user;
   }
 
-  // @Span()
-  // @OtelMethodCounter()
   async findAllAdmin({ page = 1, size = 10 }: QueryDto) {
-    // const currentSpan = this.traceService.getSpan();
     const res = await this.userRepository.findAllAdminsPaginated(page, size);
     return res;
   }
