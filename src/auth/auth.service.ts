@@ -58,12 +58,9 @@ export class AuthService {
     }
   }
 
-  @Span()
   async authenticate({ idToken, firstName, lastName }: AuthenticateDto): Promise<AuthenticatedDto> {
     let decodedToken: Partial<DecodedIdToken>;
 
-    const span = this.traceService.startSpan('FIREBASE_ID_TOKEN_VERIFICATION'); // start new span
-    span.setAttributes({ idToken, firstName, lastName });
     try {
       decodedToken = await this.firebase.auth.verifyIdToken(idToken);
 
@@ -80,10 +77,6 @@ export class AuthService {
     } catch (e) {
       this.logger.error(`Failed to decode firebase id token: ${e.message}`);
       throw new UnauthorizedException('Failed to authenticate user');
-    } finally {
-      if (span) {
-        span.end();
-      }
     }
 
     if (!decodedToken) {
