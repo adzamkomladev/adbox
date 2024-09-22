@@ -22,6 +22,7 @@ import { LoginDto } from './dto/login.dto';
 import { UserCreatedEvent } from '../users/events/user.created.event';
 
 import { UserRepository } from '../@common/db/repositories';
+import { TraceService } from 'nestjs-otel';
 
 @Injectable()
 export class AuthService {
@@ -33,6 +34,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
     @InjectFirebaseAdmin()
     private readonly firebase: FirebaseAdmin,
+    private readonly traceService: TraceService,
     private readonly userRepository: UserRepository
   ) { }
 
@@ -55,9 +57,12 @@ export class AuthService {
       throw new UnauthorizedException('invalid authentication token');
     }
   }
+
+
   async authenticate({ idToken, firstName, lastName }: AuthenticateDto): Promise<AuthenticatedDto> {
     let decodedToken: Partial<DecodedIdToken>;
 
+    const currentSpan = this.traceService.getSpan(); // --> retrives current span, comes from http or @Span
     try {
       decodedToken = await this.firebase.auth.verifyIdToken(idToken);
 
@@ -74,6 +79,11 @@ export class AuthService {
     } catch (e) {
       this.logger.error(`Failed to decode firebase id token: ${e.message}`);
       throw new UnauthorizedException('Failed to authenticate user');
+    } finally {
+      if (currentSpan) {
+        currentSpan.addEvent('FIREBASE ID TOKEN VERIFICATION');
+        currentSpan.end();
+      }
     }
 
     if (!decodedToken) {
