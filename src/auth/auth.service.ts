@@ -22,7 +22,7 @@ import { LoginDto } from './dto/login.dto';
 import { UserCreatedEvent } from '../users/events/user.created.event';
 
 import { UserRepository } from '../@common/db/repositories';
-import { TraceService } from 'nestjs-otel';
+import { Span, TraceService } from 'nestjs-otel';
 
 @Injectable()
 export class AuthService {
@@ -58,7 +58,7 @@ export class AuthService {
     }
   }
 
-
+  @Span()
   async authenticate({ idToken, firstName, lastName }: AuthenticateDto): Promise<AuthenticatedDto> {
     let decodedToken: Partial<DecodedIdToken>;
 
