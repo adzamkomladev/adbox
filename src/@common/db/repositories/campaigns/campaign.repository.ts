@@ -1,16 +1,17 @@
 import { Injectable, Logger } from '@nestjs/common';
 
 import { EntityManager, FilterQuery, raw, wrap } from '@mikro-orm/postgresql';
-import { Campaign, User } from '../../entities';
+import { Campaign, Comment, User } from '../../entities';
 
 import { Status } from '../../../enums/status.enum';
 import { Campaign as TimelineCampaign } from '../../../../campaigns/dto/get.timeline.dto';
 import { Campaign as CreatedCampaign } from '../../../../campaigns/dto/get-created-campaigns.dto';
+import { OtlpLogger } from '../../../loggers/otlp.logger';
 
 
 @Injectable()
 export class CampaignRepository {
-    private readonly logger = new Logger(CampaignRepository.name);
+    private readonly logger = new OtlpLogger(CampaignRepository.name);
 
     constructor(private readonly em: EntityManager) { }
 
@@ -45,12 +46,13 @@ export class CampaignRepository {
         const page = query.page || 1;
         const size = query.size || 20;
 
+
         const user = await this.em.findOne(
             User,
             { id: userId },
             { fields: ['dateOfBirth', 'age', 'kyc.country'] }
         );
-        console.log(user, user.age, 'user timeline')
+        this.logger.debug(`user age is ${JSON.stringify(user)}`, { userAge: user.age });
 
         if (!user) return null;
 
@@ -88,7 +90,6 @@ export class CampaignRepository {
         return await this.em.findOne(
             Campaign,
             { id: filter.id, user: { id: userId } },
-            { populate: ['comments'] }
         );
     }
 
@@ -174,5 +175,50 @@ export class CampaignRepository {
 
     async findOneByIdAndOwner(campaignId: string, ownedBy: string) {
         return await this.em.findOne(Campaign, { id: campaignId, user: { id: ownedBy } }, { fields: ['id', 'name', 'status'] });
+    }
+
+    async commentOnCampaign(campaignId: string, userId: string, commentText: string) {
+        const comment = this.em.create(Comment, {
+            value: commentText,
+            campaign: { id: campaignId },
+            user: { id: userId }
+        });
+
+        await this.em.persistAndFlush(comment);
+
+        return comment;
+    }
+
+    async findAllCampaignComments(campaignId: string, query: any) {
+        const page = query.page || 1;
+        const size = query.size || 20;
+
+        const filter: FilterQuery<Comment> = {
+            campaign: { id: campaignId }
+        };
+
+        const [data, total] = await this.em.findAndCount(
+            Comment,
+            filter,
+            {
+                offset: size * (page - 1),
+                limit: size,
+                orderBy: {
+                    createdAt: 'desc'
+                },
+                populate: ['user'],
+                fields: ['id', 'value', 'user.id', 'user.email', 'user.firstName', 'user.lastName', 'user.avatar', 'createdAt']
+            }
+        );
+
+        return {
+            data: data as any[],
+            meta: {
+                page,
+                size,
+                total,
+                totalPage: Math.ceil(total / size),
+            }
+        };
     }
 }

@@ -16,6 +16,8 @@ import { GetCreatedCampaignsDto, GetCreatedCampaignsQueryDto } from './dto/get-c
 import { CampaignCreatedEvent } from '../@common/events/campaigns/campaign-created.event';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { CAMPAIGN_CREATED } from '../@common/constants/events.constant';
+import { AddCommentDto } from './dto/add-comment.dto';
+import { GetCommentsQueryDto } from './dto/get-comments.dto';
 
 @Injectable()
 export class CampaignsService {
@@ -97,6 +99,23 @@ export class CampaignsService {
 
     return interaction;
   }
+
+  async addCommentToCampaign(campaignId: string, { text }: AddCommentDto, authUser: AuthenticatedUser) {
+    const res = await this.campaignRepository.commentOnCampaign(campaignId, authUser.id, text);
+
+    if (!res) throw new BadRequestException('failed to add comment to campaign');
+
+    return res;
+  }
+
+  async getCampaignComments(campaignId: string, payload: GetCommentsQueryDto) {
+    const comments = await this.campaignRepository.findAllCampaignComments(campaignId, payload);
+
+    if (!comments) throw new BadRequestException('failed to get campaign comments');
+
+    return comments;
+  }
+
 
   async getCreatedCampaigns(payload: GetCreatedCampaignsQueryDto, authUser: AuthenticatedUser): Promise<GetCreatedCampaignsDto> {
     const timeline = await this.campaignRepository.getCreatedCampaigns(authUser.id, payload);

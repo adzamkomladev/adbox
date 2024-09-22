@@ -5,6 +5,7 @@ export * from './users/role.entity';
 
 export * from './campaigns/campaign.entity';
 export * from './campaigns/interaction.entity';
+export * from './campaigns/comment.entity';
 
 export * from './kyc/kyc.entity';
 export * from './kyc/attempt.entity';
@@ -14,7 +15,7 @@ export * from './kyc/details.entity';
 
 export * from './payments/payment.entity';
 export * from './payments/payment-method.entity';
-export * from './payments/channel-details.enitty';
+export * from './payments/channel-details.entity';
 
 export * from './wallets/wallet.entity';
 export * from './wallets/wallet-transaction.entity';

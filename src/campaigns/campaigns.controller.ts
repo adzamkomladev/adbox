@@ -29,6 +29,8 @@ import { GetCreatedCampaignsQueryDto } from './dto/get-created-campaigns.dto';
 import { CampaignsService } from './campaigns.service';
 
 import { CampaignOwnerGuard } from './guards/campaign-owner.guard';
+import { AddCommentDto } from './dto/add-comment.dto';
+import { GetCommentsQueryDto } from './dto/get-comments.dto';
 
 @Controller('campaigns')
 @ApiTags('Campaigns')
@@ -127,6 +129,54 @@ export class CampaignsController {
       throw new BadRequestException('failed to interact with campaign');
     }
   }
+
+  @Auth()
+  @Post(':id/comments')
+  @ApiOperation({ summary: 'Used to add comment to a campaign' })
+  @ApiOkResponse({ description: 'Comment added to campaign' })
+  @ApiBadRequestResponse({ description: 'Failed to add comment to campaign' })
+  @ResponseMessage('comment added to campaign')
+  addCampaignComment(
+    @User() user: AuthenticatedUser,
+    @Param('id') id: string,
+    @Body() body: AddCommentDto,
+  ) {
+    try {
+      return this.campaignsService.addCommentToCampaign(id, body, user);
+    } catch (e) {
+      this.logger.error(`Failed to add comment to campaign with error ==> ${e}`);
+
+      if (e instanceof HttpException) {
+        throw e;
+      }
+
+      throw new BadRequestException('failed to add comment to campaign');
+    }
+  }
+
+  @Auth()
+  @Get(':id/comments')
+  @ApiOperation({ summary: 'Used to get campaign comments' })
+  @ApiOkResponse({ description: 'Comments of campaign retrieved' })
+  @ApiBadRequestResponse({ description: 'Failed to get campaign comments' })
+  @ResponseMessage('comments of campaign retrieved')
+  findAllCampaignComments(
+    @Param('id') id: string,
+    @Query() query: GetCommentsQueryDto
+  ) {
+    try {
+      return this.campaignsService.getCampaignComments(id, query);
+    } catch (e) {
+      this.logger.error(`Failed to get campaign comments with error ==> ${e}`);
+
+      if (e instanceof HttpException) {
+        throw e;
+      }
+
+      throw new BadRequestException('failed to get campaign comments');
+    }
+  }
+
 
 
 

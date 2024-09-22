@@ -12,7 +12,7 @@ import { Channel } from '../../../../payments/enums/channel.enum';
 import { Activity } from '../../../../wallets/enums/activity.enum';
 
 import { BaseEntity } from '../base.entity';
-import { ChannelDetails } from './channel-details.enitty';
+import { ChannelDetails } from './channel-details.entity';
 import { WalletTransaction } from '../wallets/wallet-transaction.entity';
 import { User } from '../users/user.entity';
 
