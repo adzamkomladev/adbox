@@ -59,6 +59,29 @@ export class CampaignsController {
   }
 
   @Auth()
+  @Get('timeline')
+  @ApiOperation({ summary: 'Used to retrieve campaign timeline for authenticated user' })
+  @ApiOkResponse({ description: 'Timeline retrieved' })
+  @ApiBadRequestResponse({ description: 'Failed to retrieve timeline' })
+  @ResponseMessage('timeline retrieved')
+  async getTimeline(
+    @User() user: AuthenticatedUser,
+    @Query() query: GetTimelineQueryDto
+  ) {
+    try {
+      return await this.campaignsService.getTimeline(query, user);
+    } catch (e) {
+      this.logger.error(`Failed to retrieve timeline with error ==> ${e}`);
+
+      if (e instanceof HttpException) {
+        throw e;
+      }
+
+      throw new BadRequestException('failed to retrieve timeline');
+    }
+  }
+
+  @Auth()
   @Get(':id')
   @ApiOperation({ summary: 'Used to retrieve campaign' })
   @ApiOkResponse({ description: 'Campaign retrieved' })
@@ -80,7 +103,6 @@ export class CampaignsController {
       throw new BadRequestException('failed to retrieve campaign');
     }
   }
-
 
   @Auth()
   @Patch(':id/interact')
@@ -106,28 +128,7 @@ export class CampaignsController {
     }
   }
 
-  @Auth()
-  @Get('timeline')
-  @ApiOperation({ summary: 'Used to retrieve campaign timeline for authenticated user' })
-  @ApiOkResponse({ description: 'Timeline retrieved' })
-  @ApiBadRequestResponse({ description: 'Failed to retrieve timeline' })
-  @ResponseMessage('timeline retrieved')
-  async getTimeline(
-    @User() user: AuthenticatedUser,
-    @Query() query: GetTimelineQueryDto
-  ) {
-    try {
-      return await this.campaignsService.getTimeline(query, user);
-    } catch (e) {
-      this.logger.error(`Failed to retrieve timeline with error ==> ${e}`);
 
-      if (e instanceof HttpException) {
-        throw e;
-      }
-
-      throw new BadRequestException('failed to retrieve timeline');
-    }
-  }
 
   @Auth()
   @Get('created')
