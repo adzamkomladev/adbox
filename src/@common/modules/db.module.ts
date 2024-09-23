@@ -2,14 +2,16 @@ import { Global, Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
 import { MikroOrmModule } from '@mikro-orm/nestjs';
+import { UtilsModule } from '@adbox/utils';
 
-import { Campaign, Interaction, Role, User, Wallet, WalletTransaction, WalletTransactionChange, Webhook } from '../db/entities';
+import { Campaign, ChannelDetails, Interaction, Payment, PaymentMethod, Role, User, Wallet, WalletTransaction, WalletTransactionChange, Webhook } from '../db/entities';
 
-import { CampaignRepository, InteractionRepository, RoleRepository, UserRepository, WalletRepository, WalletTransactionRepository } from '../db/repositories';
+import { CampaignRepository, InteractionRepository, PaymentRepository, RoleRepository, UserRepository, WalletRepository, WalletTransactionRepository } from '../db/repositories';
 
 @Global()
 @Module({
   imports: [
+    UtilsModule,
     MikroOrmModule.forRootAsync({
       inject: [ConfigService],
       useFactory: async (config: ConfigService) => ({
@@ -24,10 +26,29 @@ import { CampaignRepository, InteractionRepository, RoleRepository, UserReposito
       Interaction,
       Wallet,
       WalletTransaction,
-      WalletTransactionChange
+      WalletTransactionChange,
+      Payment,
+      ChannelDetails,
+      PaymentMethod
     ])
   ],
-  providers: [UserRepository, RoleRepository, CampaignRepository, InteractionRepository, WalletRepository, WalletTransactionRepository],
-  exports: [UserRepository, RoleRepository, CampaignRepository, InteractionRepository, WalletRepository, WalletTransactionRepository]
+  providers: [
+    UserRepository,
+    RoleRepository,
+    CampaignRepository,
+    InteractionRepository,
+    WalletRepository,
+    WalletTransactionRepository,
+    PaymentRepository
+  ],
+  exports: [
+    UserRepository,
+    RoleRepository,
+    CampaignRepository,
+    InteractionRepository,
+    WalletRepository,
+    WalletTransactionRepository,
+    PaymentRepository
+  ]
 })
 export class DbModule { }
