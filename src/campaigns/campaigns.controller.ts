@@ -5,11 +5,9 @@ import {
   Body,
   Patch,
   Param,
-  Delete,
   HttpException,
   BadRequestException,
   Query,
-  Logger,
   Put,
   UseGuards,
 } from '@nestjs/common';
@@ -31,11 +29,12 @@ import { CampaignsService } from './campaigns.service';
 import { CampaignOwnerGuard } from './guards/campaign-owner.guard';
 import { AddCommentDto } from './dto/add-comment.dto';
 import { GetCommentsQueryDto } from './dto/get-comments.dto';
+import { OtlpLogger } from '@common/loggers/otlp.logger';
 
 @Controller('campaigns')
 @ApiTags('Campaigns')
 export class CampaignsController {
-  private readonly logger = new Logger(CampaignsController.name);
+  private readonly logger = new OtlpLogger(CampaignsController.name);
 
   constructor(private readonly campaignsService: CampaignsService) { }
 

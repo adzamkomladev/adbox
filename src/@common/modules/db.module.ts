@@ -2,11 +2,12 @@ import { Global, Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
 import { MikroOrmModule } from '@mikro-orm/nestjs';
+
 import { UtilsModule } from '@adbox/utils';
 
 import { Campaign, ChannelDetails, Interaction, Payment, PaymentMethod, Role, User, Wallet, WalletTransaction, WalletTransactionChange, Webhook } from '../db/entities';
 
-import { CampaignRepository, InteractionRepository, PaymentRepository, RoleRepository, UserRepository, WalletRepository, WalletTransactionRepository } from '../db/repositories';
+import { CampaignRepository, InteractionRepository, PaymentMethodRepository, PaymentRepository, RoleRepository, UserRepository, WalletRepository, WalletTransactionRepository } from '../db/repositories';
 
 @Global()
 @Module({
@@ -39,7 +40,8 @@ import { CampaignRepository, InteractionRepository, PaymentRepository, RoleRepos
     InteractionRepository,
     WalletRepository,
     WalletTransactionRepository,
-    PaymentRepository
+    PaymentRepository,
+    PaymentMethodRepository
   ],
   exports: [
     UserRepository,
@@ -48,7 +50,8 @@ import { CampaignRepository, InteractionRepository, PaymentRepository, RoleRepos
     InteractionRepository,
     WalletRepository,
     WalletTransactionRepository,
-    PaymentRepository
+    PaymentRepository,
+    PaymentMethodRepository
   ]
 })
 export class DbModule { }

@@ -1,25 +1,20 @@
-import { Injectable } from '@nestjs/common';
-
-import { EntityRepository } from '@mikro-orm/core';
-import { EntityManager } from '@mikro-orm/postgresql';
-import { InjectRepository } from '@mikro-orm/nestjs';
+import { BadRequestException, Injectable } from '@nestjs/common';
 
 import { PhoneService } from '@adbox/utils';
 
 import { Status } from '@common/enums/status.enum';
 import { Channel } from '../enums/channel.enum';
 
-import { PaymentMethod } from '../../@common/db/entities/payments/payment-method.entity';
+import { PaymentMethod } from '@common/db/entities';
 
 import { CreatePaymentMethodDto } from '../dto/create-payment-method.dto';
-import { User } from '../../@common/db/entities/users/user.entity';
+
+import { PaymentMethodRepository } from '@common/db/repositories';
 
 @Injectable()
 export class PaymentMethodsService {
   constructor(
-    private readonly em: EntityManager,
-    @InjectRepository(PaymentMethod)
-    private readonly paymentMethodRepository: EntityRepository<PaymentMethod>,
+    private readonly paymentMethodRepository: PaymentMethodRepository,
     private readonly phoneService: PhoneService,
   ) { }
 
@@ -31,28 +26,28 @@ export class PaymentMethodsService {
       channel,
       networkCode,
     }: CreatePaymentMethodDto,
-    user: User
+    userId: string
   ) {
     if (channel === Channel.MOBILE_WALLET) {
       accountNumber = this.phoneService.format(accountNumber, networkCode);
     }
 
-    const payment = new PaymentMethod();
-    payment.accountName = accountName,
-      payment.accountNumber = accountNumber,
-      payment.network = network,
-      payment.channel = channel,
-      payment.status = Status.ACTIVE,
-      payment.networkCode = networkCode,
-      payment.user = user;
+    const paymentMethod = await this.paymentMethodRepository.create(userId, {
+      accountName: accountName,
+      accountNumber: accountNumber,
+      network: network,
+      channel: channel,
+      status: Status.ACTIVE,
+      networkCode: networkCode
+    });
 
-    await this.em.persistAndFlush(payment);
+    if (!paymentMethod) throw new BadRequestException('failed to create payment method');
 
-    return payment;
+    return paymentMethod;
   }
 
   async findAllByUser(userId: string): Promise<PaymentMethod[]> {
-    return await this.paymentMethodRepository.find({ user: userId });
+    return await this.paymentMethodRepository.findAll({ user: { id: userId } });
   }
 
   async findOne(id: string): Promise<PaymentMethod> {

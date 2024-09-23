@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 
-import { EntityManager } from '@mikro-orm/postgresql';
+import { EntityManager, wrap } from '@mikro-orm/postgresql';
 
 import { TokenService } from '@adbox/utils';
 
@@ -19,6 +19,9 @@ export class PaymentRepository {
         private readonly tokenService: TokenService
     ) { }
 
+    async findOne(filter: { reference: string }) {
+        return await this.em.findOne(Payment, filter);
+    }
     async create(userId: string, walletId: string, paymentMethodId: string, amount: number) {
         const paymentMethod = await this.em.findOne(PaymentMethod, { id: paymentMethodId });
 
@@ -49,6 +52,18 @@ export class PaymentRepository {
         const payment = await this.em.upsert(Payment, { status, channelResponse, channelRequest, id });
 
         await this.em.flush();
+
+        return payment;
+    }
+
+    async updateStatus(filter: { reference: string }, status: Status) {
+        const payment = await this.em.findOne(Payment, filter);
+
+        if (!payment) return null;
+
+        wrap(payment).assign({ status });
+
+        await this.em.persistAndFlush(payment);
 
         return payment;
     }
