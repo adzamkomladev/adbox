@@ -404,7 +404,7 @@
             "credit_card",
             "debit_card",
             "bank",
-            "mobile_wallet"
+            "mobile_money"
           ],
           "mappedType": "enum"
         },
@@ -416,9 +416,9 @@
           "primary": false,
           "nullable": false,
           "enumItems": [
-            "MTN",
-            "VODAFONE",
-            "AIRTEL_TIGO"
+            "mtn",
+            "telecel",
+            "airteltigo"
           ],
           "mappedType": "enum"
         },
@@ -599,7 +599,7 @@
             "credit_card",
             "debit_card",
             "bank",
-            "mobile_wallet"
+            "mobile_money"
           ],
           "mappedType": "enum"
         },

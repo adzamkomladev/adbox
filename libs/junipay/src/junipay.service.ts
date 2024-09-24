@@ -1,10 +1,10 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
 import { TokenService } from '@adbox/utils';
 import { Request } from './interfaces/payment.interface';
 import { HttpService } from '@nestjs/axios';
-import { catchError, firstValueFrom } from 'rxjs';
+import { catchError, firstValueFrom, of, throwError } from 'rxjs';
 import { Type } from '@adbox/utils';
 import { AxiosError } from 'axios';
 
@@ -31,7 +31,7 @@ export class JunipayService {
         };
         const token = this.token.generateJwtToken(payload, Type.JUNIPAY)
 
-        const res = await firstValueFrom(
+        const { status, statusText, data } = await firstValueFrom(
             this.http.post(
                 this.config.get('junipay.endpoints.payment'),
                 { ...payload },
@@ -44,12 +44,21 @@ export class JunipayService {
                 catchError((error: AxiosError) => {
                     console.log(error, 'this is junipay error')
                     console.log(error.response.data);
-                    throw 'An error happened!';
+                    return throwError(() => of({
+                        status: error.response.status,
+                        data: error.response.data || null,
+                        statusText: error.response.statusText
+                    }));
                 }),
             ),
         );
-        console.log(res, 'THIS IS THE RESULTS FOR PAYMENT');
 
-        return res;
+        const isSuccessful = status === HttpStatus.OK && data?.code === HttpStatus.OK;
+        return {
+            status,
+            data,
+            message: statusText,
+            isSuccessful
+        };
     }
 }

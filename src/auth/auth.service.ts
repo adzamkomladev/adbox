@@ -22,11 +22,11 @@ import { LoginDto } from './dto/login.dto';
 import { UserCreatedEvent } from '../users/events/user.created.event';
 
 import { UserRepository } from '../@common/db/repositories';
-import { Span, TraceService } from 'nestjs-otel';
+import { OtlpLogger } from '../@common/loggers/otlp.logger';
 
 @Injectable()
 export class AuthService {
-  private readonly logger = new Logger(AuthService.name);
+  private readonly logger = new OtlpLogger(AuthService.name);
 
   constructor(
     private readonly config: ConfigService,
@@ -34,7 +34,6 @@ export class AuthService {
     private readonly jwtService: JwtService,
     @InjectFirebaseAdmin()
     private readonly firebase: FirebaseAdmin,
-    private readonly traceService: TraceService,
     private readonly userRepository: UserRepository
   ) { }
 
@@ -62,18 +61,18 @@ export class AuthService {
     let decodedToken: Partial<DecodedIdToken>;
 
     try {
-      decodedToken = await this.firebase.auth.verifyIdToken(idToken);
+      // decodedToken = await this.firebase.auth.verifyIdToken(idToken);
 
-      // const user = await this.userRepository.findOneByFirstName(firstName);
-      // console.log(user)
-      // decodedToken = {
-      //   email: user.email,
-      //   name: 'Victor Adele',
-      //   given_name: user.firstName,
-      //   family_name: user.lastName,
-      //   picture: user.avatar,
-      //   uid: uniqid(),
-      // };
+      const user = await this.userRepository.findOneByFirstName(firstName);
+      this.logger.debug('Hello user', user)
+      decodedToken = {
+        email: user.email,
+        name: 'Victor Adele',
+        given_name: user.firstName,
+        family_name: user.lastName,
+        picture: user.avatar,
+        uid: uniqid(),
+      };
     } catch (e) {
       this.logger.error(`Failed to decode firebase id token: ${e.message}`);
       throw new UnauthorizedException('Failed to authenticate user');

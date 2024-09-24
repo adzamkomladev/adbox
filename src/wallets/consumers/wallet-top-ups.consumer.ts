@@ -10,14 +10,13 @@ import { WALLET_TOP_UPS_QUEUE } from '../constants/queues.constant';
 import { WalletTopUpJobDto } from '../dto/wallet-top-up-job.dto';
 
 import { WalletTopUpInitiatedEvent } from '../events/wallet-top-up-initiated.event';
+import { OtlpLogger } from '@common/loggers/otlp.logger';
 
 @Processor(WALLET_TOP_UPS_QUEUE)
 export class WalletTopUpsConsumer {
-  private readonly logger: Logger;
+  private readonly logger = new OtlpLogger(WalletTopUpsConsumer.name);
 
-  constructor(private readonly event: EventEmitter2) {
-    this.logger = new Logger(WalletTopUpsConsumer.name);
-  }
+  constructor(private readonly event: EventEmitter2) { }
 
   @Process()
   handleWalletTopUp(job: Job<WalletTopUpJobDto>) {

@@ -49,18 +49,31 @@ export class WalletTopUpInitiatedListener {
 
     if (!createdPayment) {
       this.logger.log('Payment not created');
+      this.logger.debug('WALLET TOP UP INITIATED LISTENER COMPLETED: ');
+
       return;
     }
 
     const { request, response } = await this.initiatePaymentRequest(createdPayment);
 
-    this.logger.debug(`Payment request and response`, { request, response });
+    if (!(response as any).isSuccessful) {
+      this.logger.error('Payment request failed', { request, response });
 
-    await this.paymentRepository.update(createdPayment.id, {
-      status: Status.PENDING,
-      channelResponse: JSON.stringify(response),
-      channelRequest: JSON.stringify(request),
-    });
+      await this.paymentRepository.update(createdPayment.id, {
+        status: Status.FAILED,
+        channelResponse: JSON.stringify(response),
+        channelRequest: JSON.stringify(request),
+      });
+    } else {
+      await this.paymentRepository.update(createdPayment.id, {
+        status: Status.PENDING,
+        channelResponse: JSON.stringify(response),
+        channelRequest: JSON.stringify(request),
+      });
+    }
+
+    this.logger.debug('WALLET TOP UP INITIATED LISTENER COMPLETED: ');
+
   }
 
   private async initiatePaymentRequest(payment: Payment) {
@@ -86,7 +99,7 @@ export class WalletTopUpInitiatedListener {
         reference: payment.reference,
         channel: this.mapJunipayChannel(payment.channel),
         phoneNumber: payment.channelDetails.accountNumber,
-        amount: payment.amount,
+        amount: payment.amount / 100,
         provider: this.mapJunipayProvider(payment.channelDetails.network as Network),
         senderEmail: payment.user?.email || 'adzamkomla.dev@gmail.com'
       };
