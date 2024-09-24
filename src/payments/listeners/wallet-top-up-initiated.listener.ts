@@ -103,8 +103,8 @@ export class WalletTopUpInitiatedListener {
         return Provider.AIRTEL_TIGO;
       case Network.MTN:
         return Provider.MTN;
-      case Network.VODAFONE:
-        return Provider.VODAFONE;
+      case Network.TELECEL:
+        return Provider.TELECEL;
       default:
         return Provider.MTN
     }
@@ -112,7 +112,7 @@ export class WalletTopUpInitiatedListener {
 
   private mapJunipayChannel(channel: Channel) {
     switch (channel) {
-      case Channel.MOBILE_WALLET:
+      case Channel.MOBILE_MONEY:
         return JunipayChannel.MOBILE_MONEY;
       case Channel.DEBIT_CARD:
       case Channel.CREDIT_CARD:

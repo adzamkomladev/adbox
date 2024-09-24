@@ -1,8 +1,8 @@
 import { Entity, Enum, ManyToOne, Property } from '@mikro-orm/core';
 
 import { Status } from '../../../enums/status.enum';
-import { Channel } from '../../../../payments/enums/channel.enum';
-import { Network } from '../../../../payments/enums/network.enum';
+import { Channel } from '@app/payments/enums/channel.enum';
+import { Network } from '@app/payments/enums/network.enum';
 
 import { BaseEntity } from '../base.entity';
 import { User } from '../users/user.entity';

@@ -1,5 +1,5 @@
 export enum Network {
-    MTN = 'MTN',
-    VODAFONE = 'VODAFONE',
-    AIRTEL_TIGO = 'AIRTEL_TIGO',
+    MTN = 'mtn',
+    TELECEL = 'telecel',
+    AIRTEL_TIGO = 'airteltigo',
 }

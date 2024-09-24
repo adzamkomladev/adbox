@@ -1,5 +1,5 @@
 export enum Provider {
     MTN = 'mtn',
-    VODAFONE = 'vodafone',
+    TELECEL = 'telecel',
     AIRTEL_TIGO = 'airteltigo'
 }

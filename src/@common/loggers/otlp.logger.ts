@@ -9,11 +9,12 @@ import {
 } from '@opentelemetry/sdk-logs';
 import { OTLPLogExporter } from '@opentelemetry/exporter-logs-otlp-http';
 import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions';
+import 'dotenv/config';
 
 // diag.setLogger(new DiagConsoleLogger(), DiagLogLevel.DEBUG);
 
 const resource = new Resource({
-    [SemanticResourceAttributes.SERVICE_NAME]: 'adbox',
+    [SemanticResourceAttributes.SERVICE_NAME]: process.env.OTLP_SERVICE_NAME || 'adbox',
 });
 
 const loggerProvider = new LoggerProvider({
@@ -23,7 +24,7 @@ const loggerProvider = new LoggerProvider({
 loggerProvider.addLogRecordProcessor(
     new SimpleLogRecordProcessor(
         new OTLPLogExporter({
-            url: 'http://localhost:4318/v1/logs',
+            url: process.env.OTLP_LOGS_ENDPOINT || 'http://localhost:4318/v1/logs',
             keepAlive: true,
         }))
 );

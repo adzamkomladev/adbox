@@ -10,13 +10,17 @@ import { AuthenticatedUser } from '@common/dto/authenticated.user.dto';
 
 import { OtlpLogger } from '@common/loggers/otlp.logger';
 import { PaymentMethodsService } from './services/payment-methods.service';
+import { PaymentsService } from './services/payments.service';
 
 @ApiTags('payments')
 @Controller('payments')
 export class PaymentsController {
   private readonly logger = new OtlpLogger(PaymentsController.name);
 
-  constructor(private readonly paymentMethodsService: PaymentMethodsService) { }
+  constructor(
+    private readonly paymentsService: PaymentsService,
+    private readonly paymentMethodsService: PaymentMethodsService
+  ) { }
 
   @Auth()
   @Post('methods')
@@ -58,6 +62,26 @@ export class PaymentsController {
       }
 
       throw new BadRequestException('failed to retrieve payment methods for user');
+    }
+  }
+
+  @Auth()
+  @Get('configs')
+  @ApiOperation({ summary: 'Used to retrieve all payment configs' })
+  @ApiOkResponse({ description: 'Payment configs retrieved' })
+  @ApiBadRequestResponse({ description: 'Failed to retrieve payment configs' })
+  @ResponseMessage('payment configs retrieved')
+  getPaymentConfigs() {
+    try {
+      return this.paymentsService.getPaymentConfigs();
+    } catch (e) {
+      this.logger.error(`Failed to retrieve payment configs with error ==> ${e}`);
+
+      if (e instanceof HttpException) {
+        throw e;
+      }
+
+      throw new BadRequestException('failed to retrieve payment configs');
     }
   }
 }

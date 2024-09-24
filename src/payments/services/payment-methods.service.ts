@@ -28,7 +28,7 @@ export class PaymentMethodsService {
     }: CreatePaymentMethodDto,
     userId: string
   ) {
-    if (channel === Channel.MOBILE_WALLET) {
+    if (channel === Channel.MOBILE_MONEY) {
       accountNumber = this.phoneService.format(accountNumber, networkCode);
     }
 

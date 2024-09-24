@@ -13,11 +13,12 @@ import {
 import { B3InjectEncoding, B3Propagator } from '@opentelemetry/propagator-b3';
 import { AsyncLocalStorageContextManager } from '@opentelemetry/context-async-hooks';
 import * as process from 'process';
+import 'dotenv/config';
 
 // Configure the SDK to export telemetry data to the console
 // Enable all auto-instrumentations from the meta package
 const exporterOptions = {
-    url: 'http://localhost:4318/v1/traces',
+    url: process.env.OTLP_TRACES_ENDPOINT || 'http://localhost:4318/v1/traces',
 };
 
 const traceExporter = new OTLPTraceExporter(exporterOptions);
@@ -28,7 +29,7 @@ const sdk = new opentelemetry.NodeSDK({
     traceExporter,
     instrumentations: [getNodeAutoInstrumentations()],
     resource: new Resource({
-        [SemanticResourceAttributes.SERVICE_NAME]: 'adbox',
+        [SemanticResourceAttributes.SERVICE_NAME]: process.env.OTLP_SERVICE_NAME || 'adbox',
     }),
     autoDetectResources: true,
     contextManager: new AsyncLocalStorageContextManager(),
