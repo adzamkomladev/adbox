@@ -74,6 +74,6 @@ import { CacheModule } from '@nestjs/cache-manager';
     //   useClass: ThrottlerGuard
     // }
   ],
-  exports: [OtlpLogger]
+  exports: [OtlpLogger, CacheModule]
 })
 export class CoreModule { }
