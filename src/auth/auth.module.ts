@@ -17,8 +17,11 @@ import { PhoneVerifiedGuard } from './guards/phone.verified.guard';
 
 @Module({
   imports: [
-    FirebaseModule.forRoot({
-      googleApplicationCredential: resolve('firebase-adminsdk.json'),
+    FirebaseModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: async (config: ConfigService) => ({
+        googleApplicationCredential: config.get<any>('auth.firebaseSdk') || resolve('firebase-adminsdk.json'),
+      }),
     }),
     PassportModule,
     JwtModule.registerAsync({
@@ -33,4 +36,4 @@ import { PhoneVerifiedGuard } from './guards/phone.verified.guard';
   providers: [AuthService, JwtStrategy, JwtGuard, PhoneVerifiedGuard],
   exports: [AuthService, JwtGuard],
 })
-export class AuthModule {}
+export class AuthModule { }

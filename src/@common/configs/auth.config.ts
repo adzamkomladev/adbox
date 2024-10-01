@@ -7,4 +7,5 @@ export default registerAs('auth', () => ({
     rememberMeExpiresIn: '7d',
     ignoreExpiration: Boolean(process.env.AUTH_JWT_IGNORE_EXPIRATION),
   },
+  firebaseSdk: process.env.FIREBASE_SDK ? JSON.parse(process.env.FIREBASE_SDK) : null,
 }));
