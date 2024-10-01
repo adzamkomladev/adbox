@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Get, HttpException, Param, Patch, Query } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, HttpException, Param, Patch, Query, UseInterceptors } from '@nestjs/common';
 import { ApiBadRequestResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 
 import { ResponseMessage } from '../../@common/decorators/response.message.decorator';
@@ -9,6 +9,7 @@ import { UpdateStatus } from '../dto/update.status.dto';
 import { QueryDto } from '../dto/query.dto';
 
 import { KycService } from '../services/kyc.service';
+import { CacheInterceptor, CacheTTL } from '@nestjs/cache-manager';
 
 @Controller('admin/kyc')
 @ApiTags('admin kyc')
@@ -16,6 +17,8 @@ export class AdminController {
   constructor(private readonly kycService: KycService) { }
 
   // @Auth()
+  @UseInterceptors(CacheInterceptor)
+  @CacheTTL(30)
   @Get()
   @ApiOkResponse()
   @ApiBadRequestResponse()

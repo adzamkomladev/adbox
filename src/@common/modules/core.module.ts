@@ -5,8 +5,9 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { BullModule } from '@nestjs/bull';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import type { RedisClientOptions } from 'redis';
 
-
+const redisStore = require('cache-manager-redis-store');
 import { BullBoardModule } from '@bull-board/nestjs';
 import { ExpressAdapter } from '@bull-board/express';
 
@@ -20,7 +21,7 @@ import throttlerConfig from '../configs/throttler.config';
 
 import { TransformInterceptor } from '../interceptors/transform.interceptor';
 import { OtlpLogger } from '../loggers/otlp.logger';
-
+import { CacheModule } from '@nestjs/cache-manager';
 
 @Global()
 @Module({
@@ -49,6 +50,18 @@ import { OtlpLogger } from '../loggers/otlp.logger';
       adapter: ExpressAdapter,
     }),
     EventEmitterModule.forRoot(),
+    CacheModule.registerAsync<RedisClientOptions>({
+      useFactory: async (config: ConfigService) => ({
+        isGlobal: true,
+        store: redisStore,
+
+        // Store-specific configuration:
+        host: config.get('redis.host'),
+        port: config.get<number>('redis.port'),
+      }),
+      inject: [ConfigService],
+
+    }),
   ],
   providers: [
     OtlpLogger,

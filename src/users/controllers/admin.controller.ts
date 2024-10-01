@@ -1,5 +1,7 @@
-import { BadRequestException, Body, Controller, Get, HttpException, Param, Patch, Post, Query } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, HttpException, Param, Patch, Post, Query, UseInterceptors } from '@nestjs/common';
 import { ApiBadRequestResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+
+import { CacheInterceptor, CacheTTL } from '@nestjs/cache-manager';
 
 import { ResponseMessage } from '../../@common/decorators/response.message.decorator';
 import { Auth } from '../../auth/decorators/auth.decorator';
@@ -20,6 +22,8 @@ export class AdminController {
     ) { }
 
     // @Auth()
+    @UseInterceptors(CacheInterceptor)
+    @CacheTTL(3600)
     @Get('roles')
     @ApiOkResponse()
     @ApiBadRequestResponse()
@@ -37,7 +41,9 @@ export class AdminController {
     }
 
     // @Auth()
-    @Get() 
+    @UseInterceptors(CacheInterceptor)
+    @CacheTTL(30)
+    @Get()
     @ApiOkResponse()
     @ApiBadRequestResponse()
     @ResponseMessage('admin users retrieved')

@@ -6,7 +6,8 @@ import {
   Patch,
   Param,
   HttpException,
-  BadRequestException
+  BadRequestException,
+  UseInterceptors
 } from '@nestjs/common';
 import { ApiBadRequestResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 
@@ -19,6 +20,7 @@ import { SetExtraDetailsDto } from '../dto/set-extra-details.dto';
 import { SetupFirebaseUserDto } from '../dto/setup-firebase-user.dto';
 
 import { UsersService } from '../services/users.service';
+import { CacheInterceptor, CacheTTL } from '@nestjs/cache-manager';
 
 @ApiTags('users')
 @Controller('users')
@@ -35,6 +37,8 @@ export class UsersController {
     return this.usersService.findAll();
   }
 
+  @UseInterceptors(CacheInterceptor)
+  @CacheTTL(10)
   @Get(':id')
   async findOne(@Param('id') id: string) {
     try {
