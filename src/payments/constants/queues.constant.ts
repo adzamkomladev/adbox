@@ -1,0 +1,1 @@
+export const PROCESS_PAYMENT_QUEUE = 'process-payment';

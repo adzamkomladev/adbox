@@ -11,6 +11,7 @@ import { AuthenticatedUser } from '@common/dto/authenticated.user.dto';
 import { OtlpLogger } from '@common/loggers/otlp.logger';
 import { PaymentMethodsService } from './services/payment-methods.service';
 import { PaymentsService } from './services/payments.service';
+import { InitiatePaymentDto } from './dto/initiate-payment.dto';
 
 @ApiTags('payments')
 @Controller('payments')
@@ -62,6 +63,29 @@ export class PaymentsController {
       }
 
       throw new BadRequestException('failed to retrieve payment methods for user');
+    }
+  }
+
+  @Auth()
+  @Post('initiate')
+  @ApiOperation({ summary: 'Used to initiate payment for authenticated user' })
+  @ApiOkResponse({ description: 'Payment initiated' })
+  @ApiBadRequestResponse({ description: 'Failed to initiate payment' })
+  @ResponseMessage('payment initiated')
+  async initiate(
+    @User() user: AuthenticatedUser,
+    @Body() body: InitiatePaymentDto,
+  ) {
+    try {
+      return await this.paymentsService.initiatePayment(body, user);
+    } catch (e) {
+      this.logger.error(`Failed to initiate payment with error ==> ${e}`);
+
+      if (e instanceof HttpException) {
+        throw e;
+      }
+
+      throw new BadRequestException('failed to initiate payment');
     }
   }
 

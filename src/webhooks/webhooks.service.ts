@@ -1,9 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 
-import { ZEEPAY_WEBHOOK_RECEIVED } from '../@common/constants/events.constant';
+import { PAYSTACK_WEBHOOK_RECEIVED, ZEEPAY_WEBHOOK_RECEIVED } from '../@common/constants/events.constant';
 
 import { ZeepayWebhookReceivedEvent } from './events/zeepay-webhook-received.event';
+import { PaystackWebhookReceivedEvent } from './events/paystack-webhook-received.event';
 
 @Injectable()
 export class WebhooksService {
@@ -21,4 +22,14 @@ export class WebhooksService {
     console.log('this is junipay webhook: ', payload);
     return 'OK';
   }
+
+  handlePaystack(request: any) {
+    const event = new PaystackWebhookReceivedEvent();
+    event.data = request.data;
+    event.event = request.event;
+    this.event.emit(PAYSTACK_WEBHOOK_RECEIVED, event);
+
+    return 'OK';
+  }
+
 }

@@ -4,6 +4,7 @@ export const WALLET_TOP_UP_INITIATED = 'wallet-top-up.initiated';
 
 // WEBHOOKS EVENTS
 export const ZEEPAY_WEBHOOK_RECEIVED = 'zeepay.webhook.received';
+export const PAYSTACK_WEBHOOK_RECEIVED = 'paystack.webhook.received';
 
 // PAYMENT EVENTS
 

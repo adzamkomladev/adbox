@@ -1,10 +1,20 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 
 import { Channel } from '../enums/channel.enum';
 import { Network } from '../enums/network.enum';
+import { AuthenticatedUser } from '@common/dto/authenticated.user.dto';
+import { InitiatePaymentDto } from '../dto/initiate-payment.dto';
+import { PaymentRepository } from '@common/db/repositories';
+import { PaystackService } from '@adbox/paystack';
+import { Status } from '../../@common/enums/status.enum';
 
 @Injectable()
 export class PaymentsService {
+
+  constructor(
+    private readonly paystackService: PaystackService,
+    private readonly paymentRepository: PaymentRepository
+  ) { }
 
   getPaymentConfigs() {
     return {
@@ -35,5 +45,41 @@ export class PaymentsService {
         }
       ]
     }
+  }
+
+  async initiatePayment(payload: InitiatePaymentDto, authUser: AuthenticatedUser) {
+    const payment = await this.paymentRepository.createPaystackPayment(
+      authUser.id,
+      payload.walletId,
+      payload.amount
+    );
+
+    if (!payment) throw new BadRequestException('failed to initiate payment');
+
+    const { status, authorizationUrl, accessCode } = await this.paystackService.payment({
+      email: authUser.email,
+      reference: payment.reference,
+      amount: payload.amount,
+      channels: ['mobile_money', 'bank', 'card']
+    });
+
+    if (!status) {
+      await this.paymentRepository.updateStatus(
+        {
+          reference: payment.reference,
+          status: payment.status
+        },
+        Status.FAILED
+      );
+
+      throw new BadRequestException('failed to initiate payment');
+    }
+
+
+    return {
+      authorizationUrl,
+      accessCode
+    };
+
   }
 }

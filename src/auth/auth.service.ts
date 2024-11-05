@@ -61,18 +61,18 @@ export class AuthService {
     let decodedToken: Partial<DecodedIdToken>;
 
     try {
-      // decodedToken = await this.firebase.auth.verifyIdToken(idToken);
+      decodedToken = await this.firebase.auth.verifyIdToken(idToken);
 
-      const user = await this.userRepository.findOneByFirstName(firstName);
-      this.logger.debug('Hello user', user)
-      decodedToken = {
-        email: user.email,
-        name: 'Victor Adele',
-        given_name: user.firstName,
-        family_name: user.lastName,
-        picture: user.avatar,
-        uid: uniqid(),
-      };
+      // const user = await this.userRepository.findOneByFirstName(firstName);
+      // this.logger.debug('Hello user', user)
+      // decodedToken = {
+      //   email: user.email,
+      //   name: 'Victor Adele',
+      //   given_name: user.firstName,
+      //   family_name: user.lastName,
+      //   picture: user.avatar,
+      //   uid: uniqid(),
+      // };
     } catch (e) {
       this.logger.error(`Failed to decode firebase id token: ${e.message}`);
       throw new UnauthorizedException('Failed to authenticate user');

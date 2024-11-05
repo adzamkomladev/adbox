@@ -50,6 +50,15 @@
       "compilerOptions": {
         "tsConfigPath": "libs/arkesel/tsconfig.lib.json"
       }
+    },
+    "paystack": {
+      "type": "library",
+      "root": "libs/paystack",
+      "entryFile": "index",
+      "sourceRoot": "libs/paystack/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/paystack/tsconfig.lib.json"
+      }
     }
   }
 }

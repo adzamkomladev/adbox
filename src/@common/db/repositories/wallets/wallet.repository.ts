@@ -77,7 +77,9 @@ export class WalletRepository {
     }
 
     async topUpWallet(walletId: string, amount: number, fee: number, reason: string, paymentId?: string) {
-        const wallet = await this.em.findOne(Wallet, { id: walletId }, { populate: ['user'] });
+        const em = this.em.fork();
+
+        const wallet = await em.findOne(Wallet, { id: walletId }, { populate: ['user'] });
 
         if (!wallet) {
             this.logger.error(`Failed to find wallet of id: ${walletId}`);
@@ -91,8 +93,8 @@ export class WalletRepository {
 
         wrap(wallet).assign({ balance: wallet.balance + totalAmountToTopUp });
 
-        const payment = paymentId ? this.em.getReference(Payment, paymentId) : null;
-        const transaction = this.em.create(WalletTransaction, {
+        const payment = paymentId ? em.getReference(Payment, paymentId) : null;
+        const transaction = em.create(WalletTransaction, {
             before: balanceBefore,
             after: balanceAfter,
             amount,
@@ -105,14 +107,14 @@ export class WalletRepository {
             payment
         });
 
-        const change = this.em.create(WalletTransactionChange, {
+        const change = em.create(WalletTransactionChange, {
             status: Status.COMPLETED,
             transaction,
             reason,
-            updatedBy: this.em.getReference(User, wallet.user.id)
+            updatedBy: em.getReference(User, wallet.user.id)
         });
 
-        await this.em.persistAndFlush([wallet, transaction, change]);
+        await em.persistAndFlush([wallet, transaction, change]);
 
         return { wallet, transaction, change };
     }

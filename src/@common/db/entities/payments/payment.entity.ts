@@ -38,7 +38,7 @@ export class Payment extends BaseEntity {
   currency: string = 'GHS';
 
   @Embedded({ entity: () => ChannelDetails, object: true })
-  channelDetails!: ChannelDetails;
+  channelDetails?: ChannelDetails;
 
   @Enum({ items: () => Channel })
   channel!: Channel;

@@ -17,4 +17,11 @@ export class WebhooksController {
   handleJunipay(@Body() body: any) {
     return this.webhooksService.handleJunipay(body);
   }
+
+  @Post('/paystack')
+  @HttpCode(200)
+  handlePaystack(@Body() body: any) {
+    console.log(body);
+    return this.webhooksService.handlePaystack(body);
+  }
 }

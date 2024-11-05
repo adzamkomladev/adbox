@@ -153,7 +153,8 @@
       "^@adbox/zeepay(|/.*)$": "<rootDir>/libs/zeepay/src/$1",
       "^@adbox/utils(|/.*)$": "<rootDir>/libs/utils/src/$1",
       "^@adbox/junipay(|/.*)$": "<rootDir>/libs/junipay/src/$1",
-      "^@adbox/arkesel(|/.*)$": "<rootDir>/libs/arkesel/src/$1"
+      "^@adbox/arkesel(|/.*)$": "<rootDir>/libs/arkesel/src/$1",
+      "^@adbox/paystack(|/.*)$": "<rootDir>/libs/paystack/src/$1"
     }
   }
 }

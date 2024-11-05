@@ -9,6 +9,7 @@ import { Payment, PaymentMethod, User } from '@common/db/entities';
 import { OtlpLogger } from '@common/loggers/otlp.logger';
 
 import { Activity } from "@app/wallets/enums/activity.enum";
+import { Channel } from '../../../../payments/enums/channel.enum';
 
 @Injectable()
 export class PaymentRepository {
@@ -19,7 +20,7 @@ export class PaymentRepository {
         private readonly tokenService: TokenService
     ) { }
 
-    async findOne(filter: { reference: string }) {
+    async findOne(filter: { reference: string, status?: Status }) {
         return await this.em.findOne(Payment, filter);
     }
     async create(userId: string, walletId: string, paymentMethodId: string, amount: number) {
@@ -48,6 +49,29 @@ export class PaymentRepository {
         return payment;
     }
 
+    async createPaystackPayment(userId: string, walletId: string, amount: number) {
+        const payment = this.em.create(Payment, {
+            user: this.em.getReference(User, userId),
+            walletId,
+            amount,
+            reference: this.tokenService.generatePaymentRef('ADBOX'),
+            status: Status.INITIATED,
+            activity: Activity.WALLET_TOP_UP,
+            channel: Channel.MOBILE_MONEY,
+            channelDetails: {
+                network: 'paystack',
+                networkCode: 'paystack',
+                accountNumber: 'paystack',
+                accountName: 'paystack'
+            },
+        });
+
+        await this.em.persistAndFlush(payment);
+
+        return payment;
+    }
+
+
     async update(id: string, { status, channelResponse, channelRequest }: Partial<Payment>) {
         const payment = await this.em.upsert(Payment, { status, channelResponse, channelRequest, id });
 
@@ -56,14 +80,16 @@ export class PaymentRepository {
         return payment;
     }
 
-    async updateStatus(filter: { reference: string }, status: Status) {
-        const payment = await this.em.findOne(Payment, filter);
+    async updateStatus(filter: { reference: string, status?: Status }, status: Status) {
+        const em = this.em.fork();
+
+        const payment = await em.findOne(Payment, filter);
 
         if (!payment) return null;
 
         wrap(payment).assign({ status });
 
-        await this.em.persistAndFlush(payment);
+        await em.persistAndFlush(payment);
 
         return payment;
     }
