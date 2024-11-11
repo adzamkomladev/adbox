@@ -89,6 +89,15 @@ export class PaymentsController {
     }
   }
 
+  @Get('callback/paystack')
+  @ApiOperation({ summary: 'Used to handle callback for paystack' })
+  @ApiOkResponse({ description: 'Paystack callback called' })
+  @ApiBadRequestResponse({ description: 'Paystack callback failed to be called' })
+  @ResponseMessage('Paystack callback called')
+  callbackPaystack() {
+    return "OK";
+  }
+
   @Auth()
   @Get('configs')
   @ApiOperation({ summary: 'Used to retrieve all payment configs' })

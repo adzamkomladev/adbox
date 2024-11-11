@@ -19,7 +19,7 @@ export class PaystackService {
             channels,
             email,
             reference,
-            // callback_url: this.config.get('paystack.callbackUrl')
+            callback_url: this.config.get('paystack.callbackUrl')
         };
 
         const { status, authorizationUrl, accessCode } = await firstValueFrom(
