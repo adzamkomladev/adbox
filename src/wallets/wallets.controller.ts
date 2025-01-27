@@ -20,6 +20,7 @@ import { FundWalletDto } from './dto/fund-wallet.dto';
 import { GetAllTransactionsQueryDto } from './dto/get-transactions.dto';
 
 import { WalletsService } from './wallets.service';
+import { FundWalletAlternativeDto } from './dto/fund-wallet-alternative.dto';
 
 @ApiTags('wallets')
 @Controller('wallets')
@@ -67,11 +68,32 @@ export class WalletsController {
   }
 
   @Auth()
-  @Post(':id/withdraw')
+  @Post(':id/withdraw/alternative')
   @ApiOkResponse()
   @ApiBadRequestResponse()
   @ResponseMessage('wallet withdrawal initiated')
   async withdrawWallet(
+    @User() user: AuthenticatedUser,
+    @Param('id') id: string,
+    @Body() body: FundWalletAlternativeDto,
+  ) {
+    try {
+      return await this.walletsService.fundWalletAlternative(id, user.id, body);
+    } catch (e) {
+      if (e instanceof HttpException) {
+        throw e;
+      }
+
+      throw new BadRequestException(e.message);
+    }
+  }
+
+  @Auth()
+  @Post(':id/withdraw')
+  @ApiOkResponse()
+  @ApiBadRequestResponse()
+  @ResponseMessage('wallet withdrawal initiated')
+  async withdrawWalletAlternative(
     @User() user: AuthenticatedUser,
     @Param('id') id: string,
     @Body() body: FundWalletDto,

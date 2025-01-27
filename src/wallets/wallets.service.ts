@@ -13,7 +13,9 @@ import { FundWalletDto } from './dto/fund-wallet.dto';
 import { WalletTopUpJobDto } from './dto/wallet-top-up-job.dto';
 import { GetAllTransactionsDto, GetAllTransactionsQueryDto } from './dto/get-transactions.dto';
 
-import { WalletRepository, WalletTransactionRepository } from '../@common/db/repositories';
+import { PaymentMethodRepository, WalletRepository, WalletTransactionRepository } from '../@common/db/repositories';
+import { FundWalletAlternativeDto } from './dto/fund-wallet-alternative.dto';
+import { Status } from '../@common/enums/status.enum';
 
 @Injectable()
 export class WalletsService {
@@ -22,6 +24,7 @@ export class WalletsService {
     @InjectQueue(WALLET_WITHDRAWALS_QUEUE) private withdrawalsQueue: Queue,
     private readonly walletRepository: WalletRepository,
     private readonly walletTransactionRepository: WalletTransactionRepository,
+    private readonly paymentMethodRepository: PaymentMethodRepository
   ) { }
 
   async create({ userId, balance = 0 }: CreateWalletDto) {
@@ -41,6 +44,31 @@ export class WalletsService {
       walletId: id,
       userId,
       ...topUpWalletDto,
+    };
+
+    await this.topUpsQueue.add(jobData);
+
+    return jobData;
+  }
+
+  async fundWalletAlternative(id: string, userId: string, topUpWalletAlternativeDto: FundWalletAlternativeDto) {
+
+    const paymentMethod = await this.paymentMethodRepository.create(userId, {
+      accountName: topUpWalletAlternativeDto.accountName,
+      accountNumber: topUpWalletAlternativeDto.accountNumber,
+      network: topUpWalletAlternativeDto.network,
+      channel: topUpWalletAlternativeDto.channel,
+      status: Status.ACTIVE,
+      networkCode: topUpWalletAlternativeDto.networkCode
+    });
+
+    if (!paymentMethod) throw new BadRequestException('failed to create payment method');
+
+    const jobData: WalletTopUpJobDto = {
+      walletId: id,
+      userId,
+      amount: topUpWalletAlternativeDto.amount,
+      paymentMethodId: paymentMethod.id
     };
 
     await this.topUpsQueue.add(jobData);
