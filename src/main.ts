@@ -6,7 +6,7 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 // import { JsonLoggerService, RequestLogger } from 'json-logger-service';
 
 
-import tracer from "./tracer";
+// import tracer from "./tracer";
 
 import { AppModule } from './app.module';
 
@@ -15,14 +15,14 @@ import { OtlpLogger } from './@common/loggers/otlp.logger';
 
 async function bootstrap() {
 
-  await tracer.start();
+  // await tracer.start();
 
-  console.log('Tracing has started');
+  // console.log('Tracing has started');
 
   const app = await NestFactory.create(AppModule, {
     bufferLogs: true
   });
-  app.useLogger(app.get(OtlpLogger));
+  // app.useLogger(app.get(OtlpLogger));
   // app.use(RequestLogger.buildExpressRequestLogger());
 
 

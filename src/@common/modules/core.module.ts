@@ -2,12 +2,13 @@ import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { Global, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
-import { BullModule } from '@nestjs/bull';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
-import type { RedisClientOptions } from 'redis';
+import { BullModule } from '@nestjs/bullmq';
 
-const redisStore = require('cache-manager-redis-store');
+import { createKeyv } from '@keyv/redis';
+import { Keyv } from 'keyv';
+import { CacheableMemory } from 'cacheable';
 import { BullBoardModule } from '@bull-board/nestjs';
 import { ExpressAdapter } from '@bull-board/express';
 
@@ -38,9 +39,11 @@ import { CacheModule } from '@nestjs/cache-manager';
 
     BullModule.forRootAsync({
       useFactory: async (config: ConfigService) => ({
-        redis: {
+        connection: {
           host: config.get('redis.host'),
           port: config.get<number>('redis.port'),
+          username: config.get('redis.username'),
+          password: config.get('redis.password'),
         },
       }),
       inject: [ConfigService],
@@ -50,17 +53,18 @@ import { CacheModule } from '@nestjs/cache-manager';
       adapter: ExpressAdapter,
     }),
     EventEmitterModule.forRoot(),
-    CacheModule.registerAsync<RedisClientOptions>({
-      useFactory: async (config: ConfigService) => ({
-        isGlobal: true,
-        store: redisStore,
-
-        // Store-specific configuration:
-        host: config.get('redis.host'),
-        port: config.get<number>('redis.port'),
-      }),
+    CacheModule.registerAsync({
+      useFactory: async (config: ConfigService) => {
+        return {
+          stores: [
+            new Keyv({
+              store: new CacheableMemory({ ttl: 60000, lruSize: 5000 }),
+            }),
+            createKeyv(config.get('redis.url')),
+          ],
+        };
+      },
       inject: [ConfigService],
-
     }),
   ],
   providers: [
