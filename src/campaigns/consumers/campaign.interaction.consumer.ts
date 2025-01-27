@@ -1,9 +1,9 @@
 import { Logger } from '@nestjs/common';
-import { Process, Processor } from '@nestjs/bull';
+import { Processor, WorkerHost } from '@nestjs/bullmq';
 import { CreateRequestContext, MikroORM } from "@mikro-orm/core";
 
 import { EntityManager } from '@mikro-orm/postgresql';
-import { Job } from 'bull';
+import { Job } from 'bullmq';
 
 import { CAMPAIGN_INTERACTION_QUEUE } from '../constants/queues.constant';
 
@@ -16,18 +16,17 @@ import { CampaignInteractionJobDto } from '../dto/campaign.interaction.job.dto';
 import { CampaignGateway } from '../gateways/campaign.gateway';
 
 @Processor(CAMPAIGN_INTERACTION_QUEUE)
-export class CampaignInteractionConsumer {
+export class CampaignInteractionConsumer extends WorkerHost {
     private readonly logger = new Logger(CampaignInteractionConsumer.name);
 
     constructor(
         private readonly orm: MikroORM,
         private readonly em: EntityManager,
         private readonly campaignGateway: CampaignGateway
-    ) { }
+    ) { super(); }
 
-    @Process()
     @CreateRequestContext()
-    async handleCampaignInteraction(job: Job<CampaignInteractionJobDto>) {
+    async process(job: Job<CampaignInteractionJobDto>) {
         this.logger.log('Start campaign interaction...');
 
         const { campaignId } = job.data;

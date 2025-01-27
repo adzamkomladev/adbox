@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
-import { BullModule } from '@nestjs/bull';
+import { BullModule } from '@nestjs/bullmq';
 
 import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { BullBoardModule } from '@bull-board/nestjs';
-import { BullAdapter } from '@bull-board/api/bullAdapter';
+import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
 
 import { AuthModule } from '../auth/auth.module';
 import { UsersModule } from '../users/users.module';
@@ -35,11 +35,11 @@ import { WalletsController } from './wallets.controller';
     }),
     BullBoardModule.forFeature({
       name: WALLET_TOP_UPS_QUEUE,
-      adapter: BullAdapter,
+      adapter: BullMQAdapter,
     }),
     BullBoardModule.forFeature({
       name: WALLET_WITHDRAWALS_QUEUE,
-      adapter: BullAdapter,
+      adapter: BullMQAdapter,
     }),
     AuthModule,
     UsersModule,

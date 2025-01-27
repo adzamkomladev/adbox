@@ -1,10 +1,10 @@
 import { Logger } from '@nestjs/common';
-import { Process, Processor } from '@nestjs/bull';
+import { Processor, WorkerHost } from '@nestjs/bullmq';
 
 import { wrap } from '@mikro-orm/core';
 import { EntityManager, EntityRepository } from '@mikro-orm/postgresql';
 import { InjectRepository } from '@mikro-orm/nestjs';
-import { Job } from 'bull';
+import { Job } from 'bullmq';
 import { v4 as uuid } from 'uuid';
 
 import { ZeepayService } from '@adbox/zeepay';
@@ -24,7 +24,7 @@ import { PaymentMethodsService } from '@app/payments/services/payment-methods.se
 import { WalletRepository } from '../../@common/db/repositories';
 
 @Processor(WALLET_WITHDRAWALS_QUEUE)
-export class WalletWithdrawalConsumer {
+export class WalletWithdrawalConsumer extends WorkerHost {
     private readonly logger = new Logger(WalletWithdrawalConsumer.name);
 
     constructor(
@@ -34,10 +34,11 @@ export class WalletWithdrawalConsumer {
         private readonly walletTransactionRepository: EntityRepository<WalletTransaction>,
         private readonly walletRepository: WalletRepository,
         private readonly paymentMethodsService: PaymentMethodsService
-    ) { }
+    ) {
+        super();
+    }
 
-    @Process()
-    async handleWalletTopUp(job: Job<WalletTopUpJobDto>) {
+    async process(job: Job<WalletTopUpJobDto>) {
         this.logger.debug('Start withdrawals...');
         this.logger.debug(job.data);
 

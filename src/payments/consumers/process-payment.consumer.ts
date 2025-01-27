@@ -1,6 +1,6 @@
-import { Process, Processor } from '@nestjs/bull';
+import { Processor, WorkerHost } from '@nestjs/bullmq';
 
-import { Job } from 'bull';
+import { Job } from 'bullmq';
 
 import { PROCESS_PAYMENT_QUEUE } from '../constants/queues.constant';
 
@@ -16,16 +16,15 @@ import { OtlpLogger } from '@common/loggers/otlp.logger';
 import { PaymentRepository, WalletRepository } from '@common/db/repositories';
 
 @Processor(PROCESS_PAYMENT_QUEUE)
-export class ProcessPaymentConsumer {
+export class ProcessPaymentConsumer extends WorkerHost {
     private readonly logger = new OtlpLogger(ProcessPaymentConsumer.name);
 
     constructor(
         private readonly paymentRepository: PaymentRepository,
         private readonly walletRepository: WalletRepository
-    ) { }
+    ) { super(); }
 
-    @Process()
-    async handlePaymentProcessing(job: Job<ProcessPaymentDto>) {
+    async process(job: Job<ProcessPaymentDto>) {
         try {
             this.logger.log('Start payment process...');
 

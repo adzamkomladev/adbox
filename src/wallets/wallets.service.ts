@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { InjectQueue } from '@nestjs/bull';
+import { InjectQueue } from '@nestjs/bullmq';
 
-import { Queue } from 'bull';
+import { Queue } from 'bullmq';
 
 import { WALLET_TOP_UPS_QUEUE, WALLET_WITHDRAWALS_QUEUE } from './constants/queues.constant';
 
@@ -46,7 +46,7 @@ export class WalletsService {
       ...topUpWalletDto,
     };
 
-    await this.topUpsQueue.add(jobData);
+    await this.topUpsQueue.add(WALLET_TOP_UPS_QUEUE, jobData);
 
     return jobData;
   }
@@ -71,7 +71,7 @@ export class WalletsService {
       paymentMethodId: paymentMethod.id
     };
 
-    await this.topUpsQueue.add(jobData);
+    await this.topUpsQueue.add(WALLET_TOP_UPS_QUEUE, jobData);
 
     return jobData;
   }
@@ -87,7 +87,7 @@ export class WalletsService {
       ...topUpWalletDto,
     };
 
-    await this.withdrawalsQueue.add(jobData);
+    await this.withdrawalsQueue.add(WALLET_WITHDRAWALS_QUEUE, jobData);
 
     return jobData;
   }

@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
-import { InjectQueue } from '@nestjs/bull';
+import { InjectQueue } from '@nestjs/bullmq';
 
 
-import { Queue } from 'bull';
+import { Queue } from 'bullmq';
 import { PAYSTACK_WEBHOOK_RECEIVED } from '../../@common/constants/events.constant';
 import { PROCESS_PAYMENT_QUEUE } from '../constants/queues.constant';
 
@@ -24,7 +24,7 @@ export class PaystackWebhookReceivedListener {
         const { event: paystackEvent, data } = event;
 
         if (paystackEvent === 'charge.success') {
-            await this.processPaymentQueue.add({ reference: data.reference, status: data.status });
+            await this.processPaymentQueue.add(PROCESS_PAYMENT_QUEUE, { reference: data.reference, status: data.status });
             return;
         }
     }

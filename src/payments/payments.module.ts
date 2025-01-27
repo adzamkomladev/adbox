@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
-import { BullModule } from '@nestjs/bull';
+import { BullModule } from '@nestjs/bullmq';
 
 import { BullBoardModule } from '@bull-board/nestjs';
-import { BullAdapter } from '@bull-board/api/bullAdapter';
+import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
 
 import { ZeepayModule } from '@adbox/zeepay';
 import { JunipayModule } from '@adbox/junipay';
@@ -37,7 +37,7 @@ import { PaymentsController } from './payments.controller';
     }),
     BullBoardModule.forFeature({
       name: PROCESS_PAYMENT_QUEUE,
-      adapter: BullAdapter,
+      adapter: BullMQAdapter,
     }),
   ],
   controllers: [PaymentsController],

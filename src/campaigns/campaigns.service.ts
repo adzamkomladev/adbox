@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
-import { InjectQueue } from '@nestjs/bull';
+import { InjectQueue } from '@nestjs/bullmq';
 
-import { Queue } from 'bull';
+import { Queue } from 'bullmq';
 
 import { CAMPAIGN_INTERACTION_QUEUE } from './constants/queues.constant';
 
@@ -95,7 +95,7 @@ export class CampaignsService {
 
     const { campaign, interaction } = res;
 
-    await this.campaignInteractionQueue.add({ campaignId: campaign.id });
+    await this.campaignInteractionQueue.add(CAMPAIGN_INTERACTION_QUEUE, { campaignId: campaign.id });
 
     return interaction;
   }

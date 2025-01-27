@@ -2,8 +2,9 @@ import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { CacheModule } from '@nestjs/cache-manager';
 
-import type { RedisClientOptions } from 'redis';
-import * as redisStore from 'cache-manager-redis-store';
+import { createKeyv } from '@keyv/redis';
+import { Keyv } from 'keyv';
+import { CacheableMemory } from 'cacheable';
 
 import { ArkeselModule } from '@adbox/arkesel';
 
@@ -11,13 +12,17 @@ import { OtpService } from './services/otp.service';
 
 @Module({
   imports: [
-    CacheModule.registerAsync<RedisClientOptions>({
-      useFactory: async (config: ConfigService) =>
-      ({
-        isGlobal: true,
-        store: redisStore.redisStore as any,
-        url: config.get('redis.url'),
-      } as RedisClientOptions),
+    CacheModule.registerAsync({
+      useFactory: async (config: ConfigService) => {
+        return {
+          stores: [
+            new Keyv({
+              store: new CacheableMemory({ ttl: 60000, lruSize: 5000 }),
+            }),
+            createKeyv(config.get('redis.url')),
+          ],
+        };
+      },
       inject: [ConfigService],
     }),
     ArkeselModule
