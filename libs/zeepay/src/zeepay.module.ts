@@ -3,8 +3,9 @@ import { HttpModule } from '@nestjs/axios';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { CacheModule } from '@nestjs/cache-manager';
 
-import { RedisClientOptions } from 'redis';
-const redisStore = require('cache-manager-redis-store').redisStore;
+import { createKeyv } from '@keyv/redis';
+import { Keyv } from 'keyv';
+import { CacheableMemory } from 'cacheable';
 
 import zeepayConfig from './configs/zeepay.config';
 import redisConfig from './configs/redis.config';
@@ -17,12 +18,17 @@ import { ZeepayService } from './zeepay.service';
       load: [zeepayConfig, redisConfig],
       isGlobal: true,
     }),
-    CacheModule.registerAsync<RedisClientOptions>({
-      useFactory: async (config: ConfigService) =>
-      ({
-        store: redisStore as any,
-        url: config.get('redis.url'),
-      } as RedisClientOptions),
+    CacheModule.registerAsync({
+      useFactory: async (config: ConfigService) => {
+        return {
+          stores: [
+            new Keyv({
+              store: new CacheableMemory({ ttl: 60000, lruSize: 5000 }),
+            }),
+            createKeyv(config.get('redis.url')),
+          ],
+        };
+      },
       inject: [ConfigService],
     }),
     HttpModule.registerAsync({
